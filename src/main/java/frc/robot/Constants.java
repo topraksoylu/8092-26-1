@@ -58,6 +58,23 @@ public final class Constants {
         
     }
 
+    public static final class DriveControlConstants {
+        // Teleop control tuning for 4-wheel mecanum drive
+        public static final double DEADBAND = 0.05;
+        public static final double TRANSLATION_SCALE = 0.90;
+        public static final double ROTATION_SCALE = 0.75;
+        public static final double TRANSLATION_SLEW_RATE = 3.5; // units/sec
+        public static final double ROTATION_SLEW_RATE = 4.0; // units/sec
+    }
+
+    public static final class NavXTestConstants {
+        public static final double TEST_TURN_OUTPUT = 0.20;
+        public static final double TURN_PHASE_TIMEOUT_SEC = 1.5;
+        public static final double MIN_EXPECTED_DELTA_DEG = 10.0;
+        public static final double MAX_ABS_YAW_JUMP_DEG = 120.0;
+        public static final long ZERO_SETTLE_MS = 250;
+    }
+
     public static final class ModuleConstants {
         // Intake constants
         public static final double INTAKE_SPEED = 0.8;
@@ -82,8 +99,8 @@ public final class Constants {
         public static final int OPERATOR_CONTROLLER_PORT = 1;
 
         // Driver axes (Driver Station USB tab order)
-        public static final int DRIVER_X_AXIS = 0;
-        public static final int DRIVER_Y_AXIS = 1;
+        public static final int DRIVER_X_AXIS = 1;
+        public static final int DRIVER_Y_AXIS = 0;
         public static final int DRIVER_Z_AXIS = 2;
 
         // Driver buttons (DualShock 4 / CUH-ZCT2U mapping in WPILib)

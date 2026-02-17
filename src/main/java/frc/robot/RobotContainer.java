@@ -68,6 +68,14 @@ public class RobotContainer {
   SmartDashboard.putBoolean("MotorTest/RearLeft", false);
   SmartDashboard.putBoolean("MotorTest/RearRight", false);
 
+  // Manual NavX yaw validation controls/status
+  SmartDashboard.putBoolean("NavXTest/Run", false);
+  SmartDashboard.putString("NavXTest/Status", "IDLE");
+  SmartDashboard.putString("NavXTest/ErrorCode", "OK");
+  SmartDashboard.putNumber("NavXTest/LastYawStartDeg", 0.0);
+  SmartDashboard.putNumber("NavXTest/LastYawEndDeg", 0.0);
+  SmartDashboard.putNumber("NavXTest/DeltaDeg", 0.0);
+
   }
 
   private void configureBindings() {
