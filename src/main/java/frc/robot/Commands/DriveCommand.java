@@ -6,7 +6,10 @@ package frc.robot.Commands;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.DriveControlConstants;
 import frc.robot.Subsystems.DriveSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -15,6 +18,9 @@ public class DriveCommand extends Command {
   private final DoubleSupplier ySpeed;
   private final DoubleSupplier xSpeed;
   private final DoubleSupplier zRotation;
+  private final SlewRateLimiter yLimiter = new SlewRateLimiter(DriveControlConstants.TRANSLATION_SLEW_RATE);
+  private final SlewRateLimiter xLimiter = new SlewRateLimiter(DriveControlConstants.TRANSLATION_SLEW_RATE);
+  private final SlewRateLimiter zLimiter = new SlewRateLimiter(DriveControlConstants.ROTATION_SLEW_RATE);
 
 
   public DriveCommand(DoubleSupplier ySpeed, DoubleSupplier xSpeed, DoubleSupplier zRotation, DriveSubsystem driveSubsystem) {
@@ -33,17 +39,25 @@ public class DriveCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // Logitech joystickte ileri itiş genelde negatif Y döner; ileri = pozitif sürüşe çevir.
+    // Forward should be Y axis negative on this setup.
     double y = -ySpeed.getAsDouble();
     double x = xSpeed.getAsDouble();
     double z = zRotation.getAsDouble();
 
-    // Deadband to prevent joystick drift
-    if (Math.abs(y) < 0.05) y = 0;
-    if (Math.abs(x) < 0.05) x = 0;
-    if (Math.abs(z) < 0.05) z = 0;
+    y = MathUtil.applyDeadband(y, DriveControlConstants.DEADBAND);
+    x = MathUtil.applyDeadband(x, DriveControlConstants.DEADBAND);
+    z = MathUtil.applyDeadband(z, DriveControlConstants.DEADBAND);
 
-    driveSubsystem.driveFieldOriented(y, x, z);
+    // Input shaping gives finer low-speed control without losing top-end command.
+    y = Math.copySign(y * y, y) * DriveControlConstants.TRANSLATION_SCALE;
+    x = Math.copySign(x * x, x) * DriveControlConstants.TRANSLATION_SCALE;
+    z = Math.copySign(z * z, z) * DriveControlConstants.ROTATION_SCALE;
+
+    double yCommand = yLimiter.calculate(y);
+    double xCommand = xLimiter.calculate(x);
+    double zCommand = zLimiter.calculate(z);
+
+    driveSubsystem.driveFieldOriented(yCommand, xCommand, zCommand);
   }
 
   // Called once the command ends or is interrupted.

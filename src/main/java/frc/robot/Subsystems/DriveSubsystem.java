@@ -24,6 +24,7 @@ import edu.wpi.first.math.kinematics.MecanumDriveKinematics;
 import edu.wpi.first.math.kinematics.MecanumDriveOdometry;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelPositions;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelSpeeds;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -32,9 +33,19 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.MotorConstants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.NavXTestConstants;
 import frc.robot.FieldConstants;
 
 public class DriveSubsystem extends SubsystemBase {
+  private enum NavXValidationState {
+    IDLE,
+    ZEROING,
+    TURN_CW,
+    TURN_CCW,
+    DONE_PASS,
+    DONE_FAIL
+  }
+
   private MecanumDrive mecanumDrive;
 
   private SparkMax rearLeftMotor;
@@ -50,6 +61,18 @@ public class DriveSubsystem extends SubsystemBase {
   private MecanumDriveOdometry odometry;
 
   private Field2d field;
+  private NavXValidationState navXValidationState = NavXValidationState.IDLE;
+  private boolean navXRunRequestedFromApi = false;
+  private boolean navXRunDashboardPrevious = false;
+  private double navXPhaseStartYawDeg = 0.0;
+  private double navXPhaseEndYawDeg = 0.0;
+  private double navXPhaseDeltaDeg = 0.0;
+  private double navXCwDeltaDeg = 0.0;
+  private double navXCcwDeltaDeg = 0.0;
+  private double navXPhaseStartTimeSec = 0.0;
+  private long navXZeroSettleEndMs = 0;
+  private String navXValidationStatus = "IDLE";
+  private String navXValidationErrorCode = "OK";
 
   // No-op: motor-test controls handled in periodic via SmartDashboard toggles
 
@@ -176,8 +199,201 @@ public class DriveSubsystem extends SubsystemBase {
     if (rearRightMotor != null) rearRightMotor.set(0);
   }
 
+  public void requestNavXYawValidation() {
+    navXRunRequestedFromApi = true;
+    SmartDashboard.putBoolean("NavXTest/Run", true);
+  }
+
+  public boolean isNavXValidationRunning() {
+    return navXValidationState != NavXValidationState.IDLE
+        && navXValidationState != NavXValidationState.DONE_PASS
+        && navXValidationState != NavXValidationState.DONE_FAIL;
+  }
+
+  public String getNavXValidationStatus() {
+    return navXValidationStatus;
+  }
+
+  public String getNavXValidationErrorCode() {
+    return navXValidationErrorCode;
+  }
+
+  private void updateNavXDashboard() {
+    SmartDashboard.putString("NavXTest/Status", navXValidationStatus);
+    SmartDashboard.putString("NavXTest/ErrorCode", navXValidationErrorCode);
+    SmartDashboard.putNumber("NavXTest/LastYawStartDeg", navXPhaseStartYawDeg);
+    SmartDashboard.putNumber("NavXTest/LastYawEndDeg", navXPhaseEndYawDeg);
+    SmartDashboard.putNumber("NavXTest/DeltaDeg", navXPhaseDeltaDeg);
+  }
+
+  private static double nowSec() {
+    return System.currentTimeMillis() / 1000.0;
+  }
+
+  private static long nowMs() {
+    return System.currentTimeMillis();
+  }
+
+  private static double wrapDeltaDegrees(double startDeg, double endDeg) {
+    return MathUtil.inputModulus(endDeg - startDeg, -180.0, 180.0);
+  }
+
+  private double getCurrentYawDeg() {
+    if (RobotBase.isReal() && navx != null) {
+      return navx.getYaw();
+    }
+    return simulatedHeading;
+  }
+
+  private boolean isNavXValid() {
+    if (RobotBase.isReal()) {
+      return navx != null && navx.isConnected() && Double.isFinite(navx.getYaw());
+    }
+    return false;
+  }
+
+  private void startNavXValidation() {
+    if (!DriverStation.isDisabled()) {
+      failNavXValidation("NAVX_E006", "NavX test must be triggered while disabled");
+      return;
+    }
+    if (!isNavXValid()) {
+      failNavXValidation("NAVX_E001", "NavX not connected or invalid reading");
+      return;
+    }
+
+    zeroHeading();
+    navXPhaseStartYawDeg = getCurrentYawDeg();
+    navXPhaseEndYawDeg = navXPhaseStartYawDeg;
+    navXPhaseDeltaDeg = 0.0;
+    navXCwDeltaDeg = 0.0;
+    navXCcwDeltaDeg = 0.0;
+    navXZeroSettleEndMs = nowMs() + NavXTestConstants.ZERO_SETTLE_MS;
+    navXValidationStatus = "ZEROING";
+    navXValidationErrorCode = "OK";
+    navXValidationState = NavXValidationState.ZEROING;
+    updateNavXDashboard();
+  }
+
+  private void startTurnPhase(NavXValidationState state) {
+    navXPhaseStartYawDeg = getCurrentYawDeg();
+    navXPhaseEndYawDeg = navXPhaseStartYawDeg;
+    navXPhaseDeltaDeg = 0.0;
+    navXPhaseStartTimeSec = nowSec();
+    navXValidationState = state;
+    navXValidationStatus = state == NavXValidationState.TURN_CW ? "TURN_CW" : "TURN_CCW";
+    updateNavXDashboard();
+  }
+
+  private void passNavXValidation() {
+    stopAllMotors();
+    navXValidationState = NavXValidationState.DONE_PASS;
+    navXValidationStatus = "PASS";
+    navXValidationErrorCode = "OK";
+    SmartDashboard.putBoolean("NavXTest/Run", false);
+    updateNavXDashboard();
+    DriverStation.reportWarning(
+        String.format("NavX yaw validation PASS (deltaCW=%.2f, deltaCCW=%.2f)", navXCwDeltaDeg, navXCcwDeltaDeg),
+        false);
+  }
+
+  private void failNavXValidation(String errorCode, String message) {
+    stopAllMotors();
+    navXValidationState = NavXValidationState.DONE_FAIL;
+    navXValidationStatus = "FAIL";
+    navXValidationErrorCode = errorCode;
+    SmartDashboard.putBoolean("NavXTest/Run", false);
+    updateNavXDashboard();
+    DriverStation.reportError(String.format("NavX yaw validation FAIL [%s] %s", errorCode, message), false);
+  }
+
+  private void runNavXValidationStateMachine() {
+    double yawNow = getCurrentYawDeg();
+
+    switch (navXValidationState) {
+      case IDLE:
+      case DONE_PASS:
+      case DONE_FAIL:
+        return;
+      case ZEROING:
+        if (!isNavXValid()) {
+          failNavXValidation("NAVX_E001", "NavX lost connection during zeroing");
+          return;
+        }
+        if (nowMs() >= navXZeroSettleEndMs) {
+          startTurnPhase(NavXValidationState.TURN_CW);
+        }
+        return;
+      case TURN_CW:
+      case TURN_CCW:
+        if (!isNavXValid()) {
+          failNavXValidation("NAVX_E001", "NavX lost connection during turn phase");
+          return;
+        }
+
+        double rotationCmd = navXValidationState == NavXValidationState.TURN_CW
+            ? -NavXTestConstants.TEST_TURN_OUTPUT
+            : NavXTestConstants.TEST_TURN_OUTPUT;
+        drive(0.0, 0.0, rotationCmd);
+
+        navXPhaseEndYawDeg = yawNow;
+        navXPhaseDeltaDeg = wrapDeltaDegrees(navXPhaseStartYawDeg, navXPhaseEndYawDeg);
+        updateNavXDashboard();
+
+        if (Math.abs(navXPhaseDeltaDeg) > NavXTestConstants.MAX_ABS_YAW_JUMP_DEG) {
+          failNavXValidation("NAVX_E007", "Yaw jump/outlier detected");
+          return;
+        }
+        if (nowSec() - navXPhaseStartTimeSec > NavXTestConstants.TURN_PHASE_TIMEOUT_SEC) {
+          if (Math.abs(navXPhaseDeltaDeg) < NavXTestConstants.MIN_EXPECTED_DELTA_DEG) {
+            failNavXValidation("NAVX_E004", "Yaw delta too small");
+          } else {
+            failNavXValidation("NAVX_E005", "Turn phase timeout");
+          }
+          return;
+        }
+        if (Math.abs(navXPhaseDeltaDeg) < NavXTestConstants.MIN_EXPECTED_DELTA_DEG) {
+          return;
+        }
+
+        if (navXValidationState == NavXValidationState.TURN_CW) {
+          if (navXPhaseDeltaDeg >= 0.0) {
+            failNavXValidation("NAVX_E002", "CW sign mismatch");
+            return;
+          }
+          navXCwDeltaDeg = navXPhaseDeltaDeg;
+          stopAllMotors();
+          startTurnPhase(NavXValidationState.TURN_CCW);
+        } else {
+          if (navXPhaseDeltaDeg <= 0.0) {
+            failNavXValidation("NAVX_E003", "CCW sign mismatch");
+            return;
+          }
+          navXCcwDeltaDeg = navXPhaseDeltaDeg;
+          passNavXValidation();
+        }
+        return;
+      default:
+        return;
+    }
+  }
+
+  private void handleNavXValidationTrigger() {
+    boolean dashboardRun = SmartDashboard.getBoolean("NavXTest/Run", false);
+    boolean runRequested = navXRunRequestedFromApi || (dashboardRun && !navXRunDashboardPrevious);
+    navXRunDashboardPrevious = dashboardRun;
+    navXRunRequestedFromApi = false;
+
+    if (runRequested && !isNavXValidationRunning()) {
+      startNavXValidation();
+    }
+  }
+
     @Override
     public void periodic() {
+        handleNavXValidationTrigger();
+        runNavXValidationStateMachine();
+
         // Only update odometry in autonomous mode to prevent drift issues in teleop
         if (DriverStation.isAutonomous()) {
             if (RobotBase.isReal()) {
@@ -220,7 +436,7 @@ public class DriveSubsystem extends SubsystemBase {
   boolean rrToggle = SmartDashboard.getBoolean("MotorTest/RearRight", false);
 
   // Only allow manual motor test outputs while robot is disabled (safe bench testing)
-  if (DriverStation.isDisabled()) {
+  if (DriverStation.isDisabled() && !isNavXValidationRunning()) {
     if (flToggle) {
       testSetFrontLeft(0.2);
     } else {
