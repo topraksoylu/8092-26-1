@@ -9,6 +9,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -42,7 +43,7 @@ public class RobotContainer {
   private TurretSubsystem turretSubsystem = new TurretSubsystem();
   private VisionSubsystem visionSubsystem = new VisionSubsystem();
 
-  private Joystick driverJoystick = new Joystick(OIConstants.DRIVER_CONTROLLER_PORT);
+  private PS4Controller driverController = new PS4Controller(OIConstants.DRIVER_CONTROLLER_PORT);
   private Joystick operatorJoystick = new Joystick(OIConstants.OPERATOR_CONTROLLER_PORT);
 
   private SendableChooser<Command> autoChooser;
@@ -51,9 +52,9 @@ public class RobotContainer {
     configureBindings();
     driveSubsystem.setDefaultCommand(
         new DriveCommand(
-            () -> driverJoystick.getY(),
-            () -> driverJoystick.getX(),
-            () -> driverJoystick.getZ(),
+            () -> driverController.getLeftY(),
+            () -> driverController.getLeftX(),
+            () -> driverController.getRightX(),
             driveSubsystem
         )
     );
@@ -71,13 +72,13 @@ public class RobotContainer {
 
   private void configureBindings() {
     // Driver controls
-    new JoystickButton(driverJoystick, OIConstants.INTAKE_BUTTON)
+    new JoystickButton(driverController, OIConstants.INTAKE_BUTTON)
         .whileTrue(new IntakeCommand(intakeSubsystem));
 
-    new JoystickButton(driverJoystick, OIConstants.ALIGN_BUTTON)
+    new JoystickButton(driverController, OIConstants.ALIGN_BUTTON)
         .whileTrue(new AlignToTargetCommand(driveSubsystem, turretSubsystem, visionSubsystem));
 
-    new JoystickButton(driverJoystick, OIConstants.TURRET_TRACK_BUTTON)
+    new JoystickButton(driverController, OIConstants.TURRET_TRACK_BUTTON)
         .whileTrue(new TurretTrackCommand(turretSubsystem, visionSubsystem));
 
     // Operator controls

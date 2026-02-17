@@ -130,6 +130,10 @@ public class DriveSubsystem extends SubsystemBase {
     mecanumDrive.driveCartesian(xSpeed, ySpeed, zRotation, gyroAngle);
   }
 
+  public void driveFieldOriented(double ySpeed, double xSpeed, double zRotation) {
+    mecanumDrive.driveCartesian(xSpeed, ySpeed, zRotation, getHeading());
+  }
+
   public void driveRobotRelative(ChassisSpeeds speeds) {
     MecanumDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(speeds);
     wheelSpeeds.desaturate(DriveConstants.MAX_SPEED_METERS_PER_SECOND);
@@ -201,6 +205,7 @@ public class DriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Robot X", getPose().getX());
         SmartDashboard.putNumber("Robot Y", getPose().getY());
         SmartDashboard.putNumber("Robot Heading", getHeading().getDegrees());
+        SmartDashboard.putBoolean("Drive/FieldOrientedEnabled", true);
 
   // Publish motor outputs for debugging (if using speed-based control)
   SmartDashboard.putNumber("Drive/FrontLeftOutput", frontLeftMotor != null ? frontLeftMotor.get() : 0.0);

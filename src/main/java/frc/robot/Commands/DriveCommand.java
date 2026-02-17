@@ -33,7 +33,8 @@ public class DriveCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double y = ySpeed.getAsDouble();
+    // Logitech joystickte ileri itiş genelde negatif Y döner; ileri = pozitif sürüşe çevir.
+    double y = -ySpeed.getAsDouble();
     double x = xSpeed.getAsDouble();
     double z = zRotation.getAsDouble();
 
@@ -42,7 +43,7 @@ public class DriveCommand extends Command {
     if (Math.abs(x) < 0.05) x = 0;
     if (Math.abs(z) < 0.05) z = 0;
 
-    driveSubsystem.drive(y, x, z);
+    driveSubsystem.driveFieldOriented(y, x, z);
   }
 
   // Called once the command ends or is interrupted.

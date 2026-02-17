@@ -81,12 +81,12 @@ public final class Constants {
         public static final int DRIVER_CONTROLLER_PORT = 0;
         public static final int OPERATOR_CONTROLLER_PORT = 1;
 
-        // Driver buttons
-        public static final int INTAKE_BUTTON = 12; // R1
-        public static final int ALIGN_BUTTON = 1; // A button
-        public static final int TURRET_TRACK_BUTTON = 2; // B button
+        // Driver buttons (DualShock 4 / CUH-ZCT2U mapping in WPILib)
+        public static final int INTAKE_BUTTON = 6; // R1
+        public static final int ALIGN_BUTTON = 2; // Cross (X)
+        public static final int TURRET_TRACK_BUTTON = 3; // Circle
 
         // Operator buttons
-        public static final int SHOOT_BUTTON = 1; // A button on operator controller
+        public static final int SHOOT_BUTTON = 1;
     }
 }
