@@ -52,9 +52,9 @@ public class RobotContainer {
     configureBindings();
     driveSubsystem.setDefaultCommand(
         new DriveCommand(
-            () -> driverController.getLeftY(),
-            () -> driverController.getLeftX(),
-            () -> driverController.getRightX(),
+            () -> driverController.getRawAxis(OIConstants.DRIVER_Y_AXIS),
+            () -> driverController.getRawAxis(OIConstants.DRIVER_X_AXIS),
+            () -> driverController.getRawAxis(OIConstants.DRIVER_Z_AXIS),
             driveSubsystem
         )
     );

@@ -81,6 +81,11 @@ public final class Constants {
         public static final int DRIVER_CONTROLLER_PORT = 0;
         public static final int OPERATOR_CONTROLLER_PORT = 1;
 
+        // Driver axes (Driver Station USB tab order)
+        public static final int DRIVER_X_AXIS = 0;
+        public static final int DRIVER_Y_AXIS = 1;
+        public static final int DRIVER_Z_AXIS = 2;
+
         // Driver buttons (DualShock 4 / CUH-ZCT2U mapping in WPILib)
         public static final int INTAKE_BUTTON = 6; // R1
         public static final int ALIGN_BUTTON = 2; // Cross (X)
