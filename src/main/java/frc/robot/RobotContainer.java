@@ -7,50 +7,27 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Subsystems.DriveSubsystem;
-import frc.robot.Subsystems.IntakeSubsystem;
-import frc.robot.Subsystems.ShooterSubsystem;
-import frc.robot.Subsystems.TurretSubsystem;
-import frc.robot.Subsystems.VisionSubsystem;
 import frc.robot.Commands.DriveCommand;
-import frc.robot.Commands.IntakeCommand;
-import frc.robot.Commands.ShootCommand;
-import frc.robot.Commands.TurretTrackCommand;
-import frc.robot.Commands.AlignToTargetCommand;
-import frc.robot.Commands.MotorTestCommand;
-import frc.robot.Commands.TestModes.SingleMotorTest;
-import frc.robot.Commands.TestModes.ForwardDriveTest;
-import frc.robot.Commands.TestModes.TurnRightTest;
-import frc.robot.Commands.TestModes.TurnLeftTest;
-import frc.robot.Commands.TestModes.StrafeRightTest;
-import frc.robot.Commands.TestModes.JoystickAxisTest;
 import frc.robot.Constants.*;
 
 public class RobotContainer {
-  // Pass motor IDs in the order expected by the DriveSubsystem constructor:
-  // frontLeft, frontRight, rearLeft, rearRight
   private DriveSubsystem driveSubsystem = new DriveSubsystem(
-    MotorConstants.FRONT_LEFT_MOTOR_ID,
-    MotorConstants.FRONT_RIGHT_MOTOR_ID,
-    MotorConstants.REAR_LEFT_MOTOR_ID,
-    MotorConstants.REAR_RIGHT_MOTOR_ID,
-    new Pose2d()
+      MotorConstants.REAR_LEFT_MOTOR_ID,
+      MotorConstants.FRONT_LEFT_MOTOR_ID,
+      MotorConstants.REAR_RIGHT_MOTOR_ID,
+      MotorConstants.FRONT_RIGHT_MOTOR_ID,
+      new Pose2d()
   );
 
-  private IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-  private ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
-  private TurretSubsystem turretSubsystem = new TurretSubsystem();
-  private VisionSubsystem visionSubsystem = new VisionSubsystem();
-
-  private PS4Controller driverController = new PS4Controller(OIConstants.DRIVER_CONTROLLER_PORT);
-  private Joystick operatorJoystick = new Joystick(OIConstants.OPERATOR_CONTROLLER_PORT);
+  private Joystick driverJoystick = new Joystick(0);
 
   private SendableChooser<Command> autoChooser;
 
@@ -58,9 +35,9 @@ public class RobotContainer {
     configureBindings();
     driveSubsystem.setDefaultCommand(
         new DriveCommand(
-            () -> driverController.getRawAxis(OIConstants.DRIVER_Y_AXIS),
-            () -> driverController.getRawAxis(OIConstants.DRIVER_X_AXIS),
-            () -> driverController.getRawAxis(OIConstants.DRIVER_Z_AXIS),
+            () -> driverJoystick.getY(),
+            () -> driverJoystick.getX(),
+            () -> driverJoystick.getZ(),
             driveSubsystem
         )
     );
@@ -68,74 +45,24 @@ public class RobotContainer {
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
-  // Add simple toggles on SmartDashboard so you can trigger motor tests.
-  SmartDashboard.putBoolean("MotorTest/FrontLeft", false);
-  SmartDashboard.putBoolean("MotorTest/FrontRight", false);
-  SmartDashboard.putBoolean("MotorTest/RearLeft", false);
-  SmartDashboard.putBoolean("MotorTest/RearRight", false);
-
-  // Manual NavX yaw validation controls/status
-  SmartDashboard.putBoolean("NavXTest/Run", false);
-  SmartDashboard.putString("NavXTest/Status", "IDLE");
-  SmartDashboard.putString("NavXTest/ErrorCode", "OK");
-  SmartDashboard.putNumber("NavXTest/LastYawStartDeg", 0.0);
-  SmartDashboard.putNumber("NavXTest/LastYawEndDeg", 0.0);
-  SmartDashboard.putNumber("NavXTest/DeltaDeg", 0.0);
-
-  // === MOTOR TEST KOMUTLARI (Teleop modda çalışır) ===
-  // SmartDashboard'dan tetiklenebilir testler
-  SmartDashboard.putData("Test/Front Left Motor", new SingleMotorTest(driveSubsystem, MotorConstants.FRONT_LEFT_MOTOR_ID, 0.3));
-  SmartDashboard.putData("Test/Front Right Motor", new SingleMotorTest(driveSubsystem, MotorConstants.FRONT_RIGHT_MOTOR_ID, 0.3));
-  SmartDashboard.putData("Test/Rear Left Motor", new SingleMotorTest(driveSubsystem, MotorConstants.REAR_LEFT_MOTOR_ID, 0.3));
-  SmartDashboard.putData("Test/Rear Right Motor", new SingleMotorTest(driveSubsystem, MotorConstants.REAR_RIGHT_MOTOR_ID, 0.3));
-
-  SmartDashboard.putData("Test/Forward Drive", new ForwardDriveTest(driveSubsystem, 0.3));
-  SmartDashboard.putData("Test/Turn Right", new TurnRightTest(driveSubsystem, 0.3));
-  SmartDashboard.putData("Test/Turn Left", new TurnLeftTest(driveSubsystem, 0.3));
-  SmartDashboard.putData("Test/Strafe Right", new StrafeRightTest(driveSubsystem, 0.3));
-
-  // Joystick eksen test komutu
-  SmartDashboard.putData("Test/Joystick Axes", new JoystickAxisTest(
-      () -> driverController.getRawAxis(OIConstants.DRIVER_Y_AXIS),
-      () -> driverController.getRawAxis(OIConstants.DRIVER_X_AXIS),
-      () -> driverController.getRawAxis(OIConstants.DRIVER_Z_AXIS)
-  ));
-
   }
 
   private void configureBindings() {
-    // Driver controls
-    new JoystickButton(driverController, OIConstants.INTAKE_BUTTON)
-        .whileTrue(new IntakeCommand(intakeSubsystem));
+    // Button 1: Run Front Left Motor (ID 1)
+    new JoystickButton(driverJoystick, 1)
+        .whileTrue(new RunCommand(() -> driveSubsystem.runFrontLeftMotor(0.3), driveSubsystem));
 
-    new JoystickButton(driverController, OIConstants.ALIGN_BUTTON)
-        .whileTrue(new AlignToTargetCommand(driveSubsystem, turretSubsystem, visionSubsystem));
+    // Button 2: Run Rear Left Motor (ID 4)
+    new JoystickButton(driverJoystick, 2)
+        .whileTrue(new RunCommand(() -> driveSubsystem.runRearLeftMotor(0.3), driveSubsystem));
 
-    new JoystickButton(driverController, OIConstants.TURRET_TRACK_BUTTON)
-        .whileTrue(new TurretTrackCommand(turretSubsystem, visionSubsystem));
+    // Button 3: Run Rear Right Motor (ID 2) - inverted in hardware
+    new JoystickButton(driverJoystick, 3)
+        .whileTrue(new RunCommand(() -> driveSubsystem.runRearRightMotor(0.3), driveSubsystem));
 
-    // === TEST BUTONLARI (Teleop modda çalışır) ===
-    // Share tuşu: İleri sürüş testi
-    new JoystickButton(driverController, OIConstants.TEST_FORWARD_BUTTON)
-        .whileTrue(new ForwardDriveTest(driveSubsystem, 0.3));
-
-    // R2: Sağ dönüş testi
-    new JoystickButton(driverController, OIConstants.TEST_TURN_RIGHT_BUTTON)
-        .whileTrue(new TurnRightTest(driveSubsystem, 0.3));
-
-    // L2: Sol dönüş testi
-    new JoystickButton(driverController, OIConstants.TEST_TURN_LEFT_BUTTON)
-        .whileTrue(new TurnLeftTest(driveSubsystem, 0.3));
-
-    // Triangle: Sağa kayma testi
-    new JoystickButton(driverController, OIConstants.TEST_STRAFE_BUTTON)
-        .whileTrue(new StrafeRightTest(driveSubsystem, 0.3));
-
-    // Operator controls
-    if (DriverStation.isJoystickConnected(OIConstants.OPERATOR_CONTROLLER_PORT)) {
-      new JoystickButton(operatorJoystick, OIConstants.SHOOT_BUTTON)
-          .whileTrue(new ShootCommand(shooterSubsystem, 2.0)); // Shoot for 2 seconds
-    }
+    // Button 4: Run Front Right Motor (ID 3) - inverted in hardware
+    new JoystickButton(driverJoystick, 4)
+        .whileTrue(new RunCommand(() -> driveSubsystem.runFrontRightMotor(0.3), driveSubsystem));
   }
 
   public void resetSensors() {

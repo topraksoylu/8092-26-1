@@ -525,4 +525,21 @@ public class DriveSubsystem extends SubsystemBase {
     }
   }
 
+  // Run individual motors forward for testing
+  public void runFrontLeftMotor(double speed) {
+    frontLeftMotor.set(speed);
+  }
+
+  public void runFrontRightMotor(double speed) {
+    frontRightMotor.set(speed);
+  }
+
+  public void runRearLeftMotor(double speed) {
+    rearLeftMotor.set(speed);
+  }
+
+  public void runRearRightMotor(double speed) {
+    rearRightMotor.set(speed);
+  }
+
 }
