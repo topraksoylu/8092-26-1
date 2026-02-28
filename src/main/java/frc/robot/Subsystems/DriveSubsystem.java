@@ -82,12 +82,24 @@ public class DriveSubsystem extends SubsystemBase {
     frontLeftMotor = new SparkMax(frontLeftMotorID, MotorType.kBrushless);
     rearRightMotor = new SparkMax(rearRightMotorID, MotorType.kBrushless);
     frontRightMotor = new SparkMax(frontRightMotorID, MotorType.kBrushless);
-    
+
+    // Configure motors with smart current limiting for NEO V1.1
     SparkMaxConfig reversedConfig = new SparkMaxConfig();
     reversedConfig.inverted(true);
+    reversedConfig.smartCurrentLimit(
+        MotorConstants.DRIVE_MOTOR_STALL_CURRENT_LIMIT,
+        MotorConstants.DRIVE_MOTOR_FREE_CURRENT_LIMIT,
+        MotorConstants.DRIVE_MOTOR_CURRENT_LIMIT_THRESHOLD
+    );
+
     SparkMaxConfig nonReversedConfig = new SparkMaxConfig();
     nonReversedConfig.inverted(false);
-    
+    nonReversedConfig.smartCurrentLimit(
+        MotorConstants.DRIVE_MOTOR_STALL_CURRENT_LIMIT,
+        MotorConstants.DRIVE_MOTOR_FREE_CURRENT_LIMIT,
+        MotorConstants.DRIVE_MOTOR_CURRENT_LIMIT_THRESHOLD
+    );
+
     rearLeftMotor.configure(MotorConstants.REAR_LEFT_MOTOR_INVERTED ? reversedConfig : nonReversedConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
     frontLeftMotor.configure(MotorConstants.FRONT_LEFT_MOTOR_INVERTED ? reversedConfig : nonReversedConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
     rearRightMotor.configure(MotorConstants.REAR_RIGHT_MOTOR_INVERTED ? reversedConfig : nonReversedConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
@@ -540,6 +552,14 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void runRearRightMotor(double speed) {
     rearRightMotor.set(speed);
+  }
+
+  // Run all motors forward for testing
+  public void runAllMotors(double speed) {
+    frontLeftMotor.set(speed/16);
+    frontRightMotor.set(speed/16);
+    rearLeftMotor.set(speed/16);
+    rearRightMotor.set(speed/16);
   }
 
 }

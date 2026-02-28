@@ -49,15 +49,17 @@ public class DriveCommand extends Command {
     z = MathUtil.applyDeadband(z, DriveControlConstants.DEADBAND);
 
     // Input shaping gives finer low-speed control without losing top-end command.
+    // All axes use squared curve for smooth, precise control at low speeds
     y = Math.copySign(y * y, y) * DriveControlConstants.TRANSLATION_SCALE;
-    x = Math.copySign(x * x, x) * DriveControlConstants.TRANSLATION_SCALE;
+    x = Math.copySign(x * x, x) * DriveControlConstants.STRAFE_SCALE;
+    // Rotation also uses squared curve for smoother low-speed turning
     z = Math.copySign(z * z, z) * DriveControlConstants.ROTATION_SCALE;
 
     double yCommand = yLimiter.calculate(y);
     double xCommand = xLimiter.calculate(x);
     double zCommand = zLimiter.calculate(z);
 
-    driveSubsystem.driveFieldOriented(yCommand, xCommand, zCommand);
+    driveSubsystem.drive(yCommand, xCommand, zCommand);
   }
 
   // Called once the command ends or is interrupted.

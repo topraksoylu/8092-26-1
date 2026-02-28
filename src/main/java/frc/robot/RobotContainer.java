@@ -7,6 +7,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -37,20 +38,27 @@ public class RobotContainer {
         new DriveCommand(
             () -> driverJoystick.getY(),
             () -> driverJoystick.getX(),
-            () -> driverJoystick.getZ(),
+            () -> -driverJoystick.getZ(),
             driveSubsystem
         )
     );
-    
-    autoChooser = AutoBuilder.buildAutoChooser();
+
+    try {
+      autoChooser = AutoBuilder.buildAutoChooser();
+    } catch (Exception e) {
+      DriverStation.reportError("Failed to load PathPlanner autos: " + e.getMessage(), false);
+      autoChooser = new SendableChooser<>();
+      // Add a default "None" option
+      autoChooser.setDefaultOption("None", null);
+    }
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
   }
 
   private void configureBindings() {
-    // Button 1: Run Front Left Motor (ID 1)
+    // Button 1: Run all motors forward for testing
     new JoystickButton(driverJoystick, 1)
-        .whileTrue(new RunCommand(() -> driveSubsystem.runFrontLeftMotor(0.3), driveSubsystem));
+        .whileTrue(new RunCommand(() -> driveSubsystem.runAllMotors(0.3), driveSubsystem));
 
     // Button 2: Run Rear Left Motor (ID 4)
     new JoystickButton(driverJoystick, 2)
