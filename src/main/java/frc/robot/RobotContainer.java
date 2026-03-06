@@ -35,10 +35,10 @@ public class RobotContainer {
 
     // Pass vision subsystem to drive subsystem for pose estimation
     driveSubsystem = new DriveSubsystem(
-      MotorConstants.REAR_LEFT_MOTOR_ID,
       MotorConstants.FRONT_LEFT_MOTOR_ID,
-      MotorConstants.REAR_RIGHT_MOTOR_ID,
       MotorConstants.FRONT_RIGHT_MOTOR_ID,
+      MotorConstants.REAR_LEFT_MOTOR_ID,
+      MotorConstants.REAR_RIGHT_MOTOR_ID,
       new Pose2d(),
       visionSubsystem
     );
@@ -49,8 +49,8 @@ public class RobotContainer {
 
     driveSubsystem.setDefaultCommand(
         new DriveCommand(
-            () -> driverController.getRawAxis(OIConstants.DRIVER_Y_AXIS),
-            () -> driverController.getRawAxis(OIConstants.DRIVER_X_AXIS),
+            () -> driverController.getRawAxis(OIConstants.DRIVER_X_AXIS),  // Swap: X axis now for ySpeed
+            () -> driverController.getRawAxis(OIConstants.DRIVER_Y_AXIS),  // Swap: Y axis now for xSpeed
             () -> -driverController.getRawAxis(OIConstants.DRIVER_Z_AXIS),
             driveSubsystem
         )
@@ -110,15 +110,15 @@ public class RobotContainer {
     SmartDashboard.putBoolean("DriverStation/Button12-R3", button12);
 
     // Read all axis values (PS4 has 6 axes)
-    double axis0 = driverController.getRawAxis(0);  // Left Stick X
-    double axis1 = driverController.getRawAxis(1);  // Left Stick Y
+    double axis0 = driverController.getRawAxis(0);  // Left Stick X -> Now Y (forward/back)
+    double axis1 = driverController.getRawAxis(1);  // Left Stick Y -> Now X (strafe)
     double axis2 = driverController.getRawAxis(2);  // Left Trigger (L2)
     double axis3 = driverController.getRawAxis(3);  // Right Stick X
     double axis4 = driverController.getRawAxis(4);  // Right Stick Y
     double axis5 = driverController.getRawAxis(5);  // Right Trigger (R2)
 
-    SmartDashboard.putNumber("DriverStation/Axis0-LeftX", axis0);
-    SmartDashboard.putNumber("DriverStation/Axis1-LeftY", axis1);
+    SmartDashboard.putNumber("DriverStation/Axis0-LeftY", axis0);  // Now Y (forward/back)
+    SmartDashboard.putNumber("DriverStation/Axis1-LeftX", axis1);  // Now X (strafe)
     SmartDashboard.putNumber("DriverStation/Axis2-L2", axis2);
     SmartDashboard.putNumber("DriverStation/Axis3-RightX", axis3);
     SmartDashboard.putNumber("DriverStation/Axis4-RightY", axis4);
@@ -150,7 +150,7 @@ public class RobotContainer {
       SmartDashboard.putString("DriverStation/PressedButtons", "None");
     }
 
-    // Build axis display
+    // Build axis display (left stick: axis0=Y/forward, axis1=X/strafe after swap)
     String axisInfo = String.format("L:(%.2f,%.2f) R:(%.2f,%.2f) LT:%.2f RT:%.2f",
         axis0, axis1, axis3, axis4, axis2, axis5);
     SmartDashboard.putString("DriverStation/AxesInfo", axisInfo);
@@ -169,34 +169,34 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    // Button Square (1): Run all motors forward for testing
+    // Button Square (1): Run Front Left Motor (ID 2) - normal direction
     new JoystickButton(driverController, 1)
         .onTrue(new RunCommand(() -> {
             System.out.println("===========================================");
             System.out.println("BUTTON 1 (SQUARE) PRESSED");
-            System.out.println("Action: Running all motors at 30%");
+            System.out.println("Action: Running Front Left Motor (CAN ID 2)");
             System.out.println("===========================================");
-            SmartDashboard.putString("DriverStation/LastButton", "Square (1) - All Motors");
+            SmartDashboard.putString("DriverStation/LastButton", "Square (1) - Front Left");
         }, driveSubsystem))
-        .whileTrue(new RunCommand(() -> driveSubsystem.runAllMotors(0.3), driveSubsystem));
+        .whileTrue(new RunCommand(() -> driveSubsystem.runFrontLeftMotor(0.3), driveSubsystem));
 
-    // Button Cross (2): Run Rear Left Motor (ID 4)
+    // Button Cross (2): Run Rear Left Motor (ID 4) - inverted in hardware
     new JoystickButton(driverController, 2)
         .onTrue(new RunCommand(() -> {
             System.out.println("===========================================");
             System.out.println("BUTTON 2 (CROSS) PRESSED");
-            System.out.println("Action: Running Rear Left Motor (ID 4)");
+            System.out.println("Action: Running Rear Left Motor (CAN ID 4)");
             System.out.println("===========================================");
             SmartDashboard.putString("DriverStation/LastButton", "Cross (2) - Rear Left");
         }, driveSubsystem))
         .whileTrue(new RunCommand(() -> driveSubsystem.runRearLeftMotor(0.3), driveSubsystem));
 
-    // Button Circle (3): Run Rear Right Motor (ID 2) - inverted in hardware
+    // Button Circle (3): Run Rear Right Motor (ID 1) - normal direction
     new JoystickButton(driverController, 3)
         .onTrue(new RunCommand(() -> {
             System.out.println("===========================================");
             System.out.println("BUTTON 3 (CIRCLE) PRESSED");
-            System.out.println("Action: Running Rear Right Motor (ID 2)");
+            System.out.println("Action: Running Rear Right Motor (CAN ID 1)");
             System.out.println("===========================================");
             SmartDashboard.putString("DriverStation/LastButton", "Circle (3) - Rear Right");
         }, driveSubsystem))
@@ -207,7 +207,7 @@ public class RobotContainer {
         .onTrue(new RunCommand(() -> {
             System.out.println("===========================================");
             System.out.println("BUTTON 4 (TRIANGLE) PRESSED");
-            System.out.println("Action: Running Front Right Motor (ID 3)");
+            System.out.println("Action: Running Front Right Motor (CAN ID 3)");
             System.out.println("===========================================");
             SmartDashboard.putString("DriverStation/LastButton", "Triangle (4) - Front Right");
         }, driveSubsystem))
@@ -226,15 +226,8 @@ public class RobotContainer {
 
     // Button R1 (6): Align to AprilTag (vision alignment)
     // Aligns robot to face and drive toward AprilTag 1
+    // Hold button to track, release to stop
     new JoystickButton(driverController, 6)
-        .onTrue(new RunCommand(() -> {
-            System.out.println("===========================================");
-            System.out.println("BUTTON 6 (R1) PRESSED");
-            System.out.println("Action: Starting AprilTag alignment to Tag ID 1");
-            System.out.println("Target: 1 meter in front of tag");
-            System.out.println("===========================================");
-            SmartDashboard.putString("DriverStation/LastButton", "R1 (6) - AprilTag Align");
-        }, driveSubsystem))
         .whileTrue(new AlignToAprilTagCommand(
             driveSubsystem,
             visionSubsystem,

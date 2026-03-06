@@ -11,17 +11,18 @@ public final class Constants {
         // - Stall Current: 105 A
         // - Free Current: 1.8 A
 
-        // Drive motors
-        public static final int REAR_LEFT_MOTOR_ID = 4;
-        public static final int FRONT_LEFT_MOTOR_ID = 1;
-        public static final int REAR_RIGHT_MOTOR_ID = 3;
-        public static final int FRONT_RIGHT_MOTOR_ID = 2;
+        // Drive motors (verified physical mapping from button tests)
+        public static final int REAR_LEFT_MOTOR_ID = 4;      // CAN ID 4 = Rear Left
+        public static final int FRONT_LEFT_MOTOR_ID = 2;     // CAN ID 2 = Front Left
+        public static final int REAR_RIGHT_MOTOR_ID = 1;     // CAN ID 1 = Rear Right
+        public static final int FRONT_RIGHT_MOTOR_ID = 3;    // CAN ID 3 = Front Right
 
         // Mecanum requires: LEFT motors (front+rear) match, RIGHT motors (front+rear) match
-        public static final boolean REAR_LEFT_MOTOR_INVERTED = true;
-        public static final boolean FRONT_LEFT_MOTOR_INVERTED = true;   // Match rear left
-        public static final boolean REAR_RIGHT_MOTOR_INVERTED = false;  // Changed to match front right
-        public static final boolean FRONT_RIGHT_MOTOR_INVERTED = false;
+        // Verified through physical button testing
+        public static final boolean REAR_LEFT_MOTOR_INVERTED = true;     // Goes forward when inverted
+        public static final boolean FRONT_LEFT_MOTOR_INVERTED = false;    // Goes forward when normal
+        public static final boolean REAR_RIGHT_MOTOR_INVERTED = false;    // Goes forward when normal
+        public static final boolean FRONT_RIGHT_MOTOR_INVERTED = true;    // Goes forward when inverted
 
         // Smart current limiting for NEO motors (prevents breaker trips)
         public static final int DRIVE_MOTOR_STALL_CURRENT_LIMIT = 60;  // Amps (NEO stall is 105A)
@@ -96,8 +97,8 @@ public final class Constants {
         public static final int DRIVER_JOYSTICK_PORT = 0;
         public static final int OPERATOR_JOYSTICK_PORT = 1;
 
-        public static final int DRIVER_X_AXIS = 0;  // Left/right (strafe)
-        public static final int DRIVER_Y_AXIS = 1;  // Forward/backward
+        public static final int DRIVER_X_AXIS = 1;  // Left/right (strafe) - swapped
+        public static final int DRIVER_Y_AXIS = 0;  // Forward/backward - swapped
         public static final int DRIVER_Z_AXIS = 2;  // Rotation (right stick)
     }
 
@@ -134,7 +135,7 @@ public final class Constants {
 
         // Vision measurement confidence
         public static final double VISION_MEASUREMENT_STD_DEV_SEC = 0.5;
-        public static final double AMBIGUITY_THRESHOLD = 0.2;
+        public static final double AMBIGUITY_THRESHOLD = 0.8; // TEMPORARY: Raised from 0.2 for testing (Limelight returning 1.0)
 
         // Pose update rate
         public static final double POSE_UPDATE_INTERVAL_SEC = 0.05; // 20Hz
@@ -151,5 +152,33 @@ public final class Constants {
         public static final double MIN_EXPECTED_DELTA_DEG = 45.0;
         public static final double MAX_ABS_YAW_JUMP_DEG = 180.0;
         public static final double TURN_PHASE_TIMEOUT_SEC = 5.0;
+    }
+
+    public static class SimulationConstants {
+        private SimulationConstants() {}
+
+        public static class DrivetrainSimulation {
+            // Robot fiziksel özellikleri
+            public static final double ROBOT_MASS_KG = 45.0;  // Tipik FRC robot ağırlığı
+            public static final double ROBOT_MOI = 6.0;       // Eylemsizlik momenti (kg*m^2)
+
+            // Tekerlek özellikleri
+            public static final double WHEEL_RADIUS = DriveConstants.WHEEL_DIAMETER / 2.0;
+            public static final double WHEEL_MASS_KG = 0.5;
+
+            // NEO Motor özellikleri
+            public static final double NEO_FREE_SPEED_RPM = 5676;
+            public static final double NEO_STALL_TORQUE_NM = 2.6;
+            public static final double NEO_STALL_CURRENT_AMPS = 105;
+            public static final double NEO_FREE_CURRENT_AMPS = 1.8;
+
+            // Şanzıman
+            public static final double GEAR_RATIO = DriveConstants.GEARBOX_RATIO;
+            public static final int NUM_MOTORS_PER_SIDE = 2;
+
+            // Ölçüm gürültü parametreleri
+            public static final double ENCODER_STD_DEV = 0.001;
+            public static final double GYRO_STD_DEV = 0.001;
+        }
     }
 }

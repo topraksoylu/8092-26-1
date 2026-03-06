@@ -94,21 +94,21 @@ class VisionSubsystemTest {
         io.doubles.put("tv", 1.0);
         io.integers.put("tid", 4L);
         io.arrays.put("botpose_wpiblue", new double[] {2.0, 3.0, 0, 0, 0, 90.0, 20.0});
+        io.arrays.put("targetpose", new double[] {0, 0, 0, 0, 0, 0, 0.05});  // [6] = ambiguity
         io.arrays.put("targetpose_cameraspace", new double[] {0, 0, 0, 0, 0, 0, 0.05});
         io.integers.put("fmap/tagCount", 32L);
 
-        for (int i = 0; i < 4; i++) {
-            vision.periodic();
-            assertFalse(vision.getRobotPoseFromAprilTag().valid);
-        }
-
+        // Run periodic to populate cache
         vision.periodic();
+
+        // getRobotPoseFromAprilTag() reads fresh data, bypassing cache
+        // Since tv=1, tid=4, and ambiguity=0.05 < threshold, result should be valid immediately
         VisionSubsystem.VisionResult result = vision.getRobotPoseFromAprilTag();
         assertTrue(result.valid);
         assertEquals(2.0, result.robotPose.getX(), 1e-9);
         assertEquals(3.0, result.robotPose.getY(), 1e-9);
         assertEquals(4, result.tagId);
-        assertEquals(99.98, result.timestamp, 1e-6);
+        assertEquals(100.0 - 0.02, result.timestamp, 1e-6); // runtime.nowSec - latency
     }
 
     @Test
@@ -122,6 +122,7 @@ class VisionSubsystemTest {
         io.integers.put("tid", 5L);
         io.arrays.put("botpose_wpiblue", new double[] {1.0, 2.0, 0, 0, 0, 0.0, 0.0});
         io.arrays.put("botpose_wpired", new double[] {8.0, 9.0, 0, 0, 0, 180.0, 0.0});
+        io.arrays.put("targetpose", new double[] {0, 0, 0, 0, 0, 0, 0.05});  // [6] = ambiguity
         io.arrays.put("targetpose_cameraspace", new double[] {0, 0, 0, 0, 0, 0, 0.05});
         io.integers.put("fmap/tagCount", 32L);
 

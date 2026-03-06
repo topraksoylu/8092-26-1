@@ -103,7 +103,19 @@ public class TrackAprilTagCommand extends Command {
         if (!result.valid) {
             noTargetFrames++;
             SmartDashboard.putString("TrackAprilTag/Status", "No target (" + noTargetFrames + ")");
-            System.out.println("TrackAprilTag: No valid vision - waiting...");
+
+            // Detailed diagnostics - print every 25 frames (0.5 sec)
+            if (noTargetFrames == 1 || noTargetFrames % 25 == 0) {
+                System.out.println("=========================================");
+                System.out.println("TrackAprilTag: VISION RESULT INVALID");
+                System.out.println("  TagID: " + result.tagId);
+                System.out.println("  Ambiguity: " + result.ambiguity);
+                System.out.println("  Has Pose: " + (result.robotPose != null));
+                if (result.robotPose != null) {
+                    System.out.println("  Pose: X=" + result.robotPose.getX() + " Y=" + result.robotPose.getY());
+                }
+                System.out.println("=========================================");
+            }
 
             // Stop robot after a few frames
             if (noTargetFrames > 5) {
