@@ -1,0 +1,53 @@
+<networktables>
+  <node field="AlignToAprilTag">
+    <display type="Grid">
+      <column>
+        <widget field="Status" type="String"/>
+        <widget field="TargetTag" type="Number"/>
+        <widget field="ResultValid" type="Boolean"/>
+        <widget field="ResultTagID" type="Number"/>
+        <widget field="IsRed" type="Boolean"/>
+      </column>
+      <column>
+        <widget field="DistanceToTag" type="Number">
+          <property name="Min" value="0"/>
+          <property name="Max" value="5"/>
+        </widget>
+        <widget field="DistanceError" type="Number">
+          <property name="Min" value="-2"/>
+          <property name="Max" value="2"/>
+        </widget>
+        <widget field="XError" type="Number">
+          <property name="Min" value="-2"/>
+          <property name="Max" value="2"/>
+        </widget>
+        <widget field="YError" type="Number">
+          <property name="Min" value="-2"/>
+          <property name="Max" value="2"/>
+        </widget>
+        <widget field="YawError" type="Number">
+          <property name="Min" value="-180"/>
+          <property name="Max" value="180"/>
+        </widget>
+      </column>
+      <column>
+        <widget field="XSpeed" type="Number">
+          <property name="Min" value="-0.5"/>
+          <property name="Max" value="0.5"/>
+        </widget>
+        <widget field="YSpeed" type="Number">
+          <property name="Min" value="-0.5"/>
+          <property name="Max" value="0.5"/>
+        </widget>
+        <widget field="ThetaSpeed" type="Number">
+          <property name="Min" value="-1"/>
+          <property name="Max" value="1"/>
+        </widget>
+        <widget field="SpeedScale" type="Number">
+          <property name="Min" value="0"/>
+          <property name="Max" value="1"/>
+        </widget>
+      </column>
+    </display>
+  </node>
+</networktables>
