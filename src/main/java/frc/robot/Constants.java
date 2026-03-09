@@ -11,18 +11,19 @@ public final class Constants {
         // - Stall Current: 105 A
         // - Free Current: 1.8 A
 
-        // Drive motors (verified physical mapping from button tests)
-        public static final int REAR_LEFT_MOTOR_ID = 4;      // CAN ID 4 = Rear Left
-        public static final int FRONT_LEFT_MOTOR_ID = 2;     // CAN ID 2 = Front Left
-        public static final int REAR_RIGHT_MOTOR_ID = 1;     // CAN ID 1 = Rear Right
-        public static final int FRONT_RIGHT_MOTOR_ID = 3;    // CAN ID 3 = Front Right
+        // Drive motors (verified physical mapping)
+        // CAN ID 1 = Rear Right, CAN ID 2 = Front Left, CAN ID 3 = Rear Left, CAN ID 4 = Front Right
+        public static final int REAR_LEFT_MOTOR_ID = 3;      // CAN ID 3 = Rear Left (Arka Sol)
+        public static final int FRONT_LEFT_MOTOR_ID = 2;     // CAN ID 2 = Front Left (Ön Sol)
+        public static final int REAR_RIGHT_MOTOR_ID = 1;     // CAN ID 1 = Rear Right (Arka Sağ)
+        public static final int FRONT_RIGHT_MOTOR_ID = 4;    // CAN ID 4 = Front Right (Ön Sağ)
 
-        // Mecanum requires: LEFT motors (front+rear) match, RIGHT motors (front+rear) match
-        // Verified through physical button testing
-        public static final boolean REAR_LEFT_MOTOR_INVERTED = true;     // Goes forward when inverted
-        public static final boolean FRONT_LEFT_MOTOR_INVERTED = false;    // Goes forward when normal
-        public static final boolean REAR_RIGHT_MOTOR_INVERTED = false;    // Goes forward when normal
-        public static final boolean FRONT_RIGHT_MOTOR_INVERTED = true;    // Goes forward when inverted
+        // Mecanum drive: RIGHT side motors must be inverted relative to LEFT side
+        // This is due to roller orientation differences between left and right wheels
+        public static final boolean REAR_LEFT_MOTOR_INVERTED = false;     // Left side
+        public static final boolean FRONT_LEFT_MOTOR_INVERTED = false;    // Left side
+        public static final boolean REAR_RIGHT_MOTOR_INVERTED = true;     // Right side - INVERTED!
+        public static final boolean FRONT_RIGHT_MOTOR_INVERTED = true;    // Right side - INVERTED!
 
         // Smart current limiting for NEO motors (prevents breaker trips)
         public static final int DRIVE_MOTOR_STALL_CURRENT_LIMIT = 60;  // Amps (NEO stall is 105A)
@@ -97,9 +98,13 @@ public final class Constants {
         public static final int DRIVER_JOYSTICK_PORT = 0;
         public static final int OPERATOR_JOYSTICK_PORT = 1;
 
-        public static final int DRIVER_X_AXIS = 1;  // Left/right (strafe) - swapped
-        public static final int DRIVER_Y_AXIS = 0;  // Forward/backward - swapped
-        public static final int DRIVER_Z_AXIS = 2;  // Rotation (right stick)
+        // PS4 Physical Axes:
+        // Axis 0 = Left Stick X (left/right) → controls strafe
+        // Axis 1 = Left Stick Y (up/down) → controls forward/backward
+        // Axis 2 = Right Stick X → controls rotation
+        public static final int DRIVER_X_AXIS = 1;  // Left/right (strafe)
+        public static final int DRIVER_Y_AXIS = 0;  // Forward/backward
+        public static final int DRIVER_Z_AXIS = 2;  // Rotation
     }
 
     public static class ModuleConstants {

@@ -75,19 +75,19 @@ public class SimulationTestCommand extends Command {
         switch (phase) {
             case 0:
                 // İleri (2 saniye)
-                drive.driveFieldOriented(TEST_SPEED, 0, 0);
+                drive.driveFieldOriented(0, TEST_SPEED, 0);
                 break;
             case 1:
                 // Sağ (2 saniye)
-                drive.driveFieldOriented(0, TEST_SPEED, 0);
+                drive.driveFieldOriented(TEST_SPEED, 0, 0);
                 break;
             case 2:
                 // Geri (2 saniye)
-                drive.driveFieldOriented(-TEST_SPEED, 0, 0);
+                drive.driveFieldOriented(0, -TEST_SPEED, 0);
                 break;
             case 3:
                 // Sol (2 saniye)
-                drive.driveFieldOriented(0, -TEST_SPEED, 0);
+                drive.driveFieldOriented(-TEST_SPEED, 0, 0);
                 break;
             default:
                 // Test tamamlandı - dur

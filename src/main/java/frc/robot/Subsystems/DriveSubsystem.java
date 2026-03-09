@@ -206,17 +206,22 @@ public class DriveSubsystem extends SubsystemBase {
     
   }
 
-  public void drive(double ySpeed, double xSpeed, double zRotation) {
-    // WPILib expects (xSpeed, ySpeed, zRotation).
+  public void drive(double xSpeed, double ySpeed, double zRotation) {
+    // Parameters match driveCartesian expected order: (xSpeed, ySpeed, zRotation)
     mecanumDrive.driveCartesian(xSpeed, ySpeed, zRotation);
   }
 
-  public void drive(double ySpeed, double xSpeed, double zRotation, Rotation2d gyroAngle) {
+  // Robot-relative mecanum drive (with explicit gyro angle for field-oriented conversion)
+  // Parameters match driveCartesian expected order: (xSpeed, ySpeed, zRotation)
+  public void drive(double xSpeed, double ySpeed, double zRotation, Rotation2d gyroAngle) {
     mecanumDrive.driveCartesian(xSpeed, ySpeed, zRotation, gyroAngle);
   }
 
-  public void driveFieldOriented(double ySpeed, double xSpeed, double zRotation) {
-    mecanumDrive.driveCartesian(xSpeed, ySpeed, zRotation, getHeading());
+  // Robot-oriented mecanum drive (not field-oriented)
+  // Parameters match driveCartesian expected order: (xSpeed, ySpeed, zRotation)
+  // IMPORTANT: Robot-oriented drive (no gyro) - robot moves relative to itself, not the field
+  public void driveFieldOriented(double xSpeed, double ySpeed, double zRotation) {
+    mecanumDrive.driveCartesian(xSpeed, ySpeed, zRotation);  // No gyro angle - robot oriented!
   }
 
   public void driveRobotRelative(ChassisSpeeds speeds) {

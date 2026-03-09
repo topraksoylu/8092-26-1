@@ -15,6 +15,11 @@ import frc.robot.AprilTagFieldLayout;
  * Runs continuously while button is held.
  */
 public class TrackAprilTagCommand extends Command {
+    private static final double MAX_TRANSLATION_SPEED = 0.0625; // ~8x slower than previous 0.5 cap
+    private static final double MAX_ROTATION_SPEED = 0.0625;    // ~8x slower than previous 0.5 cap
+    private static final double POSITION_TOLERANCE_METERS = 0.12;
+    private static final double HEADING_TOLERANCE_DEGREES = 8.0;
+
     private final DriveSubsystem driveSubsystem;
     private final VisionSubsystem visionSubsystem;
 
@@ -181,23 +186,34 @@ public class TrackAprilTagCommand extends Command {
         SmartDashboard.putNumber("TrackAprilTag/YawError", Math.toDegrees(thetaError));
         SmartDashboard.putNumber("TrackAprilTag/RobotX", currentPose.getX());
         SmartDashboard.putNumber("TrackAprilTag/RobotY", currentPose.getY());
+        SmartDashboard.putNumber("TrackAprilTag/DistanceToTag", Math.hypot(dx, dy));
+        SmartDashboard.putNumber("TrackAprilTag/PositionError", Math.hypot(xError, yError));
 
         // Calculate drive outputs using PID
-        double xSpeed = distanceController.calculate(xError, 0);
-        double ySpeed = strafeController.calculate(yError, 0);
-        double thetaSpeed = thetaController.calculate(Math.toDegrees(thetaError), 0);
+        double xSpeed = distanceController.calculate(0, xError);
+        double ySpeed = strafeController.calculate(0, yError);
+        double thetaSpeed = thetaController.calculate(0, Math.toDegrees(thetaError));
 
         SmartDashboard.putNumber("TrackAprilTag/XSpeed", xSpeed);
         SmartDashboard.putNumber("TrackAprilTag/YSpeed", ySpeed);
         SmartDashboard.putNumber("TrackAprilTag/ThetaSpeed", thetaSpeed);
 
-        // Clamp outputs to prevent excessive speed
-        xSpeed = Math.max(-0.5, Math.min(0.5, xSpeed));
-        ySpeed = Math.max(-0.5, Math.min(0.5, ySpeed));
-        thetaSpeed = Math.max(-0.5, Math.min(0.5, thetaSpeed));
+        // Stop when we are at the desired pose in front of the tag.
+        double positionError = Math.hypot(xError, yError);
+        double headingErrorDegrees = Math.abs(Math.toDegrees(thetaError));
+        if (positionError < POSITION_TOLERANCE_METERS && headingErrorDegrees < HEADING_TOLERANCE_DEGREES) {
+            driveSubsystem.stopAllMotors();
+            SmartDashboard.putString("TrackAprilTag/Status", "At target distance");
+            return;
+        }
 
-        // Drive the robot
-        driveSubsystem.drive(ySpeed, xSpeed, thetaSpeed);
+        // Clamp outputs to very low speeds so tag stays in view.
+        xSpeed = Math.max(-MAX_TRANSLATION_SPEED, Math.min(MAX_TRANSLATION_SPEED, xSpeed));
+        ySpeed = Math.max(-MAX_TRANSLATION_SPEED, Math.min(MAX_TRANSLATION_SPEED, ySpeed));
+        thetaSpeed = Math.max(-MAX_ROTATION_SPEED, Math.min(MAX_ROTATION_SPEED, thetaSpeed));
+
+        // Match button-6 alignment translation mapping so tag-ahead moves the robot toward the tag.
+        driveSubsystem.drive(ySpeed, -xSpeed, thetaSpeed);
 
         SmartDashboard.putString("TrackAprilTag/Status", "Tracking");
     }

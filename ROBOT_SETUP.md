@@ -44,16 +44,18 @@
 ## CAN ID -> Motor Eşleşmesi (Sürüş)
 
 - `CAN ID 2` -> `Front Left (Ön Sol) NEO`
-- `CAN ID 3` -> `Front Right (Ön Sağ) NEO`
-- `CAN ID 4` -> `Rear Left (Arka Sol) NEO`
+- `CAN ID 4` -> `Front Right (Ön Sağ) NEO`
+- `CAN ID 3` -> `Rear Left (Arka Sol) NEO`
 - `CAN ID 1` -> `Rear Right (Arka Sağ) NEO`
 
 ## Motor Ters Çevirme (Inverted) Durumu
 
-- `Front Left (CAN ID 2)` -> `Inverted = false` (Normal yön)
-- `Front Right (CAN ID 3)` -> `Inverted = true` (Ters çevrildi)
-- `Rear Left (CAN ID 4)` -> `Inverted = true` (Ters çevrildi)
-- `Rear Right (CAN ID 1)` -> `Inverted = false` (Normal yön)
+- `Front Left (CAN ID 2)` -> `Inverted = false` (Sol taraf)
+- `Front Right (CAN ID 4)` -> `Inverted = true` (Sağ taraf - TERS ÇEVRİLMİ)
+- `Rear Left (CAN ID 3)` -> `Inverted = false` (Sol taraf)
+- `Rear Right (CAN ID 1)` -> `Inverted = true` (Sağ taraf - TERS ÇEVRİLMİ)
+
+**Önemli:** Mecanum sürüşünde SAĞ taraf motorları SOL tarafın tersine çevrilmiştir. Bu, pozitif voltaj verildiğinde her iki tarafın aynı yönde (ileri) dönmesini sağlar.
 
 ## Sürüş Optimizasyon Ayarları (Mecanum)
 

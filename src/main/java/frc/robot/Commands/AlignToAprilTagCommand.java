@@ -189,14 +189,15 @@ public class AlignToAprilTagCommand extends Command {
         SmartDashboard.putNumber("AlignToAprilTag/YawError", Math.toDegrees(thetaError));
 
         // Calculate drive outputs using PID
-        double xSpeed = xController.calculate(xError, 0);
-        double ySpeed = yController.calculate(yError, 0);
-        double thetaSpeed = thetaController.calculate(Math.toDegrees(thetaError), 0);
+        double xSpeed = xController.calculate(0, xError);
+        double ySpeed = yController.calculate(0, yError);
+        double thetaSpeed = thetaController.calculate(0, Math.toDegrees(thetaError));
 
         // HARD SPEED LIMITS - Never exceed these speeds
-        double maxXSpeed = 0.3;    // Max strafe speed (slow but usable)
-        double maxYSpeed = 0.3;    // Max forward speed (slow but usable)
-        double maxThetaSpeed = 0.3; // Max rotation speed (REDUCED to prevent spinning)
+        // Run ~4x slower to keep the tag in view while approaching (increased from 8x for faster alignment).
+        double maxXSpeed = 0.075;       // 0.3 / 4 (7.5% of max speed)
+        double maxYSpeed = 0.075;       // 0.3 / 4 (7.5% of max speed)
+        double maxThetaSpeed = 0.025;   // 2.5% of max speed (keep rotation lower to avoid side-canceling)
 
         // Clamp speeds
         xSpeed = Math.max(-maxXSpeed, Math.min(maxXSpeed, xSpeed));
@@ -239,17 +240,21 @@ public class AlignToAprilTagCommand extends Command {
         ySpeed *= alignmentSpeedScale;
         thetaSpeed *= rotationSpeedScale;
 
+        // When still far from the target, prioritize translation over rotation.
+        // This prevents one side's wheel commands from being canceled by rotate+translate mixing.
+        if (Math.abs(distanceError) > 0.4) {
+            thetaSpeed *= 0.3;
+        }
+
         SmartDashboard.putNumber("AlignToAprilTag/XSpeed", xSpeed);
         SmartDashboard.putNumber("AlignToAprilTag/YSpeed", ySpeed);
         SmartDashboard.putNumber("AlignToAprilTag/ThetaSpeed", thetaSpeed);
         SmartDashboard.putNumber("AlignToAprilTag/SpeedScale", alignmentSpeedScale);
         SmartDashboard.putString("AlignToAprilTag/Status", "Tracking");
 
-        // Drive the robot using FIELD-ORIENTED drive
-        // IMPORTANT: Negate ySpeed because of coordinate system mismatch
-        // xSpeed = field X (left/right), ySpeed = field Y (forward/back)
-        // This ensures the robot moves correctly relative to the field
-        driveSubsystem.driveFieldOriented(-ySpeed, xSpeed, thetaSpeed);
+        // Match translation orientation with teleop DriveCommand conventions.
+        // This keeps button-6 alignment behavior consistent with manual driving.
+        driveSubsystem.driveFieldOriented(ySpeed, -xSpeed, thetaSpeed);
     }
 
     @Override
