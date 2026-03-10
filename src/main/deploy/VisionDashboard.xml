@@ -1,0 +1,44 @@
+<networktables>
+  <node field="Vision">
+    <display type="Grid">
+      <column>
+        <widget field="HasTarget" type="Boolean"/>
+        <widget field="HorizontalOffset" type="Number">
+          <property name="Min" value="-30"/>
+          <property name="Max" value="30"/>
+        </widget>
+        <widget field="VerticalOffset" type="Number">
+          <property name="Min" value="-30"/>
+          <property name="Max" value="30"/>
+        </widget>
+        <widget field="TargetArea" type="Number">
+          <property name="Min" value="0"/>
+          <property name="Max" value="20"/>
+        </widget>
+        <widget field="DistanceToTarget" type="Number">
+          <property name="Min" value="0"/>
+          <property name="Max" value="10"/>
+        </widget>
+      </column>
+      <column>
+        <widget field="PoseValid" type="Boolean"/>
+        <widget field="RobotX" type="Number">
+          <property name="Min" value="0"/>
+          <property name="Max" value="16"/>
+        </widget>
+        <widget field="RobotY" type="Number">
+          <property name="Min" value="0"/>
+          <property name="Max" value="8"/>
+        </widget>
+        <widget field="RobotYaw" type="Number">
+          <property name="Min" value="-180"/>
+          <property name="Max" value="180"/>
+        </widget>
+        <widget field="TagID" type="Number">
+          <property name="Min" value="1"/>
+          <property name="Max" value="16"/>
+        </widget>
+      </column>
+    </display>
+  </node>
+</networktables>

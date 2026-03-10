@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.MotorConstants;
@@ -37,6 +38,8 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.NavXTestConstants;
 import frc.robot.FieldConstants;
+import frc.robot.Simulation.DrivetrainSimulator;
+import frc.robot.Simulation.NavXSimulator;
 
 public class DriveSubsystem extends SubsystemBase {
   private enum NavXValidationState {
@@ -56,7 +59,19 @@ public class DriveSubsystem extends SubsystemBase {
   private SparkMax frontRightMotor;
 
     private AHRS navx;
-    private double simulatedHeading = 0.0; // For simulation
+    private double simulatedHeading = 0.0; // For simulation (deprecated - use navxSim)
+
+    // Simulation
+    private NavXSimulator navxSim;  // Enhanced NavX simulation
+    private DrivetrainSimulator drivetrainSimulator;
+    private double simFrontLeftPosition = 0.0;
+    private double simFrontRightPosition = 0.0;
+    private double simRearLeftPosition = 0.0;
+    private double simRearRightPosition = 0.0;
+    private double simFrontLeftVelocity = 0.0;
+    private double simFrontRightVelocity = 0.0;
+    private double simRearLeftVelocity = 0.0;
+    private double simRearRightVelocity = 0.0;
 
   private MecanumDriveKinematics kinematics;
 
@@ -79,6 +94,14 @@ public class DriveSubsystem extends SubsystemBase {
   // Vision subsystem for pose estimation
   private VisionSubsystem visionSubsystem;
   private double lastVisionUpdateTimestamp = 0;
+
+  // Cached Pose2d objects for Field2D visualization (created once, reused)
+  private Pose2d robotOutlinePose;
+  private Pose2d[] robotOutlineCorners;
+
+  // Dashboard update batching (reduce SmartTables overhead)
+  private int dashboardUpdateCounter = 0;
+  private static final int DASHBOARD_UPDATE_RATE = 10; // Update every 200ms
 
   // No-op: motor-test controls handled in periodic via SmartDashboard toggles
 
@@ -119,10 +142,13 @@ public class DriveSubsystem extends SubsystemBase {
     if (RobotBase.isReal()) {
       navx = new AHRS(NavXComType.kMXP_SPI);
     } else {
-      // Simulation mode - no physical NavX
+      // Simulation mode - use NavX simulator
       navx = null;
+      navxSim = new NavXSimulator();
+      // Initialize drivetrain simulator
+      drivetrainSimulator = new DrivetrainSimulator();
     }
-    
+
     kinematics = new MecanumDriveKinematics(
       DriveConstants.WHEEL_POSITIONS[0],
       DriveConstants.WHEEL_POSITIONS[1],
@@ -135,6 +161,14 @@ public class DriveSubsystem extends SubsystemBase {
     field = new Field2d();
 
     FieldConstants.setupField(field);
+
+    // Initialize cached Pose2d objects for Field2D (created once to avoid GC overhead)
+    robotOutlineCorners = new Pose2d[5];
+    robotOutlineCorners[0] = new Pose2d(-0.3, -0.3, new Rotation2d());
+    robotOutlineCorners[1] = new Pose2d(0.3, -0.3, new Rotation2d());
+    robotOutlineCorners[2] = new Pose2d(0.3, 0.3, new Rotation2d());
+    robotOutlineCorners[3] = new Pose2d(-0.3, 0.3, new Rotation2d());
+    robotOutlineCorners[4] = robotOutlineCorners[0]; // Close the square
 
     mecanumDrive = new MecanumDrive(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor);
     // Keep MotorSafety enabled, but allow more headroom for heavier periodic cycles.
@@ -172,17 +206,22 @@ public class DriveSubsystem extends SubsystemBase {
     
   }
 
-  public void drive(double ySpeed, double xSpeed, double zRotation) {
-    // WPILib expects (xSpeed, ySpeed, zRotation).
+  public void drive(double xSpeed, double ySpeed, double zRotation) {
+    // Parameters match driveCartesian expected order: (xSpeed, ySpeed, zRotation)
     mecanumDrive.driveCartesian(xSpeed, ySpeed, zRotation);
   }
 
-  public void drive(double ySpeed, double xSpeed, double zRotation, Rotation2d gyroAngle) {
+  // Robot-relative mecanum drive (with explicit gyro angle for field-oriented conversion)
+  // Parameters match driveCartesian expected order: (xSpeed, ySpeed, zRotation)
+  public void drive(double xSpeed, double ySpeed, double zRotation, Rotation2d gyroAngle) {
     mecanumDrive.driveCartesian(xSpeed, ySpeed, zRotation, gyroAngle);
   }
 
-  public void driveFieldOriented(double ySpeed, double xSpeed, double zRotation) {
-    mecanumDrive.driveCartesian(xSpeed, ySpeed, zRotation, getHeading());
+  // Robot-oriented mecanum drive (not field-oriented)
+  // Parameters match driveCartesian expected order: (xSpeed, ySpeed, zRotation)
+  // IMPORTANT: Robot-oriented drive (no gyro) - robot moves relative to itself, not the field
+  public void driveFieldOriented(double xSpeed, double ySpeed, double zRotation) {
+    mecanumDrive.driveCartesian(xSpeed, ySpeed, zRotation);  // No gyro angle - robot oriented!
   }
 
   public void driveRobotRelative(ChassisSpeeds speeds) {
@@ -288,7 +327,8 @@ public class DriveSubsystem extends SubsystemBase {
     if (RobotBase.isReal()) {
       return navx != null && navx.isConnected() && Double.isFinite(navx.getYaw());
     }
-    return false;
+    // Simulation - NavX simulator is always valid
+    return navxSim != null;
   }
 
   private void startNavXValidation() {
@@ -474,6 +514,11 @@ public class DriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        // Update simülasyon fiziklerini önce (simülasyon modundaysa)
+        if (!RobotBase.isReal()) {
+            updateSimulation(0.02);  // 50Hz periodic
+        }
+
         // Feed early so MotorSafety doesn't trip if later periodic work runs long.
         if (mecanumDrive != null) {
           mecanumDrive.feed();
@@ -484,40 +529,48 @@ public class DriveSubsystem extends SubsystemBase {
 
         // Update odometry in all modes (autonomous and teleop)
         // Vision measurements will correct drift regardless of mode
-        if (RobotBase.isReal()) {
-            odometry.update(getHeading(), getWheelPositions());
-        } else {
-            // Simulation - update heading based on wheel movements
-            // This is a simple approximation for simulation
-            // Approximate rotation based on velocity difference (simple sim)
-            simulatedHeading += (getVelocity(frontRightMotor.getEncoder()) - getVelocity(frontLeftMotor.getEncoder())) * 0.01;
-            odometry.update(getHeading(), getWheelPositions());
-        }
+        odometry.update(getHeading(), getWheelPositions());
 
         // Update odometry with vision measurements to correct drift
         updateVisionMeasurements();
 
         field.setRobotPose(odometry.getPoseMeters());
 
-        // Add robot visualization elements
-        field.getObject("Robot_Outline").setPoses(
-            new Pose2d(-0.3, -0.3, new Rotation2d()).relativeTo(getPose()),
-            new Pose2d(0.3, -0.3, new Rotation2d()).relativeTo(getPose()),
-            new Pose2d(0.3, 0.3, new Rotation2d()).relativeTo(getPose()),
-            new Pose2d(-0.3, 0.3, new Rotation2d()).relativeTo(getPose()),
-            new Pose2d(-0.3, -0.3, new Rotation2d()).relativeTo(getPose())
-        );
+        // Update cached robot outline poses (avoid creating new objects every cycle)
+        Pose2d currentPose = getPose();
+        robotOutlineCorners[0] = new Pose2d(-0.3, -0.3, new Rotation2d()).relativeTo(currentPose);
+        robotOutlineCorners[1] = new Pose2d(0.3, -0.3, new Rotation2d()).relativeTo(currentPose);
+        robotOutlineCorners[2] = new Pose2d(0.3, 0.3, new Rotation2d()).relativeTo(currentPose);
+        robotOutlineCorners[3] = new Pose2d(-0.3, 0.3, new Rotation2d()).relativeTo(currentPose);
+        robotOutlineCorners[4] = robotOutlineCorners[0]; // Close the square
 
-        SmartDashboard.putNumber("Robot X", getPose().getX());
-        SmartDashboard.putNumber("Robot Y", getPose().getY());
-        SmartDashboard.putNumber("Robot Heading", getHeading().getDegrees());
-        SmartDashboard.putBoolean("Drive/FieldOrientedEnabled", true);
+        field.getObject("Robot_Outline").setPoses(robotOutlineCorners);
 
-  // Publish motor outputs for debugging (if using speed-based control)
-  SmartDashboard.putNumber("Drive/FrontLeftOutput", frontLeftMotor != null ? frontLeftMotor.get() : 0.0);
-  SmartDashboard.putNumber("Drive/FrontRightOutput", frontRightMotor != null ? frontRightMotor.get() : 0.0);
-  SmartDashboard.putNumber("Drive/RearLeftOutput", rearLeftMotor != null ? rearLeftMotor.get() : 0.0);
-  SmartDashboard.putNumber("Drive/RearRightOutput", rearRightMotor != null ? rearRightMotor.get() : 0.0);
+        // Batched SmartDashboard updates (only every 10 cycles = 200ms)
+        dashboardUpdateCounter++;
+        if (dashboardUpdateCounter >= DASHBOARD_UPDATE_RATE) {
+            dashboardUpdateCounter = 0;
+
+            SmartDashboard.putNumber("Robot X", getPose().getX());
+            SmartDashboard.putNumber("Robot Y", getPose().getY());
+            SmartDashboard.putNumber("Robot Heading", getHeading().getDegrees());
+            SmartDashboard.putBoolean("Drive/FieldOrientedEnabled", true);
+
+            // Motor outputs (debugging)
+            SmartDashboard.putNumber("Drive/FrontLeftOutput", frontLeftMotor != null ? frontLeftMotor.get() : 0.0);
+            SmartDashboard.putNumber("Drive/FrontRightOutput", frontRightMotor != null ? frontRightMotor.get() : 0.0);
+            SmartDashboard.putNumber("Drive/RearLeftOutput", rearLeftMotor != null ? rearLeftMotor.get() : 0.0);
+            SmartDashboard.putNumber("Drive/RearRightOutput", rearRightMotor != null ? rearRightMotor.get() : 0.0);
+        }
+
+  // Simülasyon telemetrisi
+  if (!RobotBase.isReal()) {
+    SmartDashboard.putNumber("Sim/BatteryVoltage", RobotController.getBatteryVoltage());
+    SmartDashboard.putNumber("Sim/FLPosition", simFrontLeftPosition);
+    SmartDashboard.putNumber("Sim/FRPosition", simFrontRightPosition);
+    SmartDashboard.putNumber("Sim/RLPosition", simRearLeftPosition);
+    SmartDashboard.putNumber("Sim/RRPosition", simRearRightPosition);
+  }
 
   // Read motor test toggles from SmartDashboard and schedule/cancel commands
   boolean flToggle = SmartDashboard.getBoolean("MotorTest/FrontLeft", false);
@@ -559,11 +612,79 @@ public class DriveSubsystem extends SubsystemBase {
   }
     }
 
+  /**
+   * Simülasyonu günceller - fizik tabanlı sürüş dinamiklerini hesaplar.
+   * Sadece simülasyon modunda çalışır.
+   *
+   * @param dtSeconds Zaman adımı (saniye)
+   */
+  private void updateSimulation(double dtSeconds) {
+    if (drivetrainSimulator == null) {
+      return;
+    }
+
+    // Motor çıkışlarından voltaj girişlerini hesapla
+    double batteryVoltage = RobotController.getBatteryVoltage();
+    double frontLeftVoltage = frontLeftMotor.get() * batteryVoltage;
+    double frontRightVoltage = frontRightMotor.get() * batteryVoltage;
+    double rearLeftVoltage = rearLeftMotor.get() * batteryVoltage;
+    double rearRightVoltage = rearRightMotor.get() * batteryVoltage;
+
+    // Sol ve sağ tarafları ortalama (mekanum yaklaşıklaması)
+    double leftVoltage = (frontLeftVoltage + rearLeftVoltage) / 2.0;
+    double rightVoltage = (frontRightVoltage + rearRightVoltage) / 2.0;
+
+    // Fizik simülasyonunu güncelle
+    drivetrainSimulator.setInputs(leftVoltage, rightVoltage);
+    drivetrainSimulator.update(dtSeconds);
+
+    // Simülasyon durumunu güncelle
+    double leftPosition = drivetrainSimulator.getLeftPositionMeters();
+    double rightPosition = drivetrainSimulator.getRightPositionMeters();
+    double leftVelocity = drivetrainSimulator.getLeftVelocityMetersPerSecond();
+    double rightVelocity = drivetrainSimulator.getRightVelocityMetersPerSecond();
+
+    // Mekanum tekerlekleri için pozisyonları yaklaşık olarak hesapla
+    // Öndeki ve arkadaki tekerlekler aynı tarafta aynı hareketi yapar
+    simFrontLeftPosition = leftPosition;
+    simRearLeftPosition = leftPosition;
+    simFrontRightPosition = rightPosition;
+    simRearRightPosition = rightPosition;
+
+    simFrontLeftVelocity = leftVelocity;
+    simRearLeftVelocity = leftVelocity;
+    simFrontRightVelocity = rightVelocity;
+    simRearRightVelocity = rightVelocity;
+
+    // Simüle edilmiş başlığı güncelle (NavX simülatörünü kullan)
+    if (navxSim != null) {
+      // Dönüş hızını simüle edilmiş tahmininden al
+      double currentHeading = drivetrainSimulator.getHeadingDegrees();
+      double angularVelocity = (currentHeading - simulatedHeading) / dtSeconds;
+
+      // NavX simülatörünü güncelle
+      navxSim.update(dtSeconds, angularVelocity);
+      simulatedHeading = navxSim.getYaw(); // Backward compatibility
+    } else {
+      simulatedHeading = drivetrainSimulator.getHeadingDegrees();
+    }
+
+    // Vision subsystem'i güncelle (simülasyon için robot pozisyonunu gönder)
+    if (visionSubsystem != null) {
+      Pose2d currentPose = drivetrainSimulator.getSim().getPose();
+      visionSubsystem.setRobotPoseForSimulation(currentPose);
+    }
+  }
+
   public Rotation2d getHeading() {
     if (RobotBase.isReal() && navx != null) {
       return Rotation2d.fromDegrees(navx.getYaw());
     } else {
-      // Simulation - return simulated heading
+      // Simulation - use NavX simulator if available
+      if (navxSim != null) {
+        return Rotation2d.fromDegrees(navxSim.getYaw());
+      }
+      // Fallback to old simulatedHeading
       return Rotation2d.fromDegrees(simulatedHeading);
     }
   }
@@ -587,17 +708,35 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public double getDistance(RelativeEncoder encoder) {
-    return DriveMath.encoderPositionToMeters(
-        encoder.getPosition(),
-        DriveConstants.GEARBOX_RATIO,
-        DriveConstants.WHEEL_CIRCUMFERENCE);
+    if (RobotBase.isReal()) {
+      return DriveMath.encoderPositionToMeters(
+          encoder.getPosition(),
+          DriveConstants.GEARBOX_RATIO,
+          DriveConstants.WHEEL_CIRCUMFERENCE);
+    } else {
+      // Simülasyon - simüle edilmiş encoder pozisyonlarını kullan
+      if (encoder == frontLeftMotor.getEncoder()) return simFrontLeftPosition;
+      if (encoder == frontRightMotor.getEncoder()) return simFrontRightPosition;
+      if (encoder == rearLeftMotor.getEncoder()) return simRearLeftPosition;
+      if (encoder == rearRightMotor.getEncoder()) return simRearRightPosition;
+      return 0.0;
+    }
   }
 
   public double getVelocity(RelativeEncoder encoder) {
-    return DriveMath.encoderVelocityRpmToMetersPerSecond(
-        encoder.getVelocity(),
-        DriveConstants.GEARBOX_RATIO,
-        DriveConstants.WHEEL_CIRCUMFERENCE);
+    if (RobotBase.isReal()) {
+      return DriveMath.encoderVelocityRpmToMetersPerSecond(
+          encoder.getVelocity(),
+          DriveConstants.GEARBOX_RATIO,
+          DriveConstants.WHEEL_CIRCUMFERENCE);
+    } else {
+      // Simülasyon - simüle edilmiş encoder hızlarını kullan
+      if (encoder == frontLeftMotor.getEncoder()) return simFrontLeftVelocity;
+      if (encoder == frontRightMotor.getEncoder()) return simFrontRightVelocity;
+      if (encoder == rearLeftMotor.getEncoder()) return simRearLeftVelocity;
+      if (encoder == rearRightMotor.getEncoder()) return simRearRightVelocity;
+      return 0.0;
+    }
   }
 
   public Pose2d getPose() {
@@ -623,7 +762,11 @@ public class DriveSubsystem extends SubsystemBase {
     if (RobotBase.isReal() && navx != null) {
       navx.reset();
     } else {
-      simulatedHeading = 0.0;
+      // Simulation - zero NavX simulator
+      if (navxSim != null) {
+        navxSim.zeroYaw();
+      }
+      simulatedHeading = 0.0; // Backward compatibility
     }
   }
 

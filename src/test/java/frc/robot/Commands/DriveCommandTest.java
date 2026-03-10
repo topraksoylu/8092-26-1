@@ -33,7 +33,7 @@ class DriveCommandTest {
             () -> 0.7,
             () -> 0.4,
             () -> -0.2,
-            (y, x, z) -> outputs.set(new double[] {y, x, z}),
+            (x, y, z) -> outputs.set(new double[] {x, y, z}),
             req
         );
 

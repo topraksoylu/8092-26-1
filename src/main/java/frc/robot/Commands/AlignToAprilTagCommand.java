@@ -53,10 +53,10 @@ public class AlignToAprilTagCommand extends Command {
         this.toleranceDegrees = 5.0;    // 5 degree heading tolerance
 
         // Create PID controllers
-        // These values might need tuning based on robot performance
-        xController = new PIDController(2.0, 0, 0.1);    // Forward/back
-        yController = new PIDController(2.0, 0, 0.1);    // Strafe
-        thetaController = new PIDController(1.5, 0, 0.05); // Rotation
+        // Very reduced gains for extremely smooth, slow tracking
+        xController = new PIDController(0.5, 0, 0.02);    // Forward/back (very slow)
+        yController = new PIDController(0.5, 0, 0.02);    // Strafe (very slow)
+        thetaController = new PIDController(0.1, 0, 0.005); // Rotation (MUCH slower to prevent oscillation)
 
         // Enable continuous input for theta (handles wraparound at -180/180)
         thetaController.enableContinuousInput(-180, 180);
@@ -73,21 +73,40 @@ public class AlignToAprilTagCommand extends Command {
     public void initialize() {
         System.out.println("===========================================");
         System.out.println("ALIGN TO APRILTAG COMMAND INITIALIZED");
+        System.out.println("Mode: TRACKING - Will follow moving target");
         System.out.println("Target Tag ID: " + targetTagId);
         System.out.println("Target Distance: " + targetDistanceMeters + " meters");
+        System.out.println("Hold Button 6 to track, release to stop");
         System.out.println("===========================================");
 
         // Determine alliance at command start
         isRedAlliance = DriverStation.getAlliance()
             .orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red;
 
-        SmartDashboard.putString("AlignToAprilTag/Status", "Initializing");
+        // Initialize all SmartDashboard values
+        SmartDashboard.putString("AlignToAprilTag/Status", "Initialized");
         SmartDashboard.putNumber("AlignToAprilTag/TargetTag", targetTagId);
         SmartDashboard.putBoolean("AlignToAprilTag/IsRed", isRedAlliance);
+        SmartDashboard.putBoolean("AlignToAprilTag/ResultValid", false);
+        SmartDashboard.putNumber("AlignToAprilTag/ResultTagID", 0);
+        SmartDashboard.putNumber("AlignToAprilTag/DistanceToTag", 0.0);
+        SmartDashboard.putNumber("AlignToAprilTag/DistanceError", 0.0);
+        SmartDashboard.putNumber("AlignToAprilTag/XError", 0.0);
+        SmartDashboard.putNumber("AlignToAprilTag/YError", 0.0);
+        SmartDashboard.putNumber("AlignToAprilTag/YawError", 0.0);
+        SmartDashboard.putNumber("AlignToAprilTag/XSpeed", 0.0);
+        SmartDashboard.putNumber("AlignToAprilTag/YSpeed", 0.0);
+        SmartDashboard.putNumber("AlignToAprilTag/ThetaSpeed", 0.0);
+        SmartDashboard.putNumber("AlignToAprilTag/SpeedScale", 0.0);
+
+        System.out.println("SmartDashboard values initialized - check 'AlignToAprilTag' table");
     }
 
     @Override
     public void execute() {
+        // DEBUG: Show that execute() is being called
+        SmartDashboard.putString("AlignToAprilTag/Status", "Execute running...");
+
         // Get vision result
         VisionSubsystem.VisionResult result = visionSubsystem.getRobotPoseFromAprilTag();
 
@@ -120,101 +139,129 @@ public class AlignToAprilTagCommand extends Command {
 
         // Current robot pose from vision
         Pose2d currentPose = result.robotPose;
-        System.out.println(String.format("AlignToAprilTag: Robot at (%.2f, %.2f, %.1f°), Tag at (%.2f, %.2f)",
-            currentPose.getX(), currentPose.getY(), currentPose.getRotation().getDegrees(),
-            targetPose.getX(), targetPose.getY()));
+        // Debug output DISABLED - flooding console
+        // System.out.println(String.format("AlignToAprilTag: Robot at (%.2f, %.2f, %.1f°), Tag at (%.2f, %.2f)",
+        //     currentPose.getX(), currentPose.getY(), currentPose.getRotation().getDegrees(),
+        //     targetPose.getX(), targetPose.getY()));
 
-        // Calculate desired position (in front of tag, facing tag)
-        // Target position = tag position - offset in direction tag is facing
-        double tagYaw = targetPose.getRotation().getRadians();
-        double targetX = targetPose.getX() - Math.cos(tagYaw) * targetDistanceMeters;
-        double targetY = targetPose.getY() - Math.sin(tagYaw) * targetDistanceMeters;
-
-        // Calculate errors
-        double xError = targetX - currentPose.getX();
-        double yError = targetY - currentPose.getY();
-
-        // For heading, we want to face the tag
-        // Calculate required heading to face the tag
+        // SIMPLIFIED APPROACH: Move directly toward the tag
+        // Calculate vector from robot to tag
         double dx = targetPose.getX() - currentPose.getX();
         double dy = targetPose.getY() - currentPose.getY();
-        double desiredYaw = Math.atan2(dy, dx);
+        double distanceToTag = Math.sqrt(dx * dx + dy * dy);
 
+        // Calculate angle to the tag
+        double angleToTag = Math.atan2(dy, dx);
         double currentYaw = currentPose.getRotation().getRadians();
-        double thetaError = desiredYaw - currentYaw;
+        double thetaError = angleToTag - currentYaw;
 
         // Normalize theta error to -PI to PI
         while (thetaError > Math.PI) thetaError -= 2 * Math.PI;
         while (thetaError < -Math.PI) thetaError += 2 * Math.PI;
 
+        // We want to maintain targetDistanceMeters from the tag
+        // So we drive toward/away from tag to achieve that distance
+        double distanceError = distanceToTag - targetDistanceMeters;
+
+        // Forward/back is along the robot's heading direction
+        // Strafe is perpendicular to robot's heading
+        // We need to transform distanceError into robot-relative coordinates
+
+        // In field coordinates, the direction to the tag is (dx, dy)
+        // We need to rotate this by -currentYaw to get robot-relative coordinates
+        double cosYaw = Math.cos(-currentYaw);
+        double sinYaw = Math.sin(-currentYaw);
+
+        // Transform field-relative error to robot-relative
+        double forwardError = dx * cosYaw - dy * sinYaw;  // Forward/back
+        double strafeError = dx * sinYaw + dy * cosYaw;    // Left/right
+
+        // Use forward/strafe errors for PID
+        // Keep in FIELD RELATIVE coordinates (no transformation needed)
+        double xError = dx;  // Field X (strafe)
+        double yError = dy;  // Field Y (forward)
+
         // Debug output
+        SmartDashboard.putNumber("AlignToAprilTag/DistanceToTag", distanceToTag);
+        SmartDashboard.putNumber("AlignToAprilTag/DistanceError", distanceError);
         SmartDashboard.putNumber("AlignToAprilTag/XError", xError);
         SmartDashboard.putNumber("AlignToAprilTag/YError", yError);
         SmartDashboard.putNumber("AlignToAprilTag/YawError", Math.toDegrees(thetaError));
 
         // Calculate drive outputs using PID
-        double xSpeed = xController.calculate(xError, 0);
-        double ySpeed = yController.calculate(yError, 0);
-        double thetaSpeed = thetaController.calculate(Math.toDegrees(thetaError), 0);
+        double xSpeed = xController.calculate(0, xError);
+        double ySpeed = yController.calculate(0, yError);
+        double thetaSpeed = thetaController.calculate(0, Math.toDegrees(thetaError));
+
+        // HARD SPEED LIMITS - Never exceed these speeds
+        // Run ~4x slower to keep the tag in view while approaching (increased from 8x for faster alignment).
+        double maxXSpeed = 0.075;       // 0.3 / 4 (7.5% of max speed)
+        double maxYSpeed = 0.075;       // 0.3 / 4 (7.5% of max speed)
+        double maxThetaSpeed = 0.025;   // 2.5% of max speed (keep rotation lower to avoid side-canceling)
+
+        // Clamp speeds
+        xSpeed = Math.max(-maxXSpeed, Math.min(maxXSpeed, xSpeed));
+        ySpeed = Math.max(-maxYSpeed, Math.min(maxYSpeed, ySpeed));
+        thetaSpeed = Math.max(-maxThetaSpeed, Math.min(maxThetaSpeed, thetaSpeed));
+
+        // Slow down rotation when well-aligned to prevent losing the tag
+        double headingErrorDegrees = Math.abs(Math.toDegrees(thetaError));
+        double alignmentSpeedScale = 1.0;
+        double rotationSpeedScale = 1.0;
+
+        // CRITICAL: Strong deadband to prevent oscillation when facing the tag
+        // Don't rotate at all if we're reasonably aligned - this prevents 360° spinning
+        if (headingErrorDegrees < 5.0) {
+            // Well aligned - NO rotation whatsoever
+            rotationSpeedScale = 0.0;     // Completely disable rotation
+            alignmentSpeedScale = 0.6;    // Slow movement for precise positioning
+        } else if (headingErrorDegrees < 15.0) {
+            // Moderately aligned - very slow rotation
+            alignmentSpeedScale = 0.7;    // 70% speed
+            rotationSpeedScale = 0.2;     // Only 20% rotation
+        } else {
+            // Poorly aligned - allow rotation but keep it slow
+            alignmentSpeedScale = 0.8;    // 80% speed
+            rotationSpeedScale = 0.5;     // Only 50% rotation
+        }
+
+        // ADDITIONAL: If very close to target distance, reduce rotation even more
+        // This prevents spinning when we're at the right spot
+        if (Math.abs(distanceError) < 0.3) {
+            // Within 30cm of target distance - very minimal rotation
+            rotationSpeedScale *= 0.3;
+            if (headingErrorDegrees < 10.0) {
+                rotationSpeedScale = 0.0;  // No rotation if close and reasonably aligned
+            }
+        }
+
+        // Apply the speed scaling
+        xSpeed *= alignmentSpeedScale;
+        ySpeed *= alignmentSpeedScale;
+        thetaSpeed *= rotationSpeedScale;
+
+        // When still far from the target, prioritize translation over rotation.
+        // This prevents one side's wheel commands from being canceled by rotate+translate mixing.
+        if (Math.abs(distanceError) > 0.4) {
+            thetaSpeed *= 0.3;
+        }
 
         SmartDashboard.putNumber("AlignToAprilTag/XSpeed", xSpeed);
         SmartDashboard.putNumber("AlignToAprilTag/YSpeed", ySpeed);
         SmartDashboard.putNumber("AlignToAprilTag/ThetaSpeed", thetaSpeed);
-        SmartDashboard.putString("AlignToAprilTag/Status", "Driving");
+        SmartDashboard.putNumber("AlignToAprilTag/SpeedScale", alignmentSpeedScale);
+        SmartDashboard.putString("AlignToAprilTag/Status", "Tracking");
 
-        // Drive the robot
-        // Note: Using field-oriented drive for better control
-        driveSubsystem.drive(ySpeed, xSpeed, thetaSpeed);
+        // Match translation orientation with teleop DriveCommand conventions.
+        // This keeps button-6 alignment behavior consistent with manual driving.
+        driveSubsystem.driveFieldOriented(ySpeed, -xSpeed, thetaSpeed);
     }
 
     @Override
     public boolean isFinished() {
-        // Check if we're at the target position
-        VisionSubsystem.VisionResult result = visionSubsystem.getRobotPoseFromAprilTag();
-
-        if (!result.valid || result.tagId != targetTagId) {
-            return false;  // Don't finish if we can't see the target
-        }
-
-        Pose2d targetPose = AprilTagFieldLayout.getTagPose(targetTagId, isRedAlliance);
-        if (targetPose == null) {
-            return false;
-        }
-
-        Pose2d currentPose = result.robotPose;
-
-        // Calculate distance to target position
-        double tagYaw = targetPose.getRotation().getRadians();
-        double targetX = targetPose.getX() - Math.cos(tagYaw) * targetDistanceMeters;
-        double targetY = targetPose.getY() - Math.sin(tagYaw) * targetDistanceMeters;
-
-        double distanceError = Math.sqrt(
-            Math.pow(targetX - currentPose.getX(), 2) +
-            Math.pow(targetY - currentPose.getY(), 2)
-        );
-
-        // Check if we're at tolerance
-        boolean atPosition = distanceError < toleranceMeters;
-
-        // Check if we're facing the right direction
-        double dx = targetPose.getX() - currentPose.getX();
-        double dy = targetPose.getY() - currentPose.getY();
-        double desiredYaw = Math.atan2(dy, dx);
-        double headingError = Math.abs(desiredYaw - currentPose.getRotation().getRadians());
-        while (headingError > Math.PI) headingError -= 2 * Math.PI;
-        while (headingError < -Math.PI) headingError += 2 * Math.PI;
-        headingError = Math.abs(headingError);
-
-        boolean atHeading = Math.toDegrees(headingError) < toleranceDegrees;
-
-        boolean finished = atPosition && atHeading;
-        if (finished) {
-            System.out.println("AlignToAprilTag: ALIGNMENT COMPLETE!");
-            System.out.println("  Position tolerance met: " + atPosition);
-            System.out.println("  Heading tolerance met: " + atHeading);
-        }
-
-        return atPosition && atHeading;
+        // NEVER finish automatically - always track the moving target
+        // Command only ends when button 6 is released (controlled by RobotContainer)
+        return false;
     }
 
     @Override

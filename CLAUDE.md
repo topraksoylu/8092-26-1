@@ -15,11 +15,13 @@ Bu, 2026 sezonu için bir FRC (FIRST Robotics Competition) robot kod projesidir.
 
 ### CAN ID Eşleşmesi
 
-Fiziksel CAN kablo bağlantıları bu motor ID'leri ile eşleşir (saha testiyle doğrulanmış):
-- `CAN ID 1` → Ön Sol NEO (ters: true)
-- `CAN ID 3` → Ön Sağ NEO (ters: false)
-- `CAN ID 4` → Arka Sol NEO (ters: true)
-- `CAN ID 2` → Arka Sağ NEO (ters: false)
+Fiziksel CAN kablo bağlantıları (doğrulanmış):
+- `CAN ID 1` → Arka Sağ NEO ( Rear Right) - **TERS: true**
+- `CAN ID 2` → Ön Sol NEO (Front Left) - **TERS: false**
+- `CAN ID 3` → Arka Sol NEO (Rear Left) - **TERS: false**
+- `CAN ID 4` → Ön Sağ NEO (Front Right) - **TERS: true**
+
+**Önemli:** Mecanum sürüşünde SAĞ taraf motorları ters çevrilmiştir (inverted: true), SOL taraf motorları normaldir (inverted: false).
 
 ## Derleme ve Dağıtım Komutları
 
@@ -69,9 +71,10 @@ Kod WPILib'in komut tabanlı desenini takip eder:
 ### Sürüş Kontrol Notları
 
 - **Kontrolcü eşleşmesi**: Driver PS4 kullanır (port 0), Operator Joystick kullanır (port 1)
-- **Eksenler**: `DRIVER_Y_AXIS=0`, `DRIVER_X_AXIS=1`, `DRIVER_Z_AXIS=2`
-- **İleri yönü**: Y eksen negatif (joystick değerleri geri çekildiğinde artar)
-- **Alan odaklı sürüş**: Her zaman açık - NavX jiroskop başlığını kullanır
+- **Eksenler**: `DRIVER_Y_AXIS=1` (Left Stick Y - ileri/geri), `DRIVER_X_AXIS=0` (Left Stick X - sağ/sol), `DRIVER_Z_AXIS=2` (Right Stick X)
+- **İleri yönü**: Joystick yukarı itildiğinde robot ileri gider
+- **Robot odaklı sürüş**: Alan odaklı sürüş YOK - robot kendi yönüne göre hareket eder (NavX jiroskop kullanılmaz)
+- **Önemli Karar**: Bu robot sadece **ROBOT ORIENTED DRIVE** kullanır - robot kendi yönüne göre hareket eder, sahadaki yöne göre değil
 
 ### Sabitler Organizasyonu
 

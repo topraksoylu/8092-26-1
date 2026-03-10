@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(curl -s https://limelightvision.io/pages/installation)"
+      "Bash(curl -s https://limelightvision.io/pages/installation)",
+      "Bash(./gradlew deploy)"
     ]
   }
 }
