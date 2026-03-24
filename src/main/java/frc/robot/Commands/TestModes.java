@@ -2,8 +2,8 @@ package frc.robot.Commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.Subsystems.DriveSubsystem;
-import frc.robot.Constants.MotorConstants;
+import frc.robot.Subsystems.SurusAltSistemi;
+import frc.robot.Sabitler.MotorSabitleri;
 
 /**
  * Basit motor test komutları - teleop modda çalışır.
@@ -17,11 +17,11 @@ public class TestModes {
      * SmartDashboard'dan tetiklemek için kullanışlıdır.
      */
     public static class SingleMotorTest extends Command {
-        private final DriveSubsystem drive;
+        private final SurusAltSistemi drive;
         private final int motorId;
         private final double speed;
 
-        public SingleMotorTest(DriveSubsystem drive, int motorId, double speed) {
+        public SingleMotorTest(SurusAltSistemi drive, int motorId, double speed) {
             this.drive = drive;
             this.motorId = motorId;
             this.speed = speed;
@@ -37,16 +37,16 @@ public class TestModes {
         public void execute() {
             // CAN ID'ye göre motoru seç
             switch (motorId) {
-                case MotorConstants.FRONT_LEFT_MOTOR_ID:
+                case MotorSabitleri.ON_SOL_MOTOR_ID:
                     drive.testSetFrontLeft(speed);
                     break;
-                case MotorConstants.FRONT_RIGHT_MOTOR_ID:
+                case MotorSabitleri.ON_SAG_MOTOR_ID:
                     drive.testSetFrontRight(speed);
                     break;
-                case MotorConstants.REAR_LEFT_MOTOR_ID:
+                case MotorSabitleri.ARKA_SOL_MOTOR_ID:
                     drive.testSetRearLeft(speed);
                     break;
-                case MotorConstants.REAR_RIGHT_MOTOR_ID:
+                case MotorSabitleri.ARKA_SAG_MOTOR_ID:
                     drive.testSetRearRight(speed);
                     break;
                 default:
@@ -56,7 +56,7 @@ public class TestModes {
 
         @Override
         public void end(boolean interrupted) {
-            drive.stopAllMotors();
+            drive.tumMotorlariDurdur();
             System.out.println("Motor Test durduruldu: ID " + motorId);
         }
 
@@ -71,10 +71,10 @@ public class TestModes {
      * Motor yönlerinin doğru ayarlandığını kontrol etmek için.
      */
     public static class ForwardDriveTest extends Command {
-        private final DriveSubsystem drive;
+        private final SurusAltSistemi drive;
         private final double speed;
 
-        public ForwardDriveTest(DriveSubsystem drive, double speed) {
+        public ForwardDriveTest(SurusAltSistemi drive, double speed) {
             this.drive = drive;
             this.speed = speed;
             addRequirements(drive);
@@ -95,7 +95,7 @@ public class TestModes {
 
         @Override
         public void end(boolean interrupted) {
-            drive.stopAllMotors();
+            drive.tumMotorlariDurdur();
             System.out.println("İleri sürüş testi bitti");
         }
 
@@ -109,10 +109,10 @@ public class TestModes {
      * Robot saat yönünde döndürür (sağ dönüş).
      */
     public static class TurnRightTest extends Command {
-        private final DriveSubsystem drive;
+        private final SurusAltSistemi drive;
         private final double speed;
 
-        public TurnRightTest(DriveSubsystem drive, double speed) {
+        public TurnRightTest(SurusAltSistemi drive, double speed) {
             this.drive = drive;
             this.speed = speed;
             addRequirements(drive);
@@ -134,7 +134,7 @@ public class TestModes {
 
         @Override
         public void end(boolean interrupted) {
-            drive.stopAllMotors();
+            drive.tumMotorlariDurdur();
             System.out.println("Sağ dönüş testi bitti");
         }
 
@@ -148,10 +148,10 @@ public class TestModes {
      * Robot saat yönünün tersine döndürür (sol dönüş).
      */
     public static class TurnLeftTest extends Command {
-        private final DriveSubsystem drive;
+        private final SurusAltSistemi drive;
         private final double speed;
 
-        public TurnLeftTest(DriveSubsystem drive, double speed) {
+        public TurnLeftTest(SurusAltSistemi drive, double speed) {
             this.drive = drive;
             this.speed = speed;
             addRequirements(drive);
@@ -173,7 +173,7 @@ public class TestModes {
 
         @Override
         public void end(boolean interrupted) {
-            drive.stopAllMotors();
+            drive.tumMotorlariDurdur();
             System.out.println("Sol dönüş testi bitti");
         }
 
@@ -187,10 +187,10 @@ public class TestModes {
      * Mecanum strafe testi - robot sağa kaymalı.
      */
     public static class StrafeRightTest extends Command {
-        private final DriveSubsystem drive;
+        private final SurusAltSistemi drive;
         private final double speed;
 
-        public StrafeRightTest(DriveSubsystem drive, double speed) {
+        public StrafeRightTest(SurusAltSistemi drive, double speed) {
             this.drive = drive;
             this.speed = speed;
             addRequirements(drive);
@@ -214,7 +214,7 @@ public class TestModes {
 
         @Override
         public void end(boolean interrupted) {
-            drive.stopAllMotors();
+            drive.tumMotorlariDurdur();
             System.out.println("Sağa kayma testi bitti");
         }
 

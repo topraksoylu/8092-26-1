@@ -19,9 +19,9 @@ import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.estimator.MecanumDrivePoseEstimator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.MecanumDriveKinematics;
-import edu.wpi.first.math.kinematics.MecanumDriveOdometry;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelPositions;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelSpeeds;
 import edu.wpi.first.math.MathUtil;
@@ -32,13 +32,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.MotorConstants;
-import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.VisionConstants;
-import frc.robot.Constants.NavXTestConstants;
+import frc.robot.Sabitler.MotorSabitleri;
+import frc.robot.Sabitler.SurusSabitleri;
+import frc.robot.Sabitler.GorusSabitleri;
+import frc.robot.Sabitler.NavXTestSabitleri;
 import frc.robot.FieldConstants;
 
-public class DriveSubsystem extends SubsystemBase {
+public class SurusAltSistemi extends SubsystemBase {
   private enum NavXValidationState {
     IDLE,
     ZEROING,
@@ -60,7 +60,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   private MecanumDriveKinematics kinematics;
 
-  private MecanumDriveOdometry odometry;
+  private MecanumDrivePoseEstimator poseEstimator;
 
   private Field2d field;
   private NavXValidationState navXValidationState = NavXValidationState.IDLE;
@@ -77,17 +77,17 @@ public class DriveSubsystem extends SubsystemBase {
   private String navXValidationErrorCode = "OK";
 
   // Vision subsystem for pose estimation
-  private VisionSubsystem visionSubsystem;
+  private GorusAltSistemi GorusAltSistemi;
   private double lastVisionUpdateTimestamp = 0;
 
   // No-op: motor-test controls handled in periodic via SmartDashboard toggles
 
 
-  public DriveSubsystem(int frontLeftMotorID, int frontRightMotorID, int rearLeftMotorID, int rearRightMotorID, Pose2d initialPose) {
+  public SurusAltSistemi(int frontLeftMotorID, int frontRightMotorID, int rearLeftMotorID, int rearRightMotorID, Pose2d initialPose) {
       this(frontLeftMotorID, frontRightMotorID, rearLeftMotorID, rearRightMotorID, initialPose, null);
   }
 
-  public DriveSubsystem(int frontLeftMotorID, int frontRightMotorID, int rearLeftMotorID, int rearRightMotorID, Pose2d initialPose, VisionSubsystem visionSubsystem) {
+  public SurusAltSistemi(int frontLeftMotorID, int frontRightMotorID, int rearLeftMotorID, int rearRightMotorID, Pose2d initialPose, GorusAltSistemi GorusAltSistemi) {
     rearLeftMotor = new SparkMax(rearLeftMotorID, MotorType.kBrushless);
     frontLeftMotor = new SparkMax(frontLeftMotorID, MotorType.kBrushless);
     rearRightMotor = new SparkMax(rearRightMotorID, MotorType.kBrushless);
@@ -97,23 +97,23 @@ public class DriveSubsystem extends SubsystemBase {
     SparkMaxConfig reversedConfig = new SparkMaxConfig();
     reversedConfig.inverted(true);
     reversedConfig.smartCurrentLimit(
-        MotorConstants.DRIVE_MOTOR_STALL_CURRENT_LIMIT,
-        MotorConstants.DRIVE_MOTOR_FREE_CURRENT_LIMIT,
-        MotorConstants.DRIVE_MOTOR_CURRENT_LIMIT_THRESHOLD
+        MotorSabitleri.SURUS_MOTORU_DURMA_AKIM_SINIRI,
+        MotorSabitleri.SURUS_MOTORU_BOSTA_AKIM_SINIRI,
+        MotorSabitleri.SURUS_MOTORU_AKIM_SINIR_ESIGI
     );
 
     SparkMaxConfig nonReversedConfig = new SparkMaxConfig();
     nonReversedConfig.inverted(false);
     nonReversedConfig.smartCurrentLimit(
-        MotorConstants.DRIVE_MOTOR_STALL_CURRENT_LIMIT,
-        MotorConstants.DRIVE_MOTOR_FREE_CURRENT_LIMIT,
-        MotorConstants.DRIVE_MOTOR_CURRENT_LIMIT_THRESHOLD
+        MotorSabitleri.SURUS_MOTORU_DURMA_AKIM_SINIRI,
+        MotorSabitleri.SURUS_MOTORU_BOSTA_AKIM_SINIRI,
+        MotorSabitleri.SURUS_MOTORU_AKIM_SINIR_ESIGI
     );
 
-    rearLeftMotor.configure(MotorConstants.REAR_LEFT_MOTOR_INVERTED ? reversedConfig : nonReversedConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
-    frontLeftMotor.configure(MotorConstants.FRONT_LEFT_MOTOR_INVERTED ? reversedConfig : nonReversedConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
-    rearRightMotor.configure(MotorConstants.REAR_RIGHT_MOTOR_INVERTED ? reversedConfig : nonReversedConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
-    frontRightMotor.configure(MotorConstants.FRONT_RIGHT_MOTOR_INVERTED ? reversedConfig : nonReversedConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    rearLeftMotor.configure(MotorSabitleri.ARKA_SOL_MOTOR_TERS ? reversedConfig : nonReversedConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    frontLeftMotor.configure(MotorSabitleri.ON_SOL_MOTOR_TERS ? reversedConfig : nonReversedConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    rearRightMotor.configure(MotorSabitleri.ARKA_SAG_MOTOR_TERS ? reversedConfig : nonReversedConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    frontRightMotor.configure(MotorSabitleri.ON_SAG_MOTOR_TERS ? reversedConfig : nonReversedConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 
     // Initialize gyro based on robot mode
     if (RobotBase.isReal()) {
@@ -124,13 +124,13 @@ public class DriveSubsystem extends SubsystemBase {
     }
     
     kinematics = new MecanumDriveKinematics(
-      DriveConstants.WHEEL_POSITIONS[0],
-      DriveConstants.WHEEL_POSITIONS[1],
-      DriveConstants.WHEEL_POSITIONS[2],
-      DriveConstants.WHEEL_POSITIONS[3]
+      SurusSabitleri.TEKER_POZISYONLARI[0],
+      SurusSabitleri.TEKER_POZISYONLARI[1],
+      SurusSabitleri.TEKER_POZISYONLARI[2],
+      SurusSabitleri.TEKER_POZISYONLARI[3]
     );
 
-    odometry = new MecanumDriveOdometry(kinematics, getHeading(), getWheelPositions(), initialPose);
+    poseEstimator = new MecanumDrivePoseEstimator(kinematics, getHeading(), getWheelPositions(), initialPose);
 
     field = new Field2d();
 
@@ -142,31 +142,33 @@ public class DriveSubsystem extends SubsystemBase {
     mecanumDrive.setSafetyEnabled(true);
 
     // Store vision subsystem reference
-    this.visionSubsystem = visionSubsystem;
+    this.GorusAltSistemi = GorusAltSistemi;
 
-    RobotConfig config = null;
     try {
-      config = RobotConfig.fromGUISettings();
+      RobotConfig config = RobotConfig.fromGUISettings();
+      AutoBuilder.configure(
+              this::getPose,
+              this::resetPose,
+              this::getRobotRelativeSpeeds,
+              (speeds, feedforwards) -> driveRobotRelative(speeds),
+              new PPHolonomicDriveController(
+                new PIDConstants(5.0, 0, 0, 0),
+                new PIDConstants(5.0, 0, 0, 0)
+              ),
+              config,
+              () -> {
+                var alliance = DriverStation.getAlliance();
+                return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
+              },
+              this
+      );
+      SmartDashboard.putBoolean("Auto/PathPlannerConfigured", true);
+      SmartDashboard.putString("Auto/PathPlannerStatus", "READY");
     } catch (Exception e) {
-      e.printStackTrace();
+      SmartDashboard.putBoolean("Auto/PathPlannerConfigured", false);
+      SmartDashboard.putString("Auto/PathPlannerStatus", "CONFIG_ERROR");
+      DriverStation.reportError("PathPlanner konfigurasyonu basarisiz: " + e.getMessage(), e.getStackTrace());
     }
-
-    AutoBuilder.configure(
-            this::getPose,
-            this::resetPose,
-            this::getRobotRelativeSpeeds,
-            (speeds, feedforwards) -> driveRobotRelative(speeds),
-            new PPHolonomicDriveController(
-              new PIDConstants(5.0, 0, 0, 0),
-              new PIDConstants(5.0, 0, 0, 0)
-            ),
-            config,
-            () -> {
-              var alliance = DriverStation.getAlliance();
-              return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
-            },
-            this
-    );
 
   SmartDashboard.putData(field);
     
@@ -187,15 +189,15 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void driveRobotRelative(ChassisSpeeds speeds) {
     MecanumDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(speeds);
-    wheelSpeeds.desaturate(DriveConstants.MAX_SPEED_METERS_PER_SECOND);
+    wheelSpeeds.desaturate(SurusSabitleri.MAKS_HIZ_METRE_SANIYE);
     setSpeeds(wheelSpeeds);
   }
 
   public void setSpeeds(MecanumDriveWheelSpeeds wheelSpeeds) {
-    double frontLeftOutput = wheelSpeeds.frontLeftMetersPerSecond / DriveConstants.MAX_SPEED_METERS_PER_SECOND;
-    double frontRightOutput = wheelSpeeds.frontRightMetersPerSecond / DriveConstants.MAX_SPEED_METERS_PER_SECOND;
-    double rearLeftOutput = wheelSpeeds.rearLeftMetersPerSecond / DriveConstants.MAX_SPEED_METERS_PER_SECOND;
-    double rearRightOutput = wheelSpeeds.rearRightMetersPerSecond / DriveConstants.MAX_SPEED_METERS_PER_SECOND;
+    double frontLeftOutput = wheelSpeeds.frontLeftMetersPerSecond / SurusSabitleri.MAKS_HIZ_METRE_SANIYE;
+    double frontRightOutput = wheelSpeeds.frontRightMetersPerSecond / SurusSabitleri.MAKS_HIZ_METRE_SANIYE;
+    double rearLeftOutput = wheelSpeeds.rearLeftMetersPerSecond / SurusSabitleri.MAKS_HIZ_METRE_SANIYE;
+    double rearRightOutput = wheelSpeeds.rearRightMetersPerSecond / SurusSabitleri.MAKS_HIZ_METRE_SANIYE;
 
     frontLeftMotor.set(frontLeftOutput);
     frontRightMotor.set(frontRightOutput);
@@ -230,7 +232,7 @@ public class DriveSubsystem extends SubsystemBase {
     if (mecanumDrive != null) mecanumDrive.feed();
   }
 
-  public void stopAllMotors() {
+  public void tumMotorlariDurdur() {
     if (frontLeftMotor != null) frontLeftMotor.set(0);
     if (frontRightMotor != null) frontRightMotor.set(0);
     if (rearLeftMotor != null) rearLeftMotor.set(0);
@@ -301,13 +303,13 @@ public class DriveSubsystem extends SubsystemBase {
       return;
     }
 
-    zeroHeading();
+    yonuSifirla();
     navXPhaseStartYawDeg = getCurrentYawDeg();
     navXPhaseEndYawDeg = navXPhaseStartYawDeg;
     navXPhaseDeltaDeg = 0.0;
     navXCwDeltaDeg = 0.0;
     navXCcwDeltaDeg = 0.0;
-    navXZeroSettleEndMs = nowMs() + NavXTestConstants.ZERO_SETTLE_MS;
+    navXZeroSettleEndMs = nowMs() + NavXTestSabitleri.SIFIRLAMA_OTURMA_MS;
     navXValidationStatus = "ZEROING";
     navXValidationErrorCode = "OK";
     navXValidationState = NavXValidationState.ZEROING;
@@ -325,7 +327,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   private void passNavXValidation() {
-    stopAllMotors();
+    tumMotorlariDurdur();
     navXValidationState = NavXValidationState.DONE_PASS;
     navXValidationStatus = "PASS";
     navXValidationErrorCode = "OK";
@@ -337,7 +339,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   private void failNavXValidation(String errorCode, String message) {
-    stopAllMotors();
+    tumMotorlariDurdur();
     navXValidationState = NavXValidationState.DONE_FAIL;
     navXValidationStatus = "FAIL";
     navXValidationErrorCode = errorCode;
@@ -371,27 +373,27 @@ public class DriveSubsystem extends SubsystemBase {
         }
 
         double rotationCmd = navXValidationState == NavXValidationState.TURN_CW
-            ? -NavXTestConstants.TEST_TURN_OUTPUT
-            : NavXTestConstants.TEST_TURN_OUTPUT;
+            ? -NavXTestSabitleri.TEST_DONUS_CIKTISI
+            : NavXTestSabitleri.TEST_DONUS_CIKTISI;
         drive(0.0, 0.0, rotationCmd);
 
         navXPhaseEndYawDeg = yawNow;
         navXPhaseDeltaDeg = wrapDeltaDegrees(navXPhaseStartYawDeg, navXPhaseEndYawDeg);
         updateNavXDashboard();
 
-        if (Math.abs(navXPhaseDeltaDeg) > NavXTestConstants.MAX_ABS_YAW_JUMP_DEG) {
+        if (Math.abs(navXPhaseDeltaDeg) > NavXTestSabitleri.MAKS_MUTLAK_YAW_SICRAMA_DERECE) {
           failNavXValidation("NAVX_E007", "Yaw jump/outlier detected");
           return;
         }
-        if (nowSec() - navXPhaseStartTimeSec > NavXTestConstants.TURN_PHASE_TIMEOUT_SEC) {
-          if (Math.abs(navXPhaseDeltaDeg) < NavXTestConstants.MIN_EXPECTED_DELTA_DEG) {
+        if (nowSec() - navXPhaseStartTimeSec > NavXTestSabitleri.DONUS_ASAMA_ZAMAN_ASIMI_SN) {
+          if (Math.abs(navXPhaseDeltaDeg) < NavXTestSabitleri.BEKLENEN_MIN_DELTA_DERECE) {
             failNavXValidation("NAVX_E004", "Yaw delta too small");
           } else {
             failNavXValidation("NAVX_E005", "Turn phase timeout");
           }
           return;
         }
-        if (Math.abs(navXPhaseDeltaDeg) < NavXTestConstants.MIN_EXPECTED_DELTA_DEG) {
+        if (Math.abs(navXPhaseDeltaDeg) < NavXTestSabitleri.BEKLENEN_MIN_DELTA_DERECE) {
           return;
         }
 
@@ -401,7 +403,7 @@ public class DriveSubsystem extends SubsystemBase {
             return;
           }
           navXCwDeltaDeg = navXPhaseDeltaDeg;
-          stopAllMotors();
+          tumMotorlariDurdur();
           startTurnPhase(NavXValidationState.TURN_CCW);
         } else {
           if (navXPhaseDeltaDeg <= 0.0) {
@@ -433,18 +435,17 @@ public class DriveSubsystem extends SubsystemBase {
    * This corrects odometry drift over time
    */
   private void updateVisionMeasurements() {
-    if (visionSubsystem == null) {
+    if (GorusAltSistemi == null) {
       return;
     }
 
-    VisionSubsystem.VisionResult result = visionSubsystem.getRobotPoseFromAprilTag();
+    GorusAltSistemi.VisionResult result = GorusAltSistemi.aprilTagdanRobotPozuAl();
 
     if (result.valid && Timer.getFPGATimestamp() - lastVisionUpdateTimestamp >=
-        frc.robot.Constants.VisionConstants.POSE_UPDATE_INTERVAL_SEC) {
+        frc.robot.Sabitler.GorusSabitleri.POZ_GUNCELLEME_ARALIGI_SN) {
 
-      // Reset odometry with vision pose to correct drift
-      // This is a simple approach that works with MecanumDriveOdometry
-      odometry.resetPosition(getHeading(), getWheelPositions(), result.robotPose);
+      // Fuse vision into estimator to correct drift without pose jumps.
+      poseEstimator.addVisionMeasurement(result.robotPose, result.timestamp);
 
       lastVisionUpdateTimestamp = Timer.getFPGATimestamp();
 
@@ -459,9 +460,9 @@ public class DriveSubsystem extends SubsystemBase {
    * Reset robot pose from vision (AprilTag detection)
    * Useful for re-localizing robot on the field
    */
-  public void resetPoseFromVision() {
-    if (visionSubsystem != null) {
-      VisionSubsystem.VisionResult result = visionSubsystem.getRobotPoseFromAprilTag();
+  public void gorusIlePozuSifirla() {
+    if (GorusAltSistemi != null) {
+      GorusAltSistemi.VisionResult result = GorusAltSistemi.aprilTagdanRobotPozuAl();
       if (result.valid) {
         resetPose(result.robotPose);
         DriverStation.reportWarning(
@@ -485,19 +486,19 @@ public class DriveSubsystem extends SubsystemBase {
         // Update odometry in all modes (autonomous and teleop)
         // Vision measurements will correct drift regardless of mode
         if (RobotBase.isReal()) {
-            odometry.update(getHeading(), getWheelPositions());
+            poseEstimator.update(getHeading(), getWheelPositions());
         } else {
             // Simulation - update heading based on wheel movements
             // This is a simple approximation for simulation
             // Approximate rotation based on velocity difference (simple sim)
             simulatedHeading += (getVelocity(frontRightMotor.getEncoder()) - getVelocity(frontLeftMotor.getEncoder())) * 0.01;
-            odometry.update(getHeading(), getWheelPositions());
+            poseEstimator.update(getHeading(), getWheelPositions());
         }
 
         // Update odometry with vision measurements to correct drift
         updateVisionMeasurements();
 
-        field.setRobotPose(odometry.getPoseMeters());
+        field.setRobotPose(poseEstimator.getEstimatedPosition());
 
         // Add robot visualization elements
         field.getObject("Robot_Outline").setPoses(
@@ -587,39 +588,39 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public double getDistance(RelativeEncoder encoder) {
-    return DriveMath.encoderPositionToMeters(
+    return SurusMatematigi.encoderPositionToMeters(
         encoder.getPosition(),
-        DriveConstants.GEARBOX_RATIO,
-        DriveConstants.WHEEL_CIRCUMFERENCE);
+        SurusSabitleri.DISLI_ORANI,
+        SurusSabitleri.TEKER_CEVRESI);
   }
 
   public double getVelocity(RelativeEncoder encoder) {
-    return DriveMath.encoderVelocityRpmToMetersPerSecond(
+    return SurusMatematigi.encoderVelocityRpmToMetersPerSecond(
         encoder.getVelocity(),
-        DriveConstants.GEARBOX_RATIO,
-        DriveConstants.WHEEL_CIRCUMFERENCE);
+        SurusSabitleri.DISLI_ORANI,
+        SurusSabitleri.TEKER_CEVRESI);
   }
 
   public Pose2d getPose() {
-    return odometry.getPoseMeters();
+    return poseEstimator.getEstimatedPosition();
   }
 
   public void resetPose(Pose2d pose) {
-    odometry.resetPosition(getHeading(), getWheelPositions(), pose);
+    poseEstimator.resetPosition(getHeading(), getWheelPositions(), pose);
   }
 
   public ChassisSpeeds getRobotRelativeSpeeds() {
     return kinematics.toChassisSpeeds(getWheelSpeeds());
   }
 
-  public void resetEncoders() {
+  public void encoderlariSifirla() {
     frontLeftMotor.getEncoder().setPosition(0);
     frontRightMotor.getEncoder().setPosition(0);
     rearLeftMotor.getEncoder().setPosition(0);
     rearRightMotor.getEncoder().setPosition(0);
   }
 
-  public void zeroHeading() {
+  public void yonuSifirla() {
     if (RobotBase.isReal() && navx != null) {
       navx.reset();
     } else {
@@ -628,32 +629,32 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   // Run individual motors forward for testing
-  public void runFrontLeftMotor(double speed) {
+  public void onSolMotoruCalistir(double speed) {
     frontLeftMotor.set(speed);
     if (mecanumDrive != null) mecanumDrive.feed();
   }
 
-  public void runFrontRightMotor(double speed) {
+  public void onSagMotoruCalistir(double speed) {
     frontRightMotor.set(speed);
     if (mecanumDrive != null) mecanumDrive.feed();
   }
 
-  public void runRearLeftMotor(double speed) {
+  public void arkaSolMotoruCalistir(double speed) {
     rearLeftMotor.set(speed);
     if (mecanumDrive != null) mecanumDrive.feed();
   }
 
-  public void runRearRightMotor(double speed) {
+  public void arkaSagMotoruCalistir(double speed) {
     rearRightMotor.set(speed);
     if (mecanumDrive != null) mecanumDrive.feed();
   }
 
   // Run all motors forward for testing
-  public void runAllMotors(double speed) {
-    frontLeftMotor.set(speed/16);
-    frontRightMotor.set(speed/16);
-    rearLeftMotor.set(speed/16);
-    rearRightMotor.set(speed/16);
+  public void tumMotorlariCalistir(double speed) {
+    frontLeftMotor.set(speed);
+    frontRightMotor.set(speed);
+    rearLeftMotor.set(speed);
+    rearRightMotor.set(speed);
     if (mecanumDrive != null) mecanumDrive.feed();
   }
 

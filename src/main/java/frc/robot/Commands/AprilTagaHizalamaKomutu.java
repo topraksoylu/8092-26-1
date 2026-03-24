@@ -5,17 +5,17 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Subsystems.DriveSubsystem;
-import frc.robot.Subsystems.VisionSubsystem;
-import frc.robot.AprilTagFieldLayout;
+import frc.robot.Subsystems.SurusAltSistemi;
+import frc.robot.Subsystems.GorusAltSistemi;
+import frc.robot.AprilTagSahaYerlesimi;
 
 /**
  * Aligns the robot to face and drive toward a specific AprilTag.
  * Uses vision feedback to position the robot in front of the tag.
  */
-public class AlignToAprilTagCommand extends Command {
-    private final DriveSubsystem driveSubsystem;
-    private final VisionSubsystem visionSubsystem;
+public class AprilTagaHizalamaKomutu extends Command {
+    private final SurusAltSistemi SurusAltSistemi;
+    private final GorusAltSistemi GorusAltSistemi;
 
     // Target configuration
     private final int targetTagId;
@@ -32,21 +32,21 @@ public class AlignToAprilTagCommand extends Command {
     private boolean isRedAlliance;
 
     /**
-     * Creates a new AlignToAprilTagCommand.
+     * Creates a new AprilTagaHizalamaKomutu.
      *
-     * @param driveSubsystem The drive subsystem to use
-     * @param visionSubsystem The vision subsystem to use
+     * @param SurusAltSistemi The drive subsystem to use
+     * @param GorusAltSistemi The vision subsystem to use
      * @param targetTagId The AprilTag ID to align to (1-16)
      * @param targetDistanceMeters How far in front of the tag to stop (default: 1.0m)
      */
-    public AlignToAprilTagCommand(
-            DriveSubsystem driveSubsystem,
-            VisionSubsystem visionSubsystem,
+    public AprilTagaHizalamaKomutu(
+            SurusAltSistemi SurusAltSistemi,
+            GorusAltSistemi GorusAltSistemi,
             int targetTagId,
             double targetDistanceMeters) {
 
-        this.driveSubsystem = driveSubsystem;
-        this.visionSubsystem = visionSubsystem;
+        this.SurusAltSistemi = SurusAltSistemi;
+        this.GorusAltSistemi = GorusAltSistemi;
         this.targetTagId = targetTagId;
         this.targetDistanceMeters = targetDistanceMeters;
         this.toleranceMeters = 0.15;  // 15cm tolerance
@@ -66,7 +66,7 @@ public class AlignToAprilTagCommand extends Command {
         yController.setTolerance(toleranceMeters);
         thetaController.setTolerance(toleranceDegrees);
 
-        addRequirements(driveSubsystem);
+        addRequirements(SurusAltSistemi);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class AlignToAprilTagCommand extends Command {
     @Override
     public void execute() {
         // Get vision result
-        VisionSubsystem.VisionResult result = visionSubsystem.getRobotPoseFromAprilTag();
+        GorusAltSistemi.VisionResult result = GorusAltSistemi.aprilTagdanRobotPozuAl();
 
         SmartDashboard.putBoolean("AlignToAprilTag/ResultValid", result.valid);
         SmartDashboard.putNumber("AlignToAprilTag/ResultTagID", result.tagId);
@@ -97,32 +97,26 @@ public class AlignToAprilTagCommand extends Command {
         // If no valid vision target, stop
         if (!result.valid) {
             SmartDashboard.putString("AlignToAprilTag/Status", "No valid vision");
-            System.out.println("AlignToAprilTag: No valid vision - stopping");
-            driveSubsystem.stopAllMotors();
+            SurusAltSistemi.tumMotorlariDurdur();
             return;
         }
 
         if (result.tagId != targetTagId) {
             SmartDashboard.putString("AlignToAprilTag/Status", "Wrong tag: " + result.tagId);
-            System.out.println("AlignToAprilTag: Wrong tag ID " + result.tagId + " (want " + targetTagId + ")");
-            driveSubsystem.stopAllMotors();
+            SurusAltSistemi.tumMotorlariDurdur();
             return;
         }
 
         // Get target tag pose from field layout
-        Pose2d targetPose = AprilTagFieldLayout.getTagPose(targetTagId, isRedAlliance);
+        Pose2d targetPose = AprilTagSahaYerlesimi.etiketPozunuAl(targetTagId, isRedAlliance);
         if (targetPose == null) {
             SmartDashboard.putString("AlignToAprilTag/Status", "Tag pose not found");
-            System.out.println("AlignToAprilTag: Tag pose not found for ID " + targetTagId);
-            driveSubsystem.stopAllMotors();
+            SurusAltSistemi.tumMotorlariDurdur();
             return;
         }
 
         // Current robot pose from vision
         Pose2d currentPose = result.robotPose;
-        System.out.println(String.format("AlignToAprilTag: Robot at (%.2f, %.2f, %.1f°), Tag at (%.2f, %.2f)",
-            currentPose.getX(), currentPose.getY(), currentPose.getRotation().getDegrees(),
-            targetPose.getX(), targetPose.getY()));
 
         // Calculate desired position (in front of tag, facing tag)
         // Target position = tag position - offset in direction tag is facing
@@ -164,19 +158,19 @@ public class AlignToAprilTagCommand extends Command {
 
         // Drive the robot
         // Note: Using field-oriented drive for better control
-        driveSubsystem.drive(ySpeed, xSpeed, thetaSpeed);
+        SurusAltSistemi.drive(ySpeed, xSpeed, thetaSpeed);
     }
 
     @Override
     public boolean isFinished() {
         // Check if we're at the target position
-        VisionSubsystem.VisionResult result = visionSubsystem.getRobotPoseFromAprilTag();
+        GorusAltSistemi.VisionResult result = GorusAltSistemi.aprilTagdanRobotPozuAl();
 
         if (!result.valid || result.tagId != targetTagId) {
             return false;  // Don't finish if we can't see the target
         }
 
-        Pose2d targetPose = AprilTagFieldLayout.getTagPose(targetTagId, isRedAlliance);
+        Pose2d targetPose = AprilTagSahaYerlesimi.etiketPozunuAl(targetTagId, isRedAlliance);
         if (targetPose == null) {
             return false;
         }
@@ -223,7 +217,8 @@ public class AlignToAprilTagCommand extends Command {
         System.out.println("ALIGN TO APRILTAG COMMAND ENDING");
         System.out.println("Interrupted: " + interrupted);
         System.out.println("===========================================");
-        driveSubsystem.stopAllMotors();
+        SurusAltSistemi.tumMotorlariDurdur();
         SmartDashboard.putString("AlignToAprilTag/Status", interrupted ? "Interrupted" : "Finished");
     }
 }
+

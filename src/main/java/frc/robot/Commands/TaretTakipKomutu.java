@@ -2,22 +2,22 @@ package frc.robot.Commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Subsystems.TurretSubsystem;
-import frc.robot.Subsystems.VisionSubsystem;
+import frc.robot.Subsystems.GorusAltSistemi;
 
-public class TurretTrackCommand extends Command {
+public class TaretTakipKomutu extends Command {
     private TurretSubsystem turretSubsystem;
-    private VisionSubsystem visionSubsystem;
+    private GorusAltSistemi GorusAltSistemi;
 
-    public TurretTrackCommand(TurretSubsystem turretSubsystem, VisionSubsystem visionSubsystem) {
+    public TaretTakipKomutu(TurretSubsystem turretSubsystem, GorusAltSistemi GorusAltSistemi) {
         this.turretSubsystem = turretSubsystem;
-        this.visionSubsystem = visionSubsystem;
+        this.GorusAltSistemi = GorusAltSistemi;
         addRequirements(turretSubsystem);
     }
 
     @Override
     public void execute() {
-        if (visionSubsystem.hasTarget()) {
-            double horizontalOffset = visionSubsystem.getHorizontalOffset();
+        if (GorusAltSistemi.hasTarget()) {
+            double horizontalOffset = GorusAltSistemi.getHorizontalOffset();
             double speed = horizontalOffset * 0.01; // Proportional control, tune this
             turretSubsystem.rotate(speed);
         } else {

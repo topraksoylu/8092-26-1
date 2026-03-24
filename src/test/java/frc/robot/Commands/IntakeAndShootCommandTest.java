@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import frc.robot.Constants.ModuleConstants;
+import frc.robot.Sabitler.ModulSabitleri;
 import frc.robot.Subsystems.IntakeSubsystem;
 import frc.robot.Subsystems.ShooterSubsystem;
 
@@ -17,7 +17,7 @@ class IntakeAndShootCommandTest {
         IntakeCommand command = new IntakeCommand(subsystem);
 
         command.execute();
-        assertEquals(ModuleConstants.INTAKE_SPEED, subsystem.getLastCommandedSpeed(), 1e-9);
+        assertEquals(ModulSabitleri.ALIM_HIZI, subsystem.getLastCommandedSpeed(), 1e-9);
 
         command.end(false);
         assertEquals(0.0, subsystem.getLastCommandedSpeed(), 1e-9);
@@ -30,7 +30,7 @@ class IntakeAndShootCommandTest {
         ShootCommand command = new ShootCommand(subsystem, 3.0);
 
         command.initialize();
-        assertEquals(ModuleConstants.SHOOTER_SPEED, subsystem.getLastCommandedSpeed(), 1e-9);
+        assertEquals(ModulSabitleri.ATICI_HIZI, subsystem.getLastCommandedSpeed(), 1e-9);
 
         command.end(false);
         assertEquals(0.0, subsystem.getLastCommandedSpeed(), 1e-9);

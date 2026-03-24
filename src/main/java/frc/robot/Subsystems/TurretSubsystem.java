@@ -6,8 +6,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ModuleConstants;
-import frc.robot.Constants.MotorConstants;
+import frc.robot.Sabitler.ModulSabitleri;
+import frc.robot.Sabitler.MotorSabitleri;
 
 public class TurretSubsystem extends SubsystemBase {
     private SparkMax turretMotor;
@@ -15,10 +15,10 @@ public class TurretSubsystem extends SubsystemBase {
     private double lastCommandedSpeed = 0.0;
 
     public TurretSubsystem() {
-        if (MotorConstants.ENABLE_NON_DRIVE_MOTORS) {
-            turretMotor = new SparkMax(MotorConstants.TURRET_MOTOR_ID, MotorType.kBrushless);
+        if (MotorSabitleri.SURUS_DISI_MOTORLARI_ETKIN) {
+            turretMotor = new SparkMax(MotorSabitleri.TARET_MOTOR_ID, MotorType.kBrushless);
             SparkMaxConfig config = new SparkMaxConfig();
-            config.inverted(MotorConstants.TURRET_MOTOR_INVERTED);
+            config.inverted(MotorSabitleri.TARET_MOTOR_TERS);
             turretMotor.configure(config, com.revrobotics.spark.SparkBase.ResetMode.kNoResetSafeParameters, com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
 
             turretEncoder = turretMotor.getEncoder();

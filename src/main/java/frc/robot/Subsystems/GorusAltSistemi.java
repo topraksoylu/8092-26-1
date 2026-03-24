@@ -10,9 +10,9 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.VisionConstants;
+import frc.robot.Sabitler.GorusSabitleri;
 
-public class VisionSubsystem extends SubsystemBase {
+public class GorusAltSistemi extends SubsystemBase {
     interface VisionIO {
         double getDouble(String key, double defaultValue);
         long getInteger(String key, long defaultValue);
@@ -100,11 +100,11 @@ public class VisionSubsystem extends SubsystemBase {
         public boolean valid;
     }
 
-    public VisionSubsystem() {
-        this(new NetworkTableVisionIO(VisionConstants.LIMELIGHT_NAME), new WpiRuntimeIO());
+    public GorusAltSistemi() {
+        this(new NetworkTableVisionIO(GorusSabitleri.LIMELIGHT_ADI), new WpiRuntimeIO());
     }
 
-    VisionSubsystem(VisionIO io, RuntimeIO runtime) {
+    GorusAltSistemi(VisionIO io, RuntimeIO runtime) {
         this.io = io;
         this.runtime = runtime;
         initializeTuningDashboard();
@@ -133,10 +133,10 @@ public class VisionSubsystem extends SubsystemBase {
 
     public double getDistanceToTarget() {
         double targetOffsetAngleVertical = getVerticalOffset();
-        double angleToGoalDegrees = VisionConstants.LIMELIGHT_ANGLE + targetOffsetAngleVertical;
+        double angleToGoalDegrees = GorusSabitleri.LIMELIGHT_ACISI + targetOffsetAngleVertical;
         double angleToGoalRadians = angleToGoalDegrees * (Math.PI / 180.0);
         double distanceInches =
-            (VisionConstants.TARGET_HEIGHT - VisionConstants.LIMELIGHT_HEIGHT) / Math.tan(angleToGoalRadians);
+            (GorusSabitleri.HEDEF_YUKSEKLIGI - GorusSabitleri.LIMELIGHT_YUKSEKLIGI) / Math.tan(angleToGoalRadians);
         return distanceInches * 0.0254;
     }
 
@@ -175,40 +175,40 @@ public class VisionSubsystem extends SubsystemBase {
 
     private void initializeTuningDashboard() {
         SmartDashboard.putBoolean("Vision/Tune/Enable", false);
-        SmartDashboard.putNumber("Vision/Tune/Pipeline", VisionConstants.DESIRED_PIPELINE);
-        SmartDashboard.putNumber("Vision/Tune/SourceImageCamMode", VisionConstants.DESIRED_CAM_MODE);
-        SmartDashboard.putNumber("Vision/Tune/LEDMode", VisionConstants.DESIRED_LED_MODE);
-        SmartDashboard.putNumber("Vision/Tune/StreamMode", VisionConstants.DESIRED_STREAM_MODE);
+        SmartDashboard.putNumber("Vision/Tune/Pipeline", GorusSabitleri.ISTENEN_HAT);
+        SmartDashboard.putNumber("Vision/Tune/SourceImageCamMode", GorusSabitleri.ISTENEN_KAMERA_MODU);
+        SmartDashboard.putNumber("Vision/Tune/LEDMode", GorusSabitleri.ISTENEN_LED_MODU);
+        SmartDashboard.putNumber("Vision/Tune/StreamMode", GorusSabitleri.ISTENEN_YAYIN_MODU);
         SmartDashboard.putString("Vision/Tune/Unsupported", "Resolution, Stream Orientation, Exposure, LED Power -> Limelight UI");
         tuningInitialized = true;
     }
 
     private int getDesiredPipeline() {
         if (SmartDashboard.getBoolean("Vision/Tune/Enable", false)) {
-            return (int) SmartDashboard.getNumber("Vision/Tune/Pipeline", VisionConstants.DESIRED_PIPELINE);
+            return (int) SmartDashboard.getNumber("Vision/Tune/Pipeline", GorusSabitleri.ISTENEN_HAT);
         }
-        return VisionConstants.DESIRED_PIPELINE;
+        return GorusSabitleri.ISTENEN_HAT;
     }
 
     private int getDesiredCamMode() {
         if (SmartDashboard.getBoolean("Vision/Tune/Enable", false)) {
-            return (int) SmartDashboard.getNumber("Vision/Tune/SourceImageCamMode", VisionConstants.DESIRED_CAM_MODE);
+            return (int) SmartDashboard.getNumber("Vision/Tune/SourceImageCamMode", GorusSabitleri.ISTENEN_KAMERA_MODU);
         }
-        return VisionConstants.DESIRED_CAM_MODE;
+        return GorusSabitleri.ISTENEN_KAMERA_MODU;
     }
 
     private int getDesiredLedMode() {
         if (SmartDashboard.getBoolean("Vision/Tune/Enable", false)) {
-            return (int) SmartDashboard.getNumber("Vision/Tune/LEDMode", VisionConstants.DESIRED_LED_MODE);
+            return (int) SmartDashboard.getNumber("Vision/Tune/LEDMode", GorusSabitleri.ISTENEN_LED_MODU);
         }
-        return VisionConstants.DESIRED_LED_MODE;
+        return GorusSabitleri.ISTENEN_LED_MODU;
     }
 
     private int getDesiredStreamMode() {
         if (SmartDashboard.getBoolean("Vision/Tune/Enable", false)) {
-            return (int) SmartDashboard.getNumber("Vision/Tune/StreamMode", VisionConstants.DESIRED_STREAM_MODE);
+            return (int) SmartDashboard.getNumber("Vision/Tune/StreamMode", GorusSabitleri.ISTENEN_YAYIN_MODU);
         }
-        return VisionConstants.DESIRED_STREAM_MODE;
+        return GorusSabitleri.ISTENEN_YAYIN_MODU;
     }
 
     public void applyDesiredLimelightConfig() {
@@ -255,8 +255,8 @@ public class VisionSubsystem extends SubsystemBase {
         if (fmapTagCount <= 0) {
             return "FMAP not loaded (tagCount=0)";
         }
-        if (fmapTagCount < VisionConstants.TOTAL_APRILTAGS) {
-            return String.format("FMAP partial (%d/%d tags)", fmapTagCount, VisionConstants.TOTAL_APRILTAGS);
+        if (fmapTagCount < GorusSabitleri.TOPLAM_APRILTAG) {
+            return String.format("FMAP partial (%d/%d tags)", fmapTagCount, GorusSabitleri.TOPLAM_APRILTAG);
         }
         return "OK";
     }
@@ -285,23 +285,17 @@ public class VisionSubsystem extends SubsystemBase {
         // BUG FIX: Check raw tv value, not cached value!
         if (tv != 1) {
             SmartDashboard.putString("Vision/Debug/Status", "No target (tv=" + tv + ")");
-            System.out.println("Vision: No target detected (tv=" + tv + ")");
             return result;
         }
 
-        System.out.println("Vision: Target detected! Reading pose data...");
-
         String poseEntry = runtime.isRedAlliance() ? "botpose_wpired" : "botpose_wpiblue";
         SmartDashboard.putString("Vision/Debug/PoseEntry", poseEntry);
-        System.out.println("Vision: Reading from " + poseEntry);
 
         double[] botPoseArray = io.getDoubleArray(poseEntry, new double[0]);
         SmartDashboard.putNumber("Vision/Debug/PoseArrayLength", botPoseArray.length);
-        System.out.println("Vision: botpose array length = " + botPoseArray.length);
 
         if (botPoseArray.length < 7) {
             SmartDashboard.putString("Vision/Debug/Status", "Array too short: " + botPoseArray.length);
-            System.out.println("Vision: ERROR - Array too short! Expected 7, got " + botPoseArray.length);
             return result;
         }
 
@@ -310,9 +304,6 @@ public class VisionSubsystem extends SubsystemBase {
         double yaw = botPoseArray[5];
         double latency = botPoseArray[6] / 1000.0;
         double timestamp = runtime.nowSec() - latency;
-
-        System.out.println(String.format("Vision: Got pose - X:%.2f Y:%.2f Yaw:%.1f Latency:%.3f",
-            x, y, yaw, latency));
 
         result.robotPose = new Pose2d(x, y, Rotation2d.fromDegrees(yaw));
         result.timestamp = timestamp;
@@ -328,12 +319,10 @@ public class VisionSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Vision/Debug/Ambiguity", result.ambiguity);
 
         // Validate result
-        result.valid = (result.ambiguity < VisionConstants.AMBIGUITY_THRESHOLD) && (result.tagId > 0);
+        result.valid = (result.ambiguity < GorusSabitleri.BELIRSIZLIK_ESIGI) && (result.tagId > 0);
 
         SmartDashboard.putBoolean("Vision/Debug/Valid", result.valid);
         SmartDashboard.putString("Vision/Debug/Status", result.valid ? "OK" : "Invalid");
-
-        System.out.println("Vision: Result valid=" + result.valid + " (ambiguity=" + result.ambiguity + ", tagID=" + result.tagId + ")");
 
         return result;
     }
@@ -347,7 +336,7 @@ public class VisionSubsystem extends SubsystemBase {
 
             double nowSec = runtime.nowSec();
             if (lastConfigApplyTimestampSec < 0
-                || nowSec - lastConfigApplyTimestampSec >= VisionConstants.CONFIG_REAPPLY_INTERVAL_SEC) {
+                || nowSec - lastConfigApplyTimestampSec >= GorusSabitleri.YAPILANDIRMA_YENIDEN_UYGULAMA_ARALIGI_SN) {
                 applyDesiredLimelightConfig();
             }
 
@@ -393,7 +382,7 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
-    public VisionResult getRobotPoseFromAprilTag() {
+    public VisionResult aprilTagdanRobotPozuAl() {
         // For debugging: Always read fresh data, don't use cache
         return getRobotPoseFromAprilTagInternal();
     }

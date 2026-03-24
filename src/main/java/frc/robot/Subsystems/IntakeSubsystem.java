@@ -5,18 +5,18 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ModuleConstants;
-import frc.robot.Constants.MotorConstants;
+import frc.robot.Sabitler.ModulSabitleri;
+import frc.robot.Sabitler.MotorSabitleri;
 
 public class IntakeSubsystem extends SubsystemBase {
     private SparkMax intakeMotor;
     private double lastCommandedSpeed = 0.0;
 
     public IntakeSubsystem() {
-        if (MotorConstants.ENABLE_NON_DRIVE_MOTORS) {
-            intakeMotor = new SparkMax(MotorConstants.INTAKE_MOTOR_ID, MotorType.kBrushless);
+        if (MotorSabitleri.SURUS_DISI_MOTORLARI_ETKIN) {
+            intakeMotor = new SparkMax(MotorSabitleri.ALIM_MOTOR_ID, MotorType.kBrushless);
             SparkMaxConfig config = new SparkMaxConfig();
-            config.inverted(MotorConstants.INTAKE_MOTOR_INVERTED);
+            config.inverted(MotorSabitleri.ALIM_MOTOR_TERS);
             intakeMotor.configure(config, com.revrobotics.spark.SparkBase.ResetMode.kNoResetSafeParameters, com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
         } else {
             // Stub out motor to avoid creating CAN devices when not needed
@@ -25,16 +25,16 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void intake() {
-        lastCommandedSpeed = ModuleConstants.INTAKE_SPEED;
+        lastCommandedSpeed = ModulSabitleri.ALIM_HIZI;
         if (intakeMotor != null) {
-            intakeMotor.set(ModuleConstants.INTAKE_SPEED);
+            intakeMotor.set(ModulSabitleri.ALIM_HIZI);
         }
     }
 
     public void outtake() {
-        lastCommandedSpeed = -ModuleConstants.INTAKE_SPEED;
+        lastCommandedSpeed = -ModulSabitleri.ALIM_HIZI;
         if (intakeMotor != null) {
-            intakeMotor.set(-ModuleConstants.INTAKE_SPEED);
+            intakeMotor.set(-ModulSabitleri.ALIM_HIZI);
         }
     }
 

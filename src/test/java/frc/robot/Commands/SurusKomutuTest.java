@@ -10,17 +10,17 @@ import org.junit.jupiter.api.Test;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-class DriveCommandTest {
+class SurusKomutuTest {
     @Test
     @Tag("fast")
     void shapeAxisAppliesDeadbandAndSquareCurve() {
-        assertEquals(0.0, DriveCommand.shapeAxis(0.01, 0.5), 1e-9);
+        assertEquals(0.0, SurusKomutu.eksenSekillendir(0.01, 0.5), 1e-9);
 
-        double shaped = DriveCommand.shapeAxis(0.5, 0.5);
+        double shaped = SurusKomutu.eksenSekillendir(0.5, 0.5);
         assertTrue(shaped > 0.0);
         assertEquals(Math.pow(0.5 - 0.08, 2) / Math.pow(1.0 - 0.08, 2) * 0.5, shaped, 1e-6);
 
-        double negative = DriveCommand.shapeAxis(-0.5, 0.5);
+        double negative = SurusKomutu.eksenSekillendir(-0.5, 0.5);
         assertEquals(-shaped, negative, 1e-6);
     }
 
@@ -29,7 +29,7 @@ class DriveCommandTest {
     void executeSendsShapedCommandsToDriveOutput() {
         AtomicReference<double[]> outputs = new AtomicReference<>(new double[] {0, 0, 0});
         SubsystemBase req = new SubsystemBase() {};
-        DriveCommand command = new DriveCommand(
+        SurusKomutu command = new SurusKomutu(
             () -> 0.7,
             () -> 0.4,
             () -> -0.2,

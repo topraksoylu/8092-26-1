@@ -10,8 +10,8 @@ import java.util.Map;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-class VisionSubsystemTest {
-    private static class FakeVisionIO implements VisionSubsystem.VisionIO {
+class GorusAltSistemiTest {
+    private static class FakeVisionIO implements GorusAltSistemi.VisionIO {
         private final Map<String, Double> doubles = new HashMap<>();
         private final Map<String, Long> integers = new HashMap<>();
         private final Map<String, String> strings = new HashMap<>();
@@ -43,7 +43,7 @@ class VisionSubsystemTest {
         }
     }
 
-    private static class FakeRuntimeIO implements VisionSubsystem.RuntimeIO {
+    private static class FakeRuntimeIO implements GorusAltSistemi.RuntimeIO {
         private boolean isReal = true;
         private boolean isRedAlliance = false;
         private double nowSec = 100.0;
@@ -69,7 +69,7 @@ class VisionSubsystemTest {
     void limelightConfigStatusRequiresPipelineModeAndFmap() {
         FakeVisionIO io = new FakeVisionIO();
         FakeRuntimeIO runtime = new FakeRuntimeIO();
-        VisionSubsystem vision = new VisionSubsystem(io, runtime);
+        GorusAltSistemi vision = new GorusAltSistemi(io, runtime);
 
         io.doubles.put("pipeline", 0.0);
         io.doubles.put("camMode", 0.0);
@@ -89,7 +89,7 @@ class VisionSubsystemTest {
     void periodicCachesPoseAtConfiguredUpdateRate() {
         FakeVisionIO io = new FakeVisionIO();
         FakeRuntimeIO runtime = new FakeRuntimeIO();
-        VisionSubsystem vision = new VisionSubsystem(io, runtime);
+        GorusAltSistemi vision = new GorusAltSistemi(io, runtime);
 
         io.doubles.put("tv", 1.0);
         io.integers.put("tid", 4L);
@@ -99,11 +99,11 @@ class VisionSubsystemTest {
 
         for (int i = 0; i < 4; i++) {
             vision.periodic();
-            assertFalse(vision.getRobotPoseFromAprilTag().valid);
+            assertFalse(vision.aprilTagdanRobotPozuAl().valid);
         }
 
         vision.periodic();
-        VisionSubsystem.VisionResult result = vision.getRobotPoseFromAprilTag();
+        GorusAltSistemi.VisionResult result = vision.aprilTagdanRobotPozuAl();
         assertTrue(result.valid);
         assertEquals(2.0, result.robotPose.getX(), 1e-9);
         assertEquals(3.0, result.robotPose.getY(), 1e-9);
@@ -116,7 +116,7 @@ class VisionSubsystemTest {
     void allianceSelectionSwitchesPoseKey() {
         FakeVisionIO io = new FakeVisionIO();
         FakeRuntimeIO runtime = new FakeRuntimeIO();
-        VisionSubsystem vision = new VisionSubsystem(io, runtime);
+        GorusAltSistemi vision = new GorusAltSistemi(io, runtime);
 
         io.doubles.put("tv", 1.0);
         io.integers.put("tid", 5L);
@@ -128,12 +128,12 @@ class VisionSubsystemTest {
         for (int i = 0; i < 5; i++) {
             vision.periodic();
         }
-        assertEquals(1.0, vision.getRobotPoseFromAprilTag().robotPose.getX(), 1e-9);
+        assertEquals(1.0, vision.aprilTagdanRobotPozuAl().robotPose.getX(), 1e-9);
 
         runtime.isRedAlliance = true;
         for (int i = 0; i < 5; i++) {
             vision.periodic();
         }
-        assertEquals(8.0, vision.getRobotPoseFromAprilTag().robotPose.getX(), 1e-9);
+        assertEquals(8.0, vision.aprilTagdanRobotPozuAl().robotPose.getX(), 1e-9);
     }
 }

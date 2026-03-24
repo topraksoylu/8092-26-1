@@ -20,7 +20,7 @@ import java.util.Map;
  * Tag family: apriltag3_36h11_classic
  * Tag size: 165.1mm (6.5 inches)
  */
-public class AprilTagFieldLayout {
+public class AprilTagSahaYerlesimi {
     private static final Map<Integer, Pose2d> BLUE_ALLIANCE_TAGS = new HashMap<>();
     private static final Map<Integer, Pose2d> RED_ALLIANCE_TAGS = new HashMap<>();
 
@@ -79,7 +79,7 @@ public class AprilTagFieldLayout {
      * @param isRedAlliance True if on red alliance, false for blue
      * @return Pose2d of the tag, or null if tag ID not found
      */
-    public static Pose2d getTagPose(int tagId, boolean isRedAlliance) {
+    public static Pose2d etiketPozunuAl(int tagId, boolean isRedAlliance) {
         Map<Integer, Pose2d> tags = isRedAlliance ? RED_ALLIANCE_TAGS : BLUE_ALLIANCE_TAGS;
         return tags.get(tagId);
     }

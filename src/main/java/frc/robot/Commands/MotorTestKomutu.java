@@ -1,23 +1,23 @@
 package frc.robot.Commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Subsystems.DriveSubsystem;
+import frc.robot.Subsystems.SurusAltSistemi;
 
 /**
  * Runs a single drive motor at a fixed speed while the command is active.
  * Use from SmartDashboard to test motor wiring/direction safely.
  */
-public class MotorTestCommand extends Command {
+public class MotorTestKomutu extends Command {
   public static final int FRONT_LEFT = 1;
   public static final int FRONT_RIGHT = 2;
   public static final int REAR_LEFT = 3;
   public static final int REAR_RIGHT = 4;
 
-  private final DriveSubsystem drive;
+  private final SurusAltSistemi drive;
   private final int motorIndex;
   private final double speed;
 
-  public MotorTestCommand(DriveSubsystem drive, int motorIndex, double speed) {
+  public MotorTestKomutu(SurusAltSistemi drive, int motorIndex, double speed) {
     this.drive = drive;
     this.motorIndex = motorIndex;
     this.speed = speed;
@@ -52,7 +52,7 @@ public class MotorTestCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    drive.stopAllMotors();
+    drive.tumMotorlariDurdur();
   }
 
   @Override

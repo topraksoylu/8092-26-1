@@ -5,18 +5,18 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Subsystems.DriveSubsystem;
-import frc.robot.Subsystems.VisionSubsystem;
-import frc.robot.AprilTagFieldLayout;
+import frc.robot.Subsystems.SurusAltSistemi;
+import frc.robot.Subsystems.GorusAltSistemi;
+import frc.robot.AprilTagSahaYerlesimi;
 
 /**
  * Continuously tracks and follows an AprilTag.
  * Maintains a specified distance from the tag and faces it.
  * Runs continuously while button is held.
  */
-public class TrackAprilTagCommand extends Command {
-    private final DriveSubsystem driveSubsystem;
-    private final VisionSubsystem visionSubsystem;
+public class AprilTagTakipKomutu extends Command {
+    private final SurusAltSistemi SurusAltSistemi;
+    private final GorusAltSistemi GorusAltSistemi;
 
     // Target configuration
     private final int targetTagId;
@@ -35,21 +35,21 @@ public class TrackAprilTagCommand extends Command {
     private static final int NO_TARGET_TIMEOUT_FRAMES = 25;  // 0.5 seconds at 50Hz
 
     /**
-     * Creates a new TrackAprilTagCommand.
+     * Creates a new AprilTagTakipKomutu.
      *
-     * @param driveSubsystem The drive subsystem to use
-     * @param visionSubsystem The vision subsystem to use
+     * @param SurusAltSistemi The drive subsystem to use
+     * @param GorusAltSistemi The vision subsystem to use
      * @param targetTagId The AprilTag ID to track (1-16)
      * @param targetDistanceMeters Distance to maintain from tag (default: 1.5m)
      */
-    public TrackAprilTagCommand(
-            DriveSubsystem driveSubsystem,
-            VisionSubsystem visionSubsystem,
+    public AprilTagTakipKomutu(
+            SurusAltSistemi SurusAltSistemi,
+            GorusAltSistemi GorusAltSistemi,
             int targetTagId,
             double targetDistanceMeters) {
 
-        this.driveSubsystem = driveSubsystem;
-        this.visionSubsystem = visionSubsystem;
+        this.SurusAltSistemi = SurusAltSistemi;
+        this.GorusAltSistemi = GorusAltSistemi;
         this.targetTagId = targetTagId;
         this.targetDistanceMeters = targetDistanceMeters;
 
@@ -67,7 +67,7 @@ public class TrackAprilTagCommand extends Command {
         strafeController.setTolerance(0.2);     // 20cm tolerance
         thetaController.setTolerance(10.0);     // 10 degree tolerance
 
-        addRequirements(driveSubsystem);
+        addRequirements(SurusAltSistemi);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class TrackAprilTagCommand extends Command {
     @Override
     public void execute() {
         // Get vision result
-        VisionSubsystem.VisionResult result = visionSubsystem.getRobotPoseFromAprilTag();
+        GorusAltSistemi.VisionResult result = GorusAltSistemi.aprilTagdanRobotPozuAl();
 
         SmartDashboard.putBoolean("TrackAprilTag/ResultValid", result.valid);
         SmartDashboard.putNumber("TrackAprilTag/ResultTagID", result.tagId);
@@ -103,11 +103,10 @@ public class TrackAprilTagCommand extends Command {
         if (!result.valid) {
             noTargetFrames++;
             SmartDashboard.putString("TrackAprilTag/Status", "No target (" + noTargetFrames + ")");
-            System.out.println("TrackAprilTag: No valid vision - waiting...");
 
             // Stop robot after a few frames
             if (noTargetFrames > 5) {
-                driveSubsystem.stopAllMotors();
+                SurusAltSistemi.tumMotorlariDurdur();
             }
             return;
         }
@@ -118,16 +117,15 @@ public class TrackAprilTagCommand extends Command {
         // Check if we're seeing the right tag
         if (result.tagId != targetTagId) {
             SmartDashboard.putString("TrackAprilTag/Status", "Wrong tag: " + result.tagId);
-            System.out.println("TrackAprilTag: Wrong tag ID " + result.tagId + " (want " + targetTagId + ")");
-            driveSubsystem.stopAllMotors();
+            SurusAltSistemi.tumMotorlariDurdur();
             return;
         }
 
         // Get tag pose from field layout
-        Pose2d targetPose = AprilTagFieldLayout.getTagPose(targetTagId, isRedAlliance);
+        Pose2d targetPose = AprilTagSahaYerlesimi.etiketPozunuAl(targetTagId, isRedAlliance);
         if (targetPose == null) {
             SmartDashboard.putString("TrackAprilTag/Status", "Tag pose not found");
-            driveSubsystem.stopAllMotors();
+            SurusAltSistemi.tumMotorlariDurdur();
             return;
         }
 
@@ -155,14 +153,6 @@ public class TrackAprilTagCommand extends Command {
         while (thetaError > Math.PI) thetaError -= 2 * Math.PI;
         while (thetaError < -Math.PI) thetaError += 2 * Math.PI;
 
-        // Log tracking data periodically (every ~1 second)
-        if (noTargetFrames % 50 == 0) {
-            System.out.println(String.format("TrackAprilTag: Tracking at (%.2f, %.2f, %.1f°), Tag at (%.2f, %.2f), Errors: X=%.2f Y=%.2f Yaw=%.1f°",
-                currentPose.getX(), currentPose.getY(), currentPose.getRotation().getDegrees(),
-                targetPose.getX(), targetPose.getY(),
-                xError, yError, Math.toDegrees(thetaError)));
-        }
-
         // Update SmartDashboard with debug values
         SmartDashboard.putNumber("TrackAprilTag/XError", xError);
         SmartDashboard.putNumber("TrackAprilTag/YError", yError);
@@ -185,7 +175,7 @@ public class TrackAprilTagCommand extends Command {
         thetaSpeed = Math.max(-0.5, Math.min(0.5, thetaSpeed));
 
         // Drive the robot
-        driveSubsystem.drive(ySpeed, xSpeed, thetaSpeed);
+        SurusAltSistemi.drive(ySpeed, xSpeed, thetaSpeed);
 
         SmartDashboard.putString("TrackAprilTag/Status", "Tracking");
     }
@@ -204,7 +194,8 @@ public class TrackAprilTagCommand extends Command {
         System.out.println("Interrupted: " + interrupted);
         System.out.println("===========================================");
 
-        driveSubsystem.stopAllMotors();
+        SurusAltSistemi.tumMotorlariDurdur();
         SmartDashboard.putString("TrackAprilTag/Status", interrupted ? "Interrupted" : "Stopped");
     }
 }
+

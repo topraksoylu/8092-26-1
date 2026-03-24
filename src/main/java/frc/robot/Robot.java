@@ -12,12 +12,12 @@ import frc.robot.util.Elastic.Notification;
 import frc.robot.util.Elastic.NotificationLevel;
 
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
+  private Command m_otonomKomut;
 
-  private final RobotContainer m_robotContainer;
+  private final RobotKapsayici m_robotKapsayici;
 
   public Robot() {
-    m_robotContainer = new RobotContainer();
+    m_robotKapsayici = new RobotKapsayici();
   }
 
   @Override
@@ -32,10 +32,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    // Update container diagnostics (button polling, controller status)
-    m_robotContainer.periodic();
+    // Kapsayici tarafindaki tanilama akislarini her dongude gunceller.
+    m_robotKapsayici.periyodik();
 
-    // Run command scheduler
+    // Komut zamanlayicisini her dongude calistirir.
     CommandScheduler.getInstance().run();
   }
 
@@ -50,12 +50,12 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    m_robotContainer.resetSensors();
+    m_robotKapsayici.sensorleriSifirla();
 
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_otonomKomut = m_robotKapsayici.otonomKomutAl();
 
-    if (m_autonomousCommand != null) {
-      CommandScheduler.getInstance().schedule(m_autonomousCommand);
+    if (m_otonomKomut != null) {
+      CommandScheduler.getInstance().schedule(m_otonomKomut);
     }
   }
 
@@ -67,10 +67,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    m_robotContainer.resetSensors();
+    m_robotKapsayici.sensorleriSifirla();
 
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    if (m_otonomKomut != null) {
+      m_otonomKomut.cancel();
     }
   }
 
