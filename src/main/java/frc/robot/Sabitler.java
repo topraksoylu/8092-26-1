@@ -28,7 +28,7 @@ public final class Sabitler {
         public static final int SURUS_MOTORU_BOSTA_AKIM_SINIRI = 40;  // Amps
         public static final int SURUS_MOTORU_AKIM_SINIR_ESIGI = 40;   // RPM
 
-        public static final boolean SURUS_DISI_MOTORLARI_ETKIN = false;
+        public static final boolean SURUS_DISI_MOTORLARI_ETKIN = true;
 
         // Alim ve tasiyici CIM motorlari (PWM)
         public static final boolean ALIM_MOTOR_TERS = false;
@@ -37,11 +37,11 @@ public final class Sabitler {
         public static final boolean DEPO_ATICI_YUKARI_TASIYICI_TERS = false;
 
         // Atici motoru (tek Spark Max)
-        public static final int ATICI_MOTOR_ID = 5;
+        public static final int ATICI_MOTOR_ID = 6;
         public static final boolean ATICI_MOTOR_TERS = false;
 
         // Taret motoru (tek Spark Max)
-        public static final int TARET_MOTOR_ID = 6;
+        public static final int TARET_MOTOR_ID = 5;
         public static final boolean TARET_MOTOR_TERS = false;
 
         // Taret aci sinirlari (toplam 180 derece hareket alani)
