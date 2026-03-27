@@ -102,7 +102,7 @@ public final class Sabitler {
         public static final double ALIM_HIZI = 0.5;
         public static final double DEPO_ATICI_YUKARI_TASIYICI_HIZI = 0.5;
         public static final double ATICI_HIZI = 0.8;
-        public static final double TARET_HIZI = 0.3;
+        public static final double TARET_HIZI = 0.25;
     }
 
     public static class GorusSabitleri {

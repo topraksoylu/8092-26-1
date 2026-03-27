@@ -19,14 +19,17 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Subsystems.SurusAltSistemi;
 import frc.robot.Subsystems.GorusAltSistemi;
+import frc.robot.Subsystems.TurretSubsystem;
 import frc.robot.Commands.SurusKomutu;
 import frc.robot.Commands.AprilTagaHizalamaKomutu;
 import frc.robot.Commands.AprilTagTakipKomutu;
+import frc.robot.Commands.TaretTakipKomutu;
 import frc.robot.Sabitler.*;
 
 public class RobotKapsayici {
   private GorusAltSistemi gorusAltSistemi;
   private SurusAltSistemi surusAltSistemi;
+  private TurretSubsystem turretSubsystem;
   private GenericHID surucuKontrolcusu = new GenericHID(OISabitleri.SURUCU_JOYSTICK_PORTU);
   private final PWMVictorSPX pwmTestMotoru = new PWMVictorSPX(1);
   private boolean surucuBagliOncekiDurum = false;
@@ -54,6 +57,7 @@ public class RobotKapsayici {
       new Pose2d(),
       gorusAltSistemi
     );
+    turretSubsystem = new TurretSubsystem();
     baglamalariYapilandir();
 
     // Not: PS4 kontrolcusu USB ile bagli olmali ve Driver Station'da gorunmelidir.
@@ -220,29 +224,40 @@ public class RobotKapsayici {
             SmartDashboard.putString(surucuIstasyonuAnahtari("SonDugme"), "Daire (3) - PWM1 Victor SPX");
         }));
 
-    // L1 dugmesi (5): CAN ID 3 motorunu test icin %10 geri calistirir.
+    // L1 dugmesi (5): Taret sola dondur.
     new JoystickButton(surucuKontrolcusu, 5)
         .onTrue(new InstantCommand(() -> {
             System.out.println("===========================================");
             System.out.println("DUGME 5 (L1) BASILDI");
-            System.out.println("Eylem: CAN ID 3 motor %10 GERI");
+            System.out.println("Eylem: Taret sola dondur");
             System.out.println("===========================================");
-            SmartDashboard.putString(surucuIstasyonuAnahtari("SonDugme"), "L1 (5) - CAN3 %10 Geri");
+            SmartDashboard.putString(surucuIstasyonuAnahtari("SonDugme"), "L1 (5) - Taret Sola");
         }))
-        .whileTrue(new RunCommand(() -> surusAltSistemi.arkaSagMotoruCalistir(-0.10), surusAltSistemi))
-        .onFalse(new InstantCommand(() -> surusAltSistemi.arkaSagMotoruCalistir(0.0), surusAltSistemi));
+        .whileTrue(new RunCommand(() -> turretSubsystem.rotate(-ModulSabitleri.TARET_HIZI), turretSubsystem))
+        .onFalse(new InstantCommand(() -> turretSubsystem.stop(), turretSubsystem));
 
-    // R1 dugmesi (6): CAN ID 3 motorunu test icin %10 ileri calistirir.
+    // R1 dugmesi (6): Taret saga dondur.
     new JoystickButton(surucuKontrolcusu, 6)
         .onTrue(new InstantCommand(() -> {
             System.out.println("===========================================");
             System.out.println("DUGME 6 (R1) BASILDI");
-            System.out.println("Eylem: CAN ID 3 motor %10 ILERI");
+            System.out.println("Eylem: Taret saga dondur");
             System.out.println("===========================================");
-            SmartDashboard.putString(surucuIstasyonuAnahtari("SonDugme"), "R1 (6) - CAN3 %10 Ileri");
+            SmartDashboard.putString(surucuIstasyonuAnahtari("SonDugme"), "R1 (6) - Taret Saga");
         }))
-        .whileTrue(new RunCommand(() -> surusAltSistemi.arkaSagMotoruCalistir(0.10), surusAltSistemi))
-        .onFalse(new InstantCommand(() -> surusAltSistemi.arkaSagMotoruCalistir(0.0), surusAltSistemi));
+        .whileTrue(new RunCommand(() -> turretSubsystem.rotate(ModulSabitleri.TARET_HIZI), turretSubsystem))
+        .onFalse(new InstantCommand(() -> turretSubsystem.stop(), turretSubsystem));
+
+    // L2 dugmesi (7): Tareti Limelight ile takip et.
+    new JoystickButton(surucuKontrolcusu, 7)
+        .onTrue(new InstantCommand(() -> {
+            System.out.println("===========================================");
+            System.out.println("DUGME 7 (L2) BASILDI");
+            System.out.println("Eylem: Taret Limelight ile takip");
+            System.out.println("===========================================");
+            SmartDashboard.putString(surucuIstasyonuAnahtari("SonDugme"), "L2 (7) - Taret Takip");
+        }))
+        .whileTrue(new TaretTakipKomutu(turretSubsystem, gorusAltSistemi));
 
     // R2 dugmesi (8): AprilTag'i surekli takip eder.
     // Basili tuttukca takip eder, birakinca durur.
