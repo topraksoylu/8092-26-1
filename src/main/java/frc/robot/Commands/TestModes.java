@@ -38,16 +38,16 @@ public class TestModes {
             // CAN ID'ye göre motoru seç
             switch (motorId) {
                 case MotorSabitleri.ON_SOL_MOTOR_ID:
-                    drive.testSetFrontLeft(speed);
+                    drive.testAyarlaOnSol(speed);
                     break;
                 case MotorSabitleri.ON_SAG_MOTOR_ID:
-                    drive.testSetFrontRight(speed);
+                    drive.testAyarlaOnSag(speed);
                     break;
                 case MotorSabitleri.ARKA_SOL_MOTOR_ID:
-                    drive.testSetRearLeft(speed);
+                    drive.testAyarlaArkaSol(speed);
                     break;
                 case MotorSabitleri.ARKA_SAG_MOTOR_ID:
-                    drive.testSetRearRight(speed);
+                    drive.testAyarlaArkaSag(speed);
                     break;
                 default:
                     System.out.println("Bilinmeyen motor ID: " + motorId);
@@ -87,10 +87,10 @@ public class TestModes {
 
         @Override
         public void execute() {
-            drive.testSetFrontLeft(speed);
-            drive.testSetFrontRight(speed);
-            drive.testSetRearLeft(speed);
-            drive.testSetRearRight(speed);
+            drive.testAyarlaOnSol(speed);
+            drive.testAyarlaOnSag(speed);
+            drive.testAyarlaArkaSol(speed);
+            drive.testAyarlaArkaSag(speed);
         }
 
         @Override
@@ -126,10 +126,10 @@ public class TestModes {
         @Override
         public void execute() {
             // Sağ taraf ileri, sol taraf geri = saat yönünde dönüş
-            drive.testSetFrontLeft(-speed);
-            drive.testSetFrontRight(speed);
-            drive.testSetRearLeft(-speed);
-            drive.testSetRearRight(speed);
+            drive.testAyarlaOnSol(-speed);
+            drive.testAyarlaOnSag(speed);
+            drive.testAyarlaArkaSol(-speed);
+            drive.testAyarlaArkaSag(speed);
         }
 
         @Override
@@ -165,10 +165,10 @@ public class TestModes {
         @Override
         public void execute() {
             // Sol taraf ileri, sağ taraf geri = saat yönünün tersine dönüş
-            drive.testSetFrontLeft(speed);
-            drive.testSetFrontRight(-speed);
-            drive.testSetRearLeft(speed);
-            drive.testSetRearRight(-speed);
+            drive.testAyarlaOnSol(speed);
+            drive.testAyarlaOnSag(-speed);
+            drive.testAyarlaArkaSol(speed);
+            drive.testAyarlaArkaSag(-speed);
         }
 
         @Override
@@ -206,10 +206,10 @@ public class TestModes {
             // Mecanum sağa kayma için
             // Ön sol ve arka sağ: ileri
             // Ön sağ ve arka sol: geri
-            drive.testSetFrontLeft(speed);
-            drive.testSetFrontRight(-speed);
-            drive.testSetRearLeft(-speed);
-            drive.testSetRearRight(speed);
+            drive.testAyarlaOnSol(speed);
+            drive.testAyarlaOnSag(-speed);
+            drive.testAyarlaArkaSol(-speed);
+            drive.testAyarlaArkaSag(speed);
         }
 
         @Override

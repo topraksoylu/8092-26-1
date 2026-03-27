@@ -4,59 +4,60 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Subsystems.SurusAltSistemi;
 
 /**
- * Runs a single drive motor at a fixed speed while the command is active.
- * Use from SmartDashboard to test motor wiring/direction safely.
+ * Aktif oldugu surece tek bir surus motorunu sabit hizda calistirir.
+ * Motor kablo baglantisini ve yonunu guvenli sekilde test etmek icin
+ * SmartDashboard uzerinden kullanilir.
  */
 public class MotorTestKomutu extends Command {
-  public static final int FRONT_LEFT = 1;
-  public static final int FRONT_RIGHT = 2;
-  public static final int REAR_LEFT = 3;
-  public static final int REAR_RIGHT = 4;
+    public static final int ON_SOL = 1;
+    public static final int ON_SAG = 2;
+    public static final int ARKA_SOL = 3;
+    public static final int ARKA_SAG = 4;
 
-  private final SurusAltSistemi drive;
-  private final int motorIndex;
-  private final double speed;
+    private final SurusAltSistemi surus;
+    private final int motorIndeksi;
+    private final double hiz;
 
-  public MotorTestKomutu(SurusAltSistemi drive, int motorIndex, double speed) {
-    this.drive = drive;
-    this.motorIndex = motorIndex;
-    this.speed = speed;
-    addRequirements(drive);
-  }
-
-  @Override
-  public void initialize() {
-    // nothing
-  }
-
-  @Override
-  public void execute() {
-    switch (motorIndex) {
-      case FRONT_LEFT:
-        drive.testSetFrontLeft(speed);
-        break;
-      case FRONT_RIGHT:
-        drive.testSetFrontRight(speed);
-        break;
-      case REAR_LEFT:
-        drive.testSetRearLeft(speed);
-        break;
-      case REAR_RIGHT:
-        drive.testSetRearRight(speed);
-        break;
-      default:
-        // unknown
-        break;
+    public MotorTestKomutu(SurusAltSistemi surus, int motorIndeksi, double hiz) {
+        this.surus = surus;
+        this.motorIndeksi = motorIndeksi;
+        this.hiz = hiz;
+        addRequirements(surus);
     }
-  }
 
-  @Override
-  public void end(boolean interrupted) {
-    drive.tumMotorlariDurdur();
-  }
+    @Override
+    public void initialize() {
+        // bos
+    }
 
-  @Override
-  public boolean isFinished() {
-    return false; // run while active
-  }
+    @Override
+    public void execute() {
+        switch (motorIndeksi) {
+            case ON_SOL:
+                surus.testAyarlaOnSol(hiz);
+                break;
+            case ON_SAG:
+                surus.testAyarlaOnSag(hiz);
+                break;
+            case ARKA_SOL:
+                surus.testAyarlaArkaSol(hiz);
+                break;
+            case ARKA_SAG:
+                surus.testAyarlaArkaSag(hiz);
+                break;
+            default:
+                // bilinmeyen indeks
+                break;
+        }
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        surus.tumMotorlariDurdur();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return false; // aktif oldugu surece calistir
+    }
 }

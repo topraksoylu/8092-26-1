@@ -12,13 +12,13 @@ public class FieldConstants {
 
     // April Tag locations for 2026 (simplified positions)
     public static final Pose2d[] APRIL_TAG_POSES = {
-        new Pose2d(3.0, 0.5, Rotation2d.fromDegrees(0)),   // Speaker center
-        new Pose2d(3.0, 7.71, Rotation2d.fromDegrees(0)),  // Speaker opposite
-        new Pose2d(14.7, 2.5, Rotation2d.fromDegrees(180)), // Amp
+        new Pose2d(3.0, 0.5, Rotation2d.fromDegrees(0)),     // Speaker center
+        new Pose2d(3.0, 7.71, Rotation2d.fromDegrees(0)),    // Speaker opposite
+        new Pose2d(14.7, 2.5, Rotation2d.fromDegrees(180)),  // Amp
         new Pose2d(14.7, 5.71, Rotation2d.fromDegrees(180)), // Amp opposite
-        new Pose2d(0.5, 4.1, Rotation2d.fromDegrees(90)),   // Source
-        new Pose2d(15.9, 4.1, Rotation2d.fromDegrees(-90)), // Source opposite
-        new Pose2d(10.0, 2.0, Rotation2d.fromDegrees(120)), // Stage left
+        new Pose2d(0.5, 4.1, Rotation2d.fromDegrees(90)),    // Source
+        new Pose2d(15.9, 4.1, Rotation2d.fromDegrees(-90)),  // Source opposite
+        new Pose2d(10.0, 2.0, Rotation2d.fromDegrees(120)),  // Stage left
         new Pose2d(10.0, 6.21, Rotation2d.fromDegrees(-120)) // Stage right
     };
 

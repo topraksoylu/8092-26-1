@@ -1,37 +1,37 @@
 package frc.robot.Commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Subsystems.TurretSubsystem;
+import frc.robot.Subsystems.TaretAltSistemi;
 import frc.robot.Subsystems.GorusAltSistemi;
 
 public class TaretTakipKomutu extends Command {
-    private TurretSubsystem turretSubsystem;
-    private GorusAltSistemi GorusAltSistemi;
+    private TaretAltSistemi taretAltSistemi;
+    private GorusAltSistemi gorusAltSistemi;
 
-    public TaretTakipKomutu(TurretSubsystem turretSubsystem, GorusAltSistemi GorusAltSistemi) {
-        this.turretSubsystem = turretSubsystem;
-        this.GorusAltSistemi = GorusAltSistemi;
-        addRequirements(turretSubsystem);
+    public TaretTakipKomutu(TaretAltSistemi taretAltSistemi, GorusAltSistemi gorusAltSistemi) {
+        this.taretAltSistemi = taretAltSistemi;
+        this.gorusAltSistemi = gorusAltSistemi;
+        addRequirements(taretAltSistemi);
     }
 
     @Override
     public void execute() {
-        if (GorusAltSistemi.hasTarget()) {
-            double horizontalOffset = GorusAltSistemi.getHorizontalOffset();
-            double speed = horizontalOffset * 0.01; // Proportional control, tune this
-            turretSubsystem.rotate(speed);
+        if (gorusAltSistemi.hasTarget()) {
+            double yatayKayma = gorusAltSistemi.getHorizontalOffset();
+            double hiz = yatayKayma * 0.01; // Oransal kontrol - ayarlanacak
+            taretAltSistemi.dondur(hiz);
         } else {
-            turretSubsystem.stop();
+            taretAltSistemi.durdur();
         }
     }
 
     @Override
     public void end(boolean interrupted) {
-        turretSubsystem.stop();
+        taretAltSistemi.durdur();
     }
 
     @Override
     public boolean isFinished() {
-        return false; // Continuous tracking
+        return false; // Surekli takip
     }
 }

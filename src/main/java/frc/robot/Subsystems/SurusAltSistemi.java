@@ -211,24 +211,24 @@ public class SurusAltSistemi extends SubsystemBase {
     }
   }
 
-  // Test helpers: set individual motors directly for bench testing.
-  public void testSetFrontLeft(double speed) {
-    if (frontLeftMotor != null) frontLeftMotor.set(speed);
+  // Test yardimcilari: tezgah testleri icin motorlari tek tek dogrudan ayarla.
+  public void testAyarlaOnSol(double hiz) {
+    if (frontLeftMotor != null) frontLeftMotor.set(hiz);
     if (mecanumDrive != null) mecanumDrive.feed();
   }
 
-  public void testSetFrontRight(double speed) {
-    if (frontRightMotor != null) frontRightMotor.set(speed);
+  public void testAyarlaOnSag(double hiz) {
+    if (frontRightMotor != null) frontRightMotor.set(hiz);
     if (mecanumDrive != null) mecanumDrive.feed();
   }
 
-  public void testSetRearLeft(double speed) {
-    if (rearLeftMotor != null) rearLeftMotor.set(speed);
+  public void testAyarlaArkaSol(double hiz) {
+    if (rearLeftMotor != null) rearLeftMotor.set(hiz);
     if (mecanumDrive != null) mecanumDrive.feed();
   }
 
-  public void testSetRearRight(double speed) {
-    if (rearRightMotor != null) rearRightMotor.set(speed);
+  public void testAyarlaArkaSag(double hiz) {
+    if (rearRightMotor != null) rearRightMotor.set(hiz);
     if (mecanumDrive != null) mecanumDrive.feed();
   }
 
@@ -532,30 +532,30 @@ public class SurusAltSistemi extends SubsystemBase {
     mecanumDrive.feed();
   }
 
-  // Only allow manual motor test outputs while robot is disabled (safe bench testing)
+  // Manuel motor testi yalnizca robot devre disi iken izin verilir (guvenli tezgah testi)
   if (DriverStation.isDisabled() && !isNavXValidationRunning()) {
     if (flToggle) {
-      testSetFrontLeft(0.2);
+      testAyarlaOnSol(0.2);
     } else {
-      testSetFrontLeft(0.0);
+      testAyarlaOnSol(0.0);
     }
 
     if (frToggle) {
-      testSetFrontRight(0.2);
+      testAyarlaOnSag(0.2);
     } else {
-      testSetFrontRight(0.0);
+      testAyarlaOnSag(0.0);
     }
 
     if (rlToggle) {
-      testSetRearLeft(0.2);
+      testAyarlaArkaSol(0.2);
     } else {
-      testSetRearLeft(0.0);
+      testAyarlaArkaSol(0.0);
     }
 
     if (rrToggle) {
-      testSetRearRight(0.2);
+      testAyarlaArkaSag(0.2);
     } else {
-      testSetRearRight(0.0);
+      testAyarlaArkaSag(0.0);
     }
   }
     }

@@ -5,13 +5,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Sabitler.ModulSabitleri;
 import frc.robot.Sabitler.MotorSabitleri;
 
-public class IntakeSubsystem extends SubsystemBase {
+public class AlimAltSistemi extends SubsystemBase {
     private PWMSparkMax alimCimMotoru;
     private PWMSparkMax yukariTasiyiciCimMotoru;
     private double sonAlimHizi = 0.0;
     private double sonTasiyiciHizi = 0.0;
 
-    public IntakeSubsystem() {
+    public AlimAltSistemi() {
         if (MotorSabitleri.SURUS_DISI_MOTORLARI_ETKIN) {
             alimCimMotoru = new PWMSparkMax(MotorSabitleri.ALIM_CIM_PWM_KANALI);
             yukariTasiyiciCimMotoru = new PWMSparkMax(MotorSabitleri.DEPO_ATICI_YUKARI_TASIYICI_CIM_PWM_KANALI);
@@ -23,14 +23,14 @@ public class IntakeSubsystem extends SubsystemBase {
         }
     }
 
-    public void intake() {
+    public void al() {
         sonAlimHizi = ModulSabitleri.ALIM_HIZI;
         if (alimCimMotoru != null) {
             alimCimMotoru.set(ModulSabitleri.ALIM_HIZI);
         }
     }
 
-    public void outtake() {
+    public void geriAt() {
         sonAlimHizi = -ModulSabitleri.ALIM_HIZI;
         if (alimCimMotoru != null) {
             alimCimMotoru.set(-ModulSabitleri.ALIM_HIZI);
@@ -51,7 +51,7 @@ public class IntakeSubsystem extends SubsystemBase {
         }
     }
 
-    public void stop() {
+    public void durdur() {
         sonAlimHizi = 0.0;
         sonTasiyiciHizi = 0.0;
         if (alimCimMotoru != null) {
@@ -62,7 +62,7 @@ public class IntakeSubsystem extends SubsystemBase {
         }
     }
 
-    public double getLastCommandedSpeed() {
+    public double getSonAlimHizi() {
         return sonAlimHizi;
     }
 

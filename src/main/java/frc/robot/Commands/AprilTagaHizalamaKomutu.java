@@ -19,9 +19,9 @@ public class AprilTagaHizalamaKomutu extends Command {
 
     // Target configuration
     private final int targetTagId;
-    private final double targetDistanceMeters;  // How far in front of tag to stop
+    private final double targetDistanceMeters;   // How far in front of tag to stop
     private final double toleranceMeters;        // Position tolerance
-    private final double toleranceDegrees;      // Heading tolerance
+    private final double toleranceDegrees;       // Heading tolerance
 
     // PID controllers for holonomic alignment
     private final PIDController xController;

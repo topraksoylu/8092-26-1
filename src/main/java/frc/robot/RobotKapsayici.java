@@ -10,7 +10,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -19,19 +18,21 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Subsystems.SurusAltSistemi;
 import frc.robot.Subsystems.GorusAltSistemi;
-import frc.robot.Subsystems.TurretSubsystem;
+import frc.robot.Subsystems.TaretAltSistemi;
+import frc.robot.Subsystems.AlimAltSistemi;
+import frc.robot.Subsystems.AticiAltSistemi;
 import frc.robot.Commands.SurusKomutu;
 import frc.robot.Commands.AprilTagaHizalamaKomutu;
 import frc.robot.Commands.AprilTagTakipKomutu;
-import frc.robot.Commands.TaretTakipKomutu;
 import frc.robot.Sabitler.*;
 
 public class RobotKapsayici {
   private GorusAltSistemi gorusAltSistemi;
   private SurusAltSistemi surusAltSistemi;
-  private TurretSubsystem turretSubsystem;
+  private TaretAltSistemi taretAltSistemi;
+  private AlimAltSistemi alimAltSistemi;
+  private AticiAltSistemi aticiAltSistemi;
   private GenericHID surucuKontrolcusu = new GenericHID(OISabitleri.SURUCU_JOYSTICK_PORTU);
-  private final PWMVictorSPX pwmTestMotoru = new PWMVictorSPX(1);
   private boolean surucuBagliOncekiDurum = false;
 
   private SendableChooser<Command> otonomSecici;
@@ -57,7 +58,9 @@ public class RobotKapsayici {
       new Pose2d(),
       gorusAltSistemi
     );
-    turretSubsystem = new TurretSubsystem();
+    taretAltSistemi = new TaretAltSistemi();
+    alimAltSistemi = new AlimAltSistemi();
+    aticiAltSistemi = new AticiAltSistemi();
     baglamalariYapilandir();
 
     // Not: PS4 kontrolcusu USB ile bagli olmali ve Driver Station'da gorunmelidir.
@@ -113,11 +116,6 @@ public class RobotKapsayici {
     boolean dugme10 = guvenliDugmeOku(10);
     boolean dugme11 = guvenliDugmeOku(11);
     boolean dugme12 = guvenliDugmeOku(12);
-
-    // PWM1 test motoru: 1->%30, 2->%60, 3->%90, 4->%100 (oncelik 4 > 3 > 2 > 1)
-    double pwmTestHizi = dugme4 ? 1.00 : (dugme3 ? 0.90 : (dugme2 ? 0.80 : (dugme1 ? 0.75 : 0.0)));
-    pwmTestMotoru.set(pwmTestHizi);
-    SmartDashboard.putNumber(surucuIstasyonuAnahtari("PwmTestHizi"), pwmTestHizi);
 
     // SmartDashboard'e buton durumlarini yazar.
     SmartDashboard.putBoolean(surucuIstasyonuAnahtari("Dugme1-Kare"), dugme1);
@@ -195,89 +193,35 @@ public class RobotKapsayici {
   }
 
   private void baglamalariYapilandir() {
-    // Buton baglamalari acikca tutuldu: sahada hata ayiklama hizli olsun.
-    // PWM1 test motor hizi periyodikte 1/2/3 dugmelerinden okunur.
+    // 1 (Kare): Alim (PWM 9)
     new JoystickButton(surucuKontrolcusu, 1)
-        .onTrue(new InstantCommand(() -> {
-            System.out.println("===========================================");
-            System.out.println("DUGME 1 (KARE) BASILDI");
-            System.out.println("Eylem: PWM1 Victor SPX test motoru %30");
-            System.out.println("===========================================");
-            SmartDashboard.putString(surucuIstasyonuAnahtari("SonDugme"), "Kare (1) - PWM1 Victor SPX");
-        }));
+        .whileTrue(new RunCommand(() -> alimAltSistemi.al(), alimAltSistemi))
+        .onFalse(new InstantCommand(() -> alimAltSistemi.durdur(), alimAltSistemi));
 
+    // 2 (Carpi): Geri at (PWM 9)
     new JoystickButton(surucuKontrolcusu, 2)
-        .onTrue(new InstantCommand(() -> {
-            System.out.println("===========================================");
-            System.out.println("DUGME 2 (CARPI) BASILDI");
-            System.out.println("Eylem: PWM1 Victor SPX test motoru %60");
-            System.out.println("===========================================");
-            SmartDashboard.putString(surucuIstasyonuAnahtari("SonDugme"), "Carpi (2) - PWM1 Victor SPX");
-        }));
+        .whileTrue(new RunCommand(() -> alimAltSistemi.geriAt(), alimAltSistemi))
+        .onFalse(new InstantCommand(() -> alimAltSistemi.durdur(), alimAltSistemi));
 
+    // 3 (Daire): Yukari tasiyici (PWM 8)
     new JoystickButton(surucuKontrolcusu, 3)
-        .onTrue(new InstantCommand(() -> {
-            System.out.println("===========================================");
-            System.out.println("DUGME 3 (DAIRE) BASILDI");
-            System.out.println("Eylem: PWM1 Victor SPX test motoru %90");
-            System.out.println("===========================================");
-            SmartDashboard.putString(surucuIstasyonuAnahtari("SonDugme"), "Daire (3) - PWM1 Victor SPX");
-        }));
+        .whileTrue(new RunCommand(() -> alimAltSistemi.depodanAticiyaYukariTasimaBaslat(), alimAltSistemi))
+        .onFalse(new InstantCommand(() -> alimAltSistemi.depodanAticiyaYukariTasimaDurdur(), alimAltSistemi));
 
-    // L1 dugmesi (5): Taret sola dondur.
+    // 4 (Ucgen): Atici (CAN 5)
+    new JoystickButton(surucuKontrolcusu, 4)
+        .whileTrue(new RunCommand(() -> aticiAltSistemi.at(), aticiAltSistemi))
+        .onFalse(new InstantCommand(() -> aticiAltSistemi.durdur(), aticiAltSistemi));
+
+    // 5 (L1): Taret sola (CAN 6)
     new JoystickButton(surucuKontrolcusu, 5)
-        .onTrue(new InstantCommand(() -> {
-            System.out.println("===========================================");
-            System.out.println("DUGME 5 (L1) BASILDI");
-            System.out.println("Eylem: Taret sola dondur");
-            System.out.println("===========================================");
-            SmartDashboard.putString(surucuIstasyonuAnahtari("SonDugme"), "L1 (5) - Taret Sola");
-        }))
-        .whileTrue(new RunCommand(() -> turretSubsystem.rotate(-ModulSabitleri.TARET_HIZI), turretSubsystem))
-        .onFalse(new InstantCommand(() -> turretSubsystem.stop(), turretSubsystem));
+        .whileTrue(new RunCommand(() -> taretAltSistemi.dondur(-ModulSabitleri.TARET_HIZI), taretAltSistemi))
+        .onFalse(new InstantCommand(() -> taretAltSistemi.durdur(), taretAltSistemi));
 
-    // R1 dugmesi (6): Taret saga dondur.
+    // 6 (R1): Taret saga (CAN 6)
     new JoystickButton(surucuKontrolcusu, 6)
-        .onTrue(new InstantCommand(() -> {
-            System.out.println("===========================================");
-            System.out.println("DUGME 6 (R1) BASILDI");
-            System.out.println("Eylem: Taret saga dondur");
-            System.out.println("===========================================");
-            SmartDashboard.putString(surucuIstasyonuAnahtari("SonDugme"), "R1 (6) - Taret Saga");
-        }))
-        .whileTrue(new RunCommand(() -> turretSubsystem.rotate(ModulSabitleri.TARET_HIZI), turretSubsystem))
-        .onFalse(new InstantCommand(() -> turretSubsystem.stop(), turretSubsystem));
-
-    // L2 dugmesi (7): Tareti Limelight ile takip et.
-    new JoystickButton(surucuKontrolcusu, 7)
-        .onTrue(new InstantCommand(() -> {
-            System.out.println("===========================================");
-            System.out.println("DUGME 7 (L2) BASILDI");
-            System.out.println("Eylem: Taret Limelight ile takip");
-            System.out.println("===========================================");
-            SmartDashboard.putString(surucuIstasyonuAnahtari("SonDugme"), "L2 (7) - Taret Takip");
-        }))
-        .whileTrue(new TaretTakipKomutu(turretSubsystem, gorusAltSistemi));
-
-    // R2 dugmesi (8): AprilTag'i surekli takip eder.
-    // Basili tuttukca takip eder, birakinca durur.
-    // Tag ile 1.5 metre mesafeyi korur.
-    new JoystickButton(surucuKontrolcusu, 8)
-        .onTrue(new RunCommand(() -> {
-            System.out.println("===========================================");
-            System.out.println("DUGME 8 (R2) BASILDI");
-            System.out.println("Eylem: Surekli AprilTag takibi baslatiliyor");
-            System.out.println("Hedef: Tag ID 1, Mesafe: 1.5 metre");
-            System.out.println("Takip icin basili tutun, durdurmak icin birakin");
-            System.out.println("===========================================");
-            SmartDashboard.putString(surucuIstasyonuAnahtari("SonDugme"), "R2 (8) - Tag Takibi");
-        }, surusAltSistemi))
-        .whileTrue(new AprilTagTakipKomutu(
-            surusAltSistemi,
-            gorusAltSistemi,
-            1,      // Hedef AprilTag kimligi
-            1.5     // 1.5 metre takip mesafesi
-        ));
+        .whileTrue(new RunCommand(() -> taretAltSistemi.dondur(ModulSabitleri.TARET_HIZI), taretAltSistemi))
+        .onFalse(new InstantCommand(() -> taretAltSistemi.durdur(), taretAltSistemi));
   }
 
   private void pathPlannerKomutlariniKaydet() {

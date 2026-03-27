@@ -19,14 +19,14 @@ public final class Sabitler {
 
         // Mecanum icin sol ve sag motor yonleri kendi taraflarinda ayni olmali
         public static final boolean ARKA_SOL_MOTOR_TERS = true;
-        public static final boolean ON_SOL_MOTOR_TERS = true;   // Arka sol ile eslesir
+        public static final boolean ON_SOL_MOTOR_TERS = true;     // Arka sol ile eslesir
         public static final boolean ARKA_SAG_MOTOR_TERS = false;  // On sag ile eslesecek sekilde ayarlandi
         public static final boolean ON_SAG_MOTOR_TERS = false;
 
         // NEO motorlar icin akilli akim sinirlama \(sigorta atmasini azaltir\)
         public static final int SURUS_MOTORU_DURMA_AKIM_SINIRI = 60;  // Amper \(NEO durma akimi 105A\)
-        public static final int SURUS_MOTORU_BOSTA_AKIM_SINIRI = 40;   // Amps
-        public static final int SURUS_MOTORU_AKIM_SINIR_ESIGI = 40;  // RPM
+        public static final int SURUS_MOTORU_BOSTA_AKIM_SINIRI = 40;  // Amps
+        public static final int SURUS_MOTORU_AKIM_SINIR_ESIGI = 40;   // RPM
 
         public static final boolean SURUS_DISI_MOTORLARI_ETKIN = false;
 
@@ -43,6 +43,10 @@ public final class Sabitler {
         // Taret motoru
         public static final int TARET_MOTOR_ID = 6;
         public static final boolean TARET_MOTOR_TERS = false;
+
+        // Taret aci sinirlari (toplam 180 derece hareket alani)
+        public static final double TARET_MAKS_ACI = 90.0;   // derece
+        public static final double TARET_MIN_ACI = -90.0;   // derece
     }
 
     public static class SurusSabitleri {
