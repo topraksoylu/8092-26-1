@@ -6,7 +6,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Sabitler.ModulSabitleri;
 import frc.robot.Sabitler.MotorSabitleri;
 
 public class TurretSubsystem extends SubsystemBase {

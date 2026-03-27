@@ -31,23 +31,17 @@ public final class Sabitler {
         public static final boolean SURUS_DISI_MOTORLARI_ETKIN = false;
 
         // Alim ve tasiyici CIM motorlari (PWM)
-        public static final int ALIM_MOTOR_ID = 5;
         public static final boolean ALIM_MOTOR_TERS = false;
-        public static final int ALIM_CIM_PWM_KANALI = 8;
-        public static final int DEPO_ATICI_YUKARI_TASIYICI_CIM_PWM_KANALI = 9;
+        public static final int ALIM_CIM_PWM_KANALI = 9;
+        public static final int DEPO_ATICI_YUKARI_TASIYICI_CIM_PWM_KANALI = 8;
         public static final boolean DEPO_ATICI_YUKARI_TASIYICI_TERS = false;
 
-        // Atici motorlari
-        public static final int SOL_ATICI_MOTOR_ID = 6;
-        public static final int SAG_ATICI_MOTOR_ID = 7;
-        public static final int UST_ATICI_MOTOR_ID = 8;
-
-        public static final boolean SOL_ATICI_TERS = false;
-        public static final boolean SAG_ATICI_TERS = true;
-        public static final boolean UST_ATICI_TERS = false;
+        // Atici motoru (tek Spark Max)
+        public static final int ATICI_MOTOR_ID = 5;
+        public static final boolean ATICI_MOTOR_TERS = false;
 
         // Taret motoru
-        public static final int TARET_MOTOR_ID = 9;
+        public static final int TARET_MOTOR_ID = 6;
         public static final boolean TARET_MOTOR_TERS = false;
     }
 
@@ -105,10 +99,6 @@ public final class Sabitler {
     }
 
     public static class ModulSabitleri {
-        public static final int ALIM_MOTOR_ID = 5;
-        public static final int ATICI_MOTOR_ID = 6;
-        public static final int TARET_MOTOR_ID = 7;
-
         public static final double ALIM_HIZI = 0.5;
         public static final double DEPO_ATICI_YUKARI_TASIYICI_HIZI = 0.5;
         public static final double ATICI_HIZI = 0.8;
