@@ -32,7 +32,7 @@ Sol taraf ters, sag taraf duz. Disli orani: 12.75:1. Maks hiz: ~3.0 m/s.
 | NavX | MXP SPI | roboRIO uzerinde |
 | Limelight 3 | Ethernet | 10.80.92.200 |
 | roboRIO | — | 10.80.92.2 |
-| Radio | — | 10.80.92.11 |
+| Radio | — | 10.80.92.1 |
 
 ---
 
