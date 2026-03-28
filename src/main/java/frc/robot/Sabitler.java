@@ -100,10 +100,10 @@ public final class Sabitler {
         public static final double OTELEME_SINIRLAMA_ORANI = 1.0;  // Forward/Yanal acceleration (reduced for smoothness)
         public static final double DONUS_SINIRLAMA_ORANI = 2.0;     // Donus ivmesi \(yumusak donus icin dusuk\)
 
-        // Cikis olcek katsayilari \(daha yumusak kontrol icin azaltildi\)
-        public static final double OTELEME_OLCEGI = 0.5;  // Ileri/geri power (slower)
-        public static final double YANLAMASINA_OLCEK = 0.6;       // Yanal power (slower but compensates for mecanum loss)
-        public static final double DONUS_OLCEGI = 0.5;     // Donus gucu \(sertlik hissini azaltmak icin daha dusuk\)
+        // Cikis olcek katsayilari
+        public static final double OTELEME_OLCEGI = 0.8;        // Ileri/geri (arttirildi - kare yanit + dusuk olcek robotu hareket ettirmiyordu)
+        public static final double YANLAMASINA_OLCEK = 0.8;     // Yanal (mecanum kayip telafisi)
+        public static final double DONUS_OLCEGI = 0.6;          // Donus gucu
     }
 
     public static class OISabitleri {
