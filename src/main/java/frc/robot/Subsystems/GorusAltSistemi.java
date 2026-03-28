@@ -147,6 +147,19 @@ public class GorusAltSistemi extends SubsystemBase {
         return (int) io.getInteger("tid", 0);
     }
 
+    /** Görünen tag, mevcut ittifakın atış hedefi mi? */
+    public boolean isHedefTagGorunuyor() {
+        if (!cachedHasTarget) return false;
+        int tagId = getTagId();
+        int[] hedefler = runtime.isRedAlliance()
+            ? GorusSabitleri.KIRMIZI_HEDEF_TAGLERI
+            : GorusSabitleri.MAVI_HEDEF_TAGLERI;
+        for (int id : hedefler) {
+            if (id == tagId) return true;
+        }
+        return false;
+    }
+
     public int getFmapTagCount() {
         return (int) io.getInteger("fmap/tagCount", 0);
     }
