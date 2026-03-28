@@ -47,6 +47,11 @@ public final class Sabitler {
         // Taret disli orani: 200T ring / 19T pinion = ~10.526:1
         public static final double TARET_DISLI_ORANI = 200.0 / 19.0;
 
+        // Poz tabanli taret takibi
+        public static final double TARET_POZ_KP = 0.01;           // derece hata -> motor hizi
+        public static final double TARET_HIZALAMA_ESIGI_DERECE = 2.0;
+        public static final double TARET_ARKA_OFFSET_DERECE = 180.0; // taret arkaya bakiyor
+
         // Taret aci sinirlari (toplam 180 derece hareket alani)
         public static final double TARET_MAKS_ACI = 90.0;   // derece
         public static final double TARET_MIN_ACI = -90.0;   // derece
@@ -137,6 +142,12 @@ public final class Sabitler {
         // AprilTag ayarlari
         public static final double APRILTAG_BOYUTU_METRE = 0.1651; // 6.5 inches (from FMAP)
         public static final double SPEAKER_TAG_YUKSEKLIGI_METRE = 0.889; // FMAP Z koordinatindan
+
+        // Atış hedefi AprilTag ID'leri (saha haritasına göre)
+        // Kırmızı taraf scoring yapıları çevresindeki taglar
+        public static final int[] KIRMIZI_HEDEF_TAGLERI = {2, 3, 4, 5, 8, 9, 10, 11};
+        // Mavi taraf scoring yapıları çevresindeki taglar
+        public static final int[] MAVI_HEDEF_TAGLERI = {18, 19, 20, 21, 24, 25, 26, 27};
 
         // Gorus olcum guvenilirligi
         public static final double GORUS_OLCUM_STD_SAPMA_SN = 0.5;

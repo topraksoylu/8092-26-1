@@ -57,6 +57,7 @@ Sol taraf ters, sag taraf duz. Disli orani: 12.75:1. Maks hiz: ~3.0 m/s.
 | 5 | L1 | Taret sola | CAN 6 | whileTrue |
 | 6 | R1 | Taret saga | CAN 6 | whileTrue |
 | 7 | L2 | Taret homing (DIO 9) | CAN 6 | toggleOnTrue: ilk basin baslar, ikinci basin durdurur |
+| 8 | R2 | Taret poz tabanli takip | CAN 6 | toggleOnTrue: odometri+hub koordinati ile surekli hedefler |
 | 9 | Paylas | Tasiyici ters (0.5s) | PWM 8 | onTrue |
 | 10 | Secenekler | Atici + tasiyici sirali | CAN 5 + PWM 8 | whileTrue |
 
