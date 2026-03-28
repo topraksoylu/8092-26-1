@@ -51,9 +51,9 @@ public class SurusKomutu extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double x = eksenSekillendir(xHizi.getAsDouble(), SurusKontrolSabitleri.YANLAMASINA_OLCEK);
-    // Bu kurulumda ileri yon icin Y ekseni ters cevriliyor.
-    double y = eksenSekillendir(-yHizi.getAsDouble(), SurusKontrolSabitleri.OTELEME_OLCEGI);
+    // WPILib NWU conventionu: xSpeed=ileri(+), ySpeed=sol(+)
+    double x = eksenSekillendir(-yHizi.getAsDouble(), SurusKontrolSabitleri.OTELEME_OLCEGI);
+    double y = eksenSekillendir(-xHizi.getAsDouble(), SurusKontrolSabitleri.YANLAMASINA_OLCEK);
     double z = eksenSekillendir(zDonusu.getAsDouble(), SurusKontrolSabitleri.DONUS_OLCEGI);
 
     double xKomutu = xSinirlayici.calculate(x);
