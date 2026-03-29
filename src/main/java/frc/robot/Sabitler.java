@@ -12,10 +12,10 @@ public final class Sabitler {
         // - Bos Akim: 1.8 A
 
         // Surus motorlari
-        public static final int ARKA_SOL_MOTOR_ID = 4;
-        public static final int ON_SOL_MOTOR_ID = 1;
-        public static final int ARKA_SAG_MOTOR_ID = 3;
-        public static final int ON_SAG_MOTOR_ID = 2;
+        public static final int ARKA_SOL_MOTOR_ID = 2;
+        public static final int ON_SOL_MOTOR_ID = 3;
+        public static final int ARKA_SAG_MOTOR_ID = 1;
+        public static final int ON_SAG_MOTOR_ID = 4;
 
         // WPILib MecanumDrive ileri komutunda tum motorlara +1 gonderir.
         // Sag motorlar fiziksel olarak ayna monteli oldugu icin inverted olmalidir.
