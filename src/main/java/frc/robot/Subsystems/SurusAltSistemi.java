@@ -14,6 +14,7 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
@@ -97,6 +98,7 @@ public class SurusAltSistemi extends SubsystemBase {
     // Configure motors with smart current limiting for NEO V1.1
     SparkMaxConfig reversedConfig = new SparkMaxConfig();
     reversedConfig.inverted(true);
+    reversedConfig.idleMode(IdleMode.kBrake); // Aninda durma — pozisyon kaybini onler
     reversedConfig.smartCurrentLimit(
         MotorSabitleri.SURUS_MOTORU_DURMA_AKIM_SINIRI,
         MotorSabitleri.SURUS_MOTORU_BOSTA_AKIM_SINIRI,
@@ -105,6 +107,7 @@ public class SurusAltSistemi extends SubsystemBase {
 
     SparkMaxConfig nonReversedConfig = new SparkMaxConfig();
     nonReversedConfig.inverted(false);
+    nonReversedConfig.idleMode(IdleMode.kBrake); // Aninda durma — pozisyon kaybini onler
     nonReversedConfig.smartCurrentLimit(
         MotorSabitleri.SURUS_MOTORU_DURMA_AKIM_SINIRI,
         MotorSabitleri.SURUS_MOTORU_BOSTA_AKIM_SINIRI,

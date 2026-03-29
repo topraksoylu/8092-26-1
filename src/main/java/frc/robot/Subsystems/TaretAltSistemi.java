@@ -4,6 +4,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -24,6 +25,7 @@ public class TaretAltSistemi extends SubsystemBase {
             taretMotoru = new SparkMax(MotorSabitleri.TARET_MOTOR_ID, MotorType.kBrushless);
             SparkMaxConfig yapilandirma = new SparkMaxConfig();
             yapilandirma.inverted(MotorSabitleri.TARET_MOTOR_TERS);
+            yapilandirma.idleMode(IdleMode.kBrake); // Pozisyon tutar — taret hedefe kilitli kalir
             taretMotoru.configure(yapilandirma,
                 com.revrobotics.spark.SparkBase.ResetMode.kNoResetSafeParameters,
                 com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);

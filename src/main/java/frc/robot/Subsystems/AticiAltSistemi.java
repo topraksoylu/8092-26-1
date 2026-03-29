@@ -3,6 +3,7 @@ package frc.robot.Subsystems;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Sabitler.ModulSabitleri;
@@ -17,6 +18,7 @@ public class AticiAltSistemi extends SubsystemBase {
             aticiMotoru = new SparkMax(MotorSabitleri.ATICI_MOTOR_ID, MotorType.kBrushless);
             SparkMaxConfig yapilandirma = new SparkMaxConfig();
             yapilandirma.inverted(MotorSabitleri.ATICI_MOTOR_TERS);
+            yapilandirma.idleMode(IdleMode.kCoast); // Volan momentumunu korur — ani frenleme top hizini dusurur
             aticiMotoru.configure(yapilandirma,
                 com.revrobotics.spark.SparkBase.ResetMode.kNoResetSafeParameters,
                 com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
