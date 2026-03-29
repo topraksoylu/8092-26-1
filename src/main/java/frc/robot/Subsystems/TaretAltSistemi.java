@@ -27,6 +27,16 @@ public class TaretAltSistemi extends SubsystemBase {
             SparkMaxConfig yapilandirma = new SparkMaxConfig();
             yapilandirma.inverted(MotorSabitleri.TARET_MOTOR_TERS);
             yapilandirma.idleMode(IdleMode.kBrake); // Pozisyon tutar — taret hedefe kilitli kalir
+
+            // SparkMax donanim soft limitleri — RoboRIO cokse bile motor korunur
+            float ileriLimitRot = (float) aciToMotorRotasyonu(MotorSabitleri.TARET_MAKS_ACI);
+            float geriLimitRot  = (float) aciToMotorRotasyonu(MotorSabitleri.TARET_MIN_ACI);
+            yapilandirma.softLimit
+                .forwardSoftLimitEnabled(true)
+                .forwardSoftLimit(ileriLimitRot)
+                .reverseSoftLimitEnabled(true)
+                .reverseSoftLimit(geriLimitRot);
+
             taretMotoru.configure(yapilandirma,
                 com.revrobotics.spark.SparkBase.ResetMode.kNoResetSafeParameters,
                 com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
@@ -41,6 +51,11 @@ public class TaretAltSistemi extends SubsystemBase {
      *  NC + Signal/GND baglantisi: basili degil=false, basili=true */
     public boolean limitSwitchTetiklendi() {
         return limitSwitch.get();
+    }
+
+    /** Taret acisini (derece) motor rotasyonuna donusturur (disli orani dikkate alinir) */
+    private static double aciToMotorRotasyonu(double aciDerece) {
+        return aciDerece / (360.0 / MotorSabitleri.TARET_DISLI_ORANI);
     }
 
     /** Enkoderi limit switch pozisyonuna ayarla (-90°) */
