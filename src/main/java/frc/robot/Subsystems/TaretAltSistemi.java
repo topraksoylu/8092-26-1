@@ -1,6 +1,9 @@
 package frc.robot.Subsystems;
 
+import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -52,14 +55,14 @@ public class TaretAltSistemi extends SubsystemBase {
                 .d(0)
                 .outputRange(-1, 1);
             yapilandirma.closedLoop.maxMotion
-                .maxVelocity(MotorSabitleri.TARET_MAXMOTION_CRUISE_RPM)
+                .cruiseVelocity(MotorSabitleri.TARET_MAXMOTION_CRUISE_RPM)
                 .maxAcceleration(MotorSabitleri.TARET_MAXMOTION_ACCEL_RPM_S)
-                .allowedClosedLoopError(MotorSabitleri.TARET_MAXMOTION_HATA_TOLERANSI)
+                .allowedProfileError(MotorSabitleri.TARET_MAXMOTION_HATA_TOLERANSI)
                 .positionMode(MAXMotionConfig.MAXMotionPositionMode.kMAXMotionTrapezoidal);
 
             taretMotoru.configure(yapilandirma,
-                com.revrobotics.spark.SparkBase.ResetMode.kNoResetSafeParameters,
-                com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
+                ResetMode.kNoResetSafeParameters,
+                PersistMode.kPersistParameters);
             taretEnkoderi = taretMotoru.getEncoder();
             pidKontrolcu = taretMotoru.getClosedLoopController();
         } else {
@@ -127,7 +130,7 @@ public class TaretAltSistemi extends SubsystemBase {
         this.hedefAci = hedefAci;
         if (pidKontrolcu != null) {
             double hedefRotasyon = aciToMotorRotasyonu(hedefAci);
-            pidKontrolcu.setReference(hedefRotasyon, SparkBase.ControlType.kMAXMotionPositionControl);
+            pidKontrolcu.setSetpoint(hedefRotasyon, SparkBase.ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0);
             // Hiz bilgisini tahmini olarak guncelle (gercek hiz enkoder ile izlenir)
             double hata = hedefAci - getAci();
             sonKomutHizi = Math.signum(hata) * Math.min(Math.abs(hata) * MotorSabitleri.TARET_POZ_KP, 1.0);

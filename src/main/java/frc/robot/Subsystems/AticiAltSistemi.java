@@ -1,6 +1,9 @@
 package frc.robot.Subsystems;
 
+import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -21,7 +24,7 @@ public class AticiAltSistemi extends SubsystemBase {
     private double sonHedefRPM = 0.0;
 
     public AticiAltSistemi() {
-        SmartDashboard.setDefaultNumber("Ayarlama/AticiRPM", ModulSabitleri.ATICI_HEDEF_RPM);
+        SmartDashboard.putNumber("Ayarlama/AticiRPM", ModulSabitleri.ATICI_HEDEF_RPM);
 
         if (MotorSabitleri.SURUS_DISI_MOTORLARI_ETKIN) {
             aticiMotoru = new SparkMax(MotorSabitleri.ATICI_MOTOR_ID, MotorType.kBrushless);
@@ -36,12 +39,13 @@ public class AticiAltSistemi extends SubsystemBase {
                 .p(ModulSabitleri.ATICI_KP)
                 .i(0)
                 .d(0)
-                .outputRange(-1, 1)
-                .velocityFF(ModulSabitleri.ATICI_KV); // kV = 12V / NEO max RPM
+                .outputRange(-1, 1);
+            yapilandirma.closedLoop.feedForward
+                .kV(ModulSabitleri.ATICI_KV); // kV = 12V / NEO max RPM
 
             aticiMotoru.configure(yapilandirma,
-                com.revrobotics.spark.SparkBase.ResetMode.kNoResetSafeParameters,
-                com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
+                ResetMode.kNoResetSafeParameters,
+                PersistMode.kPersistParameters);
 
             pidKontrolcu = aticiMotoru.getClosedLoopController();
             aticiEnkoderi = aticiMotoru.getEncoder();
@@ -56,7 +60,7 @@ public class AticiAltSistemi extends SubsystemBase {
     public void atRPM(double hedefRPM) {
         sonHedefRPM = hedefRPM;
         if (pidKontrolcu != null) {
-            pidKontrolcu.setReference(hedefRPM, SparkBase.ControlType.kVelocity);
+            pidKontrolcu.setSetpoint(hedefRPM, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0);
         }
     }
 
