@@ -17,10 +17,12 @@ import frc.robot.Subsystems.TaretAltSistemi;
  *   1. surusAltSistemi.getPose() → fused odometri + Limelight pozu
  *   2. İttifaka göre hub Translation2d seç (FieldConstants)
  *   3. atan2(dy, dx) → sahaya göre açı
- *   4. Robot heading çıkar, taret arka offset ekle (−180°)
+ *   4. Robot heading çıkar, taret ön offset ekle (0° — taret öne bakıyor)
  *   5. ±90° sınırına kırp, taretAltSistemi.dondur() ile komut ver
  *
  * Tag görünmese bile odometri devam ettiğinden takip kesilmez.
+ *
+ * NOT: Şu an otomatik kullanım devre dışı. Bu komut yalnızca test amaçlı bağlanabilir.
  */
 public class PozTabanliTaretKomutu extends Command {
     private final TaretAltSistemi taretAltSistemi;
@@ -49,9 +51,9 @@ public class PozTabanliTaretKomutu extends Command {
         // Robot heading'i çıkar → robot-relative açı
         double robotHeadingDerece = robotPoz.getRotation().getDegrees();
 
-        // Taret arkaya bakıyor: +180° offset (veya -180°, ikisi eşdeğer)
+        // Taret öne bakıyor: 0° offset — 0° = robotun ön yönü
         double taretHedefAcisi = sahaAcisiDerece - robotHeadingDerece
-            - MotorSabitleri.TARET_ARKA_OFFSET_DERECE;
+            - MotorSabitleri.TARET_ON_OFFSET_DERECE;
 
         // Açıyı −180° ile +180° arasına normalize et
         taretHedefAcisi = normalizeAci(taretHedefAcisi);

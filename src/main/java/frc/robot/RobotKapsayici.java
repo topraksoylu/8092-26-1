@@ -26,8 +26,9 @@ import frc.robot.Commands.SurusKomutu;
 import frc.robot.Commands.AprilTagaHizalamaKomutu;
 import frc.robot.Commands.AprilTagTakipKomutu;
 import frc.robot.Commands.TaretHomingKomutu;
-import frc.robot.Commands.TaretTakipKomutu;
-import frc.robot.Commands.PozTabanliTaretKomutu;
+// TaretTakipKomutu ve PozTabanliTaretKomutu: otomatik taret devre disi (simdilik)
+// import frc.robot.Commands.TaretTakipKomutu;
+// import frc.robot.Commands.PozTabanliTaretKomutu;
 import frc.robot.Sabitler.*;
 import frc.robot.util.Elastic;
 import frc.robot.util.Elastic.Notification;
@@ -251,9 +252,8 @@ public class RobotKapsayici {
           aticiAltSistemi.durdur();
         }, alimAltSistemi, aticiAltSistemi));
 
-    // 8 (R2): Poz tabanli taret takibi (odometri + hub koordinati)
-    new JoystickButton(surucuKontrolcusu, 8)
-        .toggleOnTrue(new PozTabanliTaretKomutu(taretAltSistemi, surusAltSistemi));
+    // 8 (R2): Poz tabanli taret takibi — simdilik devre disi (taret onte, kablo guvenligi)
+    // Yeniden etkinlestirmek icin: .toggleOnTrue(new PozTabanliTaretKomutu(taretAltSistemi, surusAltSistemi));
 
     // 7 (L2): Taret homing — ilk basista baslar, ikinci basista durdurur
     new JoystickButton(surucuKontrolcusu, 7)

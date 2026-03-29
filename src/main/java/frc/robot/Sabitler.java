@@ -38,11 +38,11 @@ public final class Sabitler {
         public static final boolean DEPO_ATICI_YUKARI_TASIYICI_TERS = false;
 
         // Atici motoru (tek Spark Max)
-        public static final int ATICI_MOTOR_ID = 6;
+        public static final int ATICI_MOTOR_ID = 5;
         public static final boolean ATICI_MOTOR_TERS = false;
 
         // Taret motoru (tek Spark Max)
-        public static final int TARET_MOTOR_ID = 5;
+        public static final int TARET_MOTOR_ID = 6;
         public static final boolean TARET_MOTOR_TERS = false;
 
         // Taret disli orani: 200T ring / 19T pinion = ~10.526:1
@@ -57,16 +57,19 @@ public final class Sabitler {
         public static final double TARET_MAXMOTION_CRUISE_RPM = 200.0;    // Motor cruise hizi (RPM)
         public static final double TARET_MAXMOTION_ACCEL_RPM_S = 400.0;   // Motor ivme (RPM/s)
         public static final double TARET_MAXMOTION_HATA_TOLERANSI = 0.1;  // Motor rotasyon hatasi
-        public static final double TARET_ARKA_OFFSET_DERECE = 180.0; // taret arkaya bakiyor
+        // Taret one bakiyor: 0° = robotun onu, offset sifir
+        // (Eski: TARET_ARKA_OFFSET_DERECE = 180.0 — taret arkadaydi)
+        public static final double TARET_ON_OFFSET_DERECE = 0.0;
 
         // Taret aci sinirlari (toplam 180 derece hareket alani)
+        // 0° = robotun onu, -90° = limit switch pozisyonu (baslangic)
         public static final double TARET_MAKS_ACI = 90.0;   // derece
-        public static final double TARET_MIN_ACI = -90.0;   // derece
+        public static final double TARET_MIN_ACI = -90.0;   // derece (limit switch)
 
         // Taret limit switch (homing icin, normally closed)
         public static final int TARET_LIMIT_SWITCH_DIO = 9;
         // Homing sirasinda tareti limit switch'e dogru dondurmek icin hiz
-        // Manuel hizla esit (TARET_HIZI = 0.04), negatif = sol yön (limit switch tarafi)
+        // Manuel hizla esit (TARET_HIZI = 0.04), negatif = sol yön (limit switch tarafi, -90°)
         public static final double TARET_HOMING_HIZI = -0.04;
     }
 
@@ -125,9 +128,9 @@ public final class Sabitler {
         public static final int SURUCU_JOYSTICK_PORTU = 0;
         public static final int OPERATOR_JOYSTICK_PORTU = 1;
 
-        public static final int SURUCU_X_EKSENI = 0;  // Left/right (Yanal)
-        public static final int SURUCU_Y_EKSENI = 1;  // Ileri/geri
-        public static final int SURUCU_Z_EKSENI = 2;  // Donus \(sag cubuk\)
+        public static final int SURUCU_X_EKSENI = 0;  // PS4 Left X (yanal)
+        public static final int SURUCU_Y_EKSENI = 1;  // PS4 Left Y (ileri/geri)
+        public static final int SURUCU_Z_EKSENI = 2;  // PS4 Right X (donus)
     }
 
     public static class ModulSabitleri {
