@@ -17,11 +17,12 @@ public final class Sabitler {
         public static final int ARKA_SAG_MOTOR_ID = 3;
         public static final int ON_SAG_MOTOR_ID = 2;
 
-        // Mecanum icin sol ve sag motor yonleri kendi taraflarinda ayni olmali
-        public static final boolean ARKA_SOL_MOTOR_TERS = true;
-        public static final boolean ON_SOL_MOTOR_TERS = true;     // Arka sol ile eslesir
-        public static final boolean ARKA_SAG_MOTOR_TERS = false;  // On sag ile eslesecek sekilde ayarlandi
-        public static final boolean ON_SAG_MOTOR_TERS = false;
+        // WPILib MecanumDrive ileri komutunda tum motorlara +1 gonderir.
+        // Sag motorlar fiziksel olarak ayna monteli oldugu icin inverted olmalidir.
+        public static final boolean ARKA_SOL_MOTOR_TERS = false;
+        public static final boolean ON_SOL_MOTOR_TERS = false;
+        public static final boolean ARKA_SAG_MOTOR_TERS = true;
+        public static final boolean ON_SAG_MOTOR_TERS = true;
 
         // NEO motorlar icin akilli akim sinirlama \(sigorta atmasini azaltir\)
         public static final int SURUS_MOTORU_DURMA_AKIM_SINIRI = 60;  // Amper \(NEO durma akimi 105A\)
