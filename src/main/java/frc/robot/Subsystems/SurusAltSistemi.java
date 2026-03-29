@@ -135,7 +135,12 @@ public class SurusAltSistemi extends SubsystemBase {
       SurusSabitleri.TEKER_POZISYONLARI[3]
     );
 
-    poseEstimator = new MecanumDrivePoseEstimator(kinematics, getHeading(), getWheelPositions(), initialPose);
+    // 3.6: WPILib ornegi gibi acik standart sapmalar — odometri gürültüsüne ve vision gürültüsüne göre ayarlandı
+    poseEstimator = new MecanumDrivePoseEstimator(
+        kinematics, getHeading(), getWheelPositions(), initialPose,
+        VecBuilder.fill(0.05, 0.05, edu.wpi.first.math.util.Units.degreesToRadians(5)),   // odometri std dev: x, y, theta
+        VecBuilder.fill(0.5, 0.5, edu.wpi.first.math.util.Units.degreesToRadians(30))    // vision std dev (mesafeye gore dinamik guncellenir)
+    );
 
     field = new Field2d();
 
