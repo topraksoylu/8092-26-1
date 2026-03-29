@@ -131,7 +131,7 @@ public final class Sabitler {
     }
 
     public static class ModulSabitleri {
-        public static final double ALIM_HIZI = 0.8;
+        public static final double ALIM_HIZI = 0.75;
         public static final double DEPO_ATICI_YUKARI_TASIYICI_HIZI = 0.75;
         public static final double ATICI_HIZI = 1;
         public static final double ATICI_HEDEF_RPM = 4000.0; // Velocity PID hedef hizi (NEO max: 5676 RPM)
