@@ -38,4 +38,12 @@ public class AticiAltSistemi extends SubsystemBase {
     public double getSonKomutHizi() {
         return sonKomutHizi;
     }
+
+    /** CAN kaynagini serbest birakir — test ortaminda @AfterAll ile cagrilmali */
+    public void close() {
+        if (aticiMotoru != null) {
+            try { aticiMotoru.close(); } catch (Exception ignored) {}
+            aticiMotoru = null;
+        }
+    }
 }

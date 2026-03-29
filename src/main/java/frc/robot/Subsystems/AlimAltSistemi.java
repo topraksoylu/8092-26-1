@@ -76,4 +76,16 @@ public class AlimAltSistemi extends SubsystemBase {
     public double getSonTasiyiciHizi() {
         return sonTasiyiciHizi;
     }
+
+    /** PWM kanallarini serbest birakir — test ortaminda @AfterAll ile cagrilmali */
+    public void close() {
+        if (alimCimMotoru != null) {
+            alimCimMotoru.close();
+            alimCimMotoru = null;
+        }
+        if (yukariTasiyiciCimMotoru != null) {
+            yukariTasiyiciCimMotoru.close();
+            yukariTasiyiciCimMotoru = null;
+        }
+    }
 }

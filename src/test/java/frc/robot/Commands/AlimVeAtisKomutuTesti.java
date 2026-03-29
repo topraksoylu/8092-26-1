@@ -2,39 +2,58 @@ package frc.robot.Commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import edu.wpi.first.hal.HAL;
 import frc.robot.Sabitler.ModulSabitleri;
 import frc.robot.Subsystems.AlimAltSistemi;
 import frc.robot.Subsystems.AticiAltSistemi;
 
+@TestInstance(Lifecycle.PER_CLASS)
 class AlimVeAtisKomutuTesti {
-    @BeforeEach
-    void setup() {
+    private AlimAltSistemi alimAltSistemi;
+    private AticiAltSistemi aticiAltSistemi;
+
+    @BeforeAll
+    void initAll() {
         HAL.initialize(500, 0);
+        alimAltSistemi = new AlimAltSistemi();
+        aticiAltSistemi = new AticiAltSistemi();
+    }
+
+    @BeforeEach
+    void resetState() {
+        alimAltSistemi.durdur();
+        aticiAltSistemi.durdur();
+    }
+
+    @AfterAll
+    void teardownAll() {
+        alimAltSistemi.close();
+        aticiAltSistemi.close();
     }
 
     @Test
     @Tag("fast")
     void alimKomutuMotorCiktisiniAyarlarVeDurdurur() {
-        AlimAltSistemi altSistem = new AlimAltSistemi();
-        AlimKomutu komut = new AlimKomutu(altSistem);
+        AlimKomutu komut = new AlimKomutu(alimAltSistemi);
 
         komut.execute();
-        assertEquals(ModulSabitleri.ALIM_HIZI, altSistem.getSonAlimHizi(), 1e-9);
+        assertEquals(ModulSabitleri.ALIM_HIZI, alimAltSistemi.getSonAlimHizi(), 1e-9);
 
         komut.end(false);
-        assertEquals(0.0, altSistem.getSonAlimHizi(), 1e-9);
+        assertEquals(0.0, alimAltSistemi.getSonAlimHizi(), 1e-9);
     }
 
     @Test
     @Tag("fast")
     void atisKomutuAticiVeTasiyiciyiBaslatirVeDurdurur() {
-        AticiAltSistemi aticiAltSistemi = new AticiAltSistemi();
-        AlimAltSistemi alimAltSistemi = new AlimAltSistemi();
         AtisKomutu komut = new AtisKomutu(aticiAltSistemi, alimAltSistemi, 3.0);
 
         komut.initialize();

@@ -90,4 +90,13 @@ public class TaretAltSistemi extends SubsystemBase {
     public double getSonKomutHizi() {
         return sonKomutHizi;
     }
+
+    /** DIO ve CAN kaynaklarini serbest birakir — test ortaminda @AfterAll ile cagrilmali */
+    public void close() {
+        limitSwitch.close();
+        if (taretMotoru != null) {
+            try { taretMotoru.close(); } catch (Exception ignored) {}
+            taretMotoru = null;
+        }
+    }
 }

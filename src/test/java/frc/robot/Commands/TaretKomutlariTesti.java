@@ -4,25 +4,42 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import edu.wpi.first.hal.HAL;
 import frc.robot.Subsystems.SurusAltSistemi;
 import frc.robot.Subsystems.TaretAltSistemi;
 import frc.robot.Subsystems.GorusAltSistemi;
 
+@TestInstance(Lifecycle.PER_CLASS)
 class TaretKomutlariTesti {
-    @BeforeEach
-    void setup() {
+    private TaretAltSistemi taret;
+
+    @BeforeAll
+    void initAll() {
         HAL.initialize(500, 0);
+        taret = new TaretAltSistemi();
+    }
+
+    @BeforeEach
+    void resetState() {
+        taret.durdur();
+    }
+
+    @AfterAll
+    void teardownAll() {
+        taret.close();
     }
 
     @Test
     @Tag("fast")
     void taretTakipHedefGorunurkenDondurur() {
-        TaretAltSistemi taret = new TaretAltSistemi();
         GorusAltSistemi gorus = mock(GorusAltSistemi.class);
         when(gorus.hasTarget()).thenReturn(true);
         when(gorus.getHorizontalOffset()).thenReturn(10.0);
@@ -36,7 +53,6 @@ class TaretKomutlariTesti {
     @Test
     @Tag("fast")
     void hedefeHizalamaBitinceAltSistemiDurdurur() {
-        TaretAltSistemi taret = new TaretAltSistemi();
         GorusAltSistemi gorus = mock(GorusAltSistemi.class);
         SurusAltSistemi surus = mock(SurusAltSistemi.class);
 
