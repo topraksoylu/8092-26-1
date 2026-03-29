@@ -11,10 +11,19 @@ class SurusMatematigiTest {
     @Test
     @Tag("fast")
     void encoderConversionsMatchExpectedUnits() {
-        double meters = SurusMatematigi.encoderPositionToMeters(127.5, SurusSabitleri.DISLI_ORANI, SurusSabitleri.TEKER_CEVRESI);
+        double motorRotationsForTenWheelRotations = 10.0 * SurusSabitleri.DISLI_ORANI;
+        double meters = SurusMatematigi.encoderPositionToMeters(
+            motorRotationsForTenWheelRotations,
+            SurusSabitleri.DISLI_ORANI,
+            SurusSabitleri.TEKER_CEVRESI
+        );
         assertEquals(10.0 * SurusSabitleri.TEKER_CEVRESI, meters, 1e-9);
 
-        double mps = SurusMatematigi.encoderVelocityRpmToMetersPerSecond(127.5, SurusSabitleri.DISLI_ORANI, SurusSabitleri.TEKER_CEVRESI);
+        double mps = SurusMatematigi.encoderVelocityRpmToMetersPerSecond(
+            motorRotationsForTenWheelRotations,
+            SurusSabitleri.DISLI_ORANI,
+            SurusSabitleri.TEKER_CEVRESI
+        );
         assertEquals((10.0 * SurusSabitleri.TEKER_CEVRESI) / 60.0, mps, 1e-9);
     }
 

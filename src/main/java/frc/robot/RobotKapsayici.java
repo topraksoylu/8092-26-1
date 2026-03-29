@@ -31,6 +31,7 @@ import frc.robot.Commands.TaretHomingKomutu;
 // import frc.robot.Commands.PozTabanliTaretKomutu;
 import frc.robot.Sabitler.*;
 import frc.robot.util.Elastic;
+import frc.robot.util.AtisHesaplayici;
 import frc.robot.util.Elastic.Notification;
 import frc.robot.util.Elastic.NotificationLevel;
 
@@ -223,7 +224,7 @@ public class RobotKapsayici {
 
     // 4 (Ucgen): Atici (CAN 5)
     new JoystickButton(surucuKontrolcusu, 4)
-        .whileTrue(new RunCommand(() -> aticiAltSistemi.at(), aticiAltSistemi))
+        .whileTrue(new RunCommand(this::hedefMesafesineGoreAticiCalistir, aticiAltSistemi))
         .onFalse(new InstantCommand(() -> aticiAltSistemi.durdur(), aticiAltSistemi));
 
     // 5 (L1): Taret sola (CAN 6)
@@ -240,13 +241,14 @@ public class RobotKapsayici {
     new JoystickButton(surucuKontrolcusu, 10)
         .onTrue(new InstantCommand(() -> {
           dugme10BaslangicZamani = Timer.getFPGATimestamp();
-          aticiAltSistemi.at();
+          hedefMesafesineGoreAticiCalistir();
         }, aticiAltSistemi))
         .whileTrue(new RunCommand(() -> {
+          hedefMesafesineGoreAticiCalistir();
           if (Timer.getFPGATimestamp() - dugme10BaslangicZamani >= 1.0) {
             alimAltSistemi.depodanAticiyaYukariTasimaBaslat();
           }
-        }, alimAltSistemi))
+        }, alimAltSistemi, aticiAltSistemi))
         .onFalse(new InstantCommand(() -> {
           alimAltSistemi.depodanAticiyaYukariTasimaDurdur();
           aticiAltSistemi.durdur();
@@ -266,6 +268,21 @@ public class RobotKapsayici {
                 .withTimeout(0.5)
                 .andThen(new InstantCommand(() -> alimAltSistemi.depodanAticiyaYukariTasimaDurdur(), alimAltSistemi))
         );
+  }
+
+  private void hedefMesafesineGoreAticiCalistir() {
+    if (gorusAltSistemi.isHedefTagGorunuyor()) {
+      double mesafeMetre = gorusAltSistemi.getDistanceToTarget();
+      double hedefRpm = AtisHesaplayici.hesaplaHedefRpm(mesafeMetre);
+      aticiAltSistemi.atRPM(hedefRpm);
+      SmartDashboard.putString("Atici/AtisModu", "MesafeTabanli");
+      SmartDashboard.putNumber("Atici/HedefMesafe_m", mesafeMetre);
+      SmartDashboard.putNumber("Atici/HesaplananRPM", hedefRpm);
+      return;
+    }
+
+    aticiAltSistemi.at();
+    SmartDashboard.putString("Atici/AtisModu", "SabitRPM_Fallback");
   }
 
   private void pathPlannerKomutlariniKaydet() {

@@ -87,12 +87,14 @@ public final class Sabitler {
 
         public static final double TEKER_CAPI = 0.1524;  // 6 inc AndyMark Mecanum tekerleri
         public static final double TEKER_CEVRESI = Math.PI * TEKER_CAPI;
-        public static final double DISLI_ORANI = 12.75;  // Toughbox Mini Classic 12.75:1
+        // 2019 KOP AM14U/Toughbox Mini disli seti:
+        // (50/14) * (48/16) = 10.71:1
+        public static final double DISLI_ORANI = 10.71;
 
-        // 12.75:1 disli oraniyla NEO azami hiz hesabi:
+        // 10.71:1 disli oraniyla NEO azami hiz hesabi:
         // NEO Bos Hiz: 5676 RPM
-        // Disli kutusundan sonra: 5676 / 12.75 = 445 RPM
-        // Teker hizi: 445 / 60 * pi * 0.1524 = 3.55 m/s teorik
+        // Disli kutusundan sonra: 5676 / 10.71 = 530 RPM
+        // Teker hizi: 530 / 60 * pi * 0.1524 = 4.23 m/s teorik
         // Kayiplar dahil temkinli tahmin: ~3.0 m/s
         public static final double MAKS_HIZ_METRE_SANIYE = 3.0;
 
@@ -138,6 +140,9 @@ public final class Sabitler {
         public static final double DEPO_ATICI_YUKARI_TASIYICI_HIZI = 0.75;
         public static final double ATICI_HIZI = 1;
         public static final double ATICI_HEDEF_RPM = 4000.0; // Velocity PID hedef hizi (NEO max: 5676 RPM)
+        // Mesafe->RPM tablosu (Launcher in a Box + 6.875" Turret icin baslangic kalibrasyonu)
+        public static final double[] ATIS_MESAFE_TABLOSU_METRE = {1.2, 2.0, 2.8, 3.6, 4.4, 5.2};
+        public static final double[] ATIS_RPM_TABLOSU = {2900, 3300, 3700, 4100, 4450, 4800};
         public static final double ATICI_KP = 0.0001;        // Velocity PID P kazanci (REV resmi)
         public static final double ATICI_KV = 12.0 / 5676.0; // Feedforward: 12V / NEO max RPM
         public static final double TARET_HIZI = 0.04;
