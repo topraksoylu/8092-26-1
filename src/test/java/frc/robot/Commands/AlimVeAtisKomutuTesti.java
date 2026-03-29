@@ -57,11 +57,11 @@ class AlimVeAtisKomutuTesti {
         AtisKomutu komut = new AtisKomutu(aticiAltSistemi, alimAltSistemi, 3.0);
 
         komut.initialize();
-        assertEquals(ModulSabitleri.ATICI_HIZI, aticiAltSistemi.getSonKomutHizi(), 1e-9);
+        assertEquals(ModulSabitleri.ATICI_HEDEF_RPM, aticiAltSistemi.getSonHedefRPM(), 1e-9);
         assertEquals(ModulSabitleri.DEPO_ATICI_YUKARI_TASIYICI_HIZI, alimAltSistemi.getSonTasiyiciHizi(), 1e-9);
 
         komut.end(false);
-        assertEquals(0.0, aticiAltSistemi.getSonKomutHizi(), 1e-9);
+        assertEquals(0.0, aticiAltSistemi.getSonHedefRPM(), 1e-9);
         assertEquals(0.0, alimAltSistemi.getSonTasiyiciHizi(), 1e-9);
     }
 }

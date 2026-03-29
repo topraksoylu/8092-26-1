@@ -120,6 +120,9 @@ public final class Sabitler {
         public static final double ALIM_HIZI = 0.8;
         public static final double DEPO_ATICI_YUKARI_TASIYICI_HIZI = 0.75;
         public static final double ATICI_HIZI = 0.90;
+        public static final double ATICI_HEDEF_RPM = 4000.0; // Velocity PID hedef hizi (NEO max: 5676 RPM)
+        public static final double ATICI_KP = 0.0001;        // Velocity PID P kazanci (REV resmi)
+        public static final double ATICI_KV = 12.0 / 5676.0; // Feedforward: 12V / NEO max RPM
         public static final double TARET_HIZI = 0.04;
     }
 

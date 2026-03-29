@@ -60,10 +60,10 @@ class MekanizmaAltSistemiTesti {
     @Tag("fast")
     void aticiSonKomutTakipEder() {
         atici.at();
-        assertEquals(ModulSabitleri.ATICI_HIZI, atici.getSonKomutHizi(), 1e-9);
+        assertEquals(ModulSabitleri.ATICI_HEDEF_RPM, atici.getSonHedefRPM(), 1e-9);
 
         atici.durdur();
-        assertEquals(0.0, atici.getSonKomutHizi(), 1e-9);
+        assertEquals(0.0, atici.getSonHedefRPM(), 1e-9);
     }
 
     @Test
