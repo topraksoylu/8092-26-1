@@ -148,6 +148,29 @@ public final class Sabitler {
         public static final double TARET_HIZI = 0.04;
     }
 
+    /**
+     * Limelight hedef görmediğinde sürücünün Elastic'ten seçebileceği
+     * manuel atış mesafe ön ayarları.
+     *
+     * RPM değerleri ATIS_RPM_TABLOSU kalibrasyonundan türetilmiştir:
+     *   YAKIN  → ~1.2 m  → 2900 RPM
+     *   ORTA   → ~2.8 m  → 3700 RPM
+     *   UZAK   → ~4.4 m  → 4450 RPM
+     */
+    public enum ManuelAtisModu {
+        YAKIN ("Yakın  (~1.2 m)",  2900.0),
+        ORTA  ("Orta   (~2.8 m)",  3700.0),
+        UZAK  ("Uzak   (~4.4 m)",  4450.0);
+
+        public final String etiket;
+        public final double rpm;
+
+        ManuelAtisModu(String etiket, double rpm) {
+            this.etiket = etiket;
+            this.rpm    = rpm;
+        }
+    }
+
     public static class GorusSabitleri {
         // Limelight yapilandirmasi
         public static final String LIMELIGHT_ADI = "limelight";
