@@ -15,7 +15,7 @@ Bu dosya, bu depoda calisirken gelistirici yardimcisina hizli teknik baglam veri
 
 ### Surus
 - 4x NEO + Spark Max (CAN)
-- CAN: 1 (on sol), 2 (on sag), 3 (arka sag), 4 (arka sol)
+- CAN: 3 (on sol), 4 (on sag), 1 (arka sag), 2 (arka sol)
 
 ### Mekanizma
 | Alt Sistem | Motor | Baglanti | CAN/PWM | Sabit |
