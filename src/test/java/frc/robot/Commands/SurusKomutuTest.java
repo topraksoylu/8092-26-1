@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import edu.wpi.first.hal.HAL;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.simulation.SimHooks;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 class SurusKomutuTest {
@@ -37,18 +37,18 @@ class SurusKomutuTest {
     void executeSendsShapedCommandsToDriveOutput() {
         AtomicReference<double[]> outputs = new AtomicReference<>(new double[] {0, 0, 0});
         SubsystemBase req = new SubsystemBase() {};
-        // Axis 1 (yHizi) fiziksel olarak ileri = negatif deger uretir
-        // Axis 0 (xHizi) sag = pozitif; bu test: ileri + saga + sola donus
+        // Axis 1 (yHizi) fiziksel olarak ileri = negatif deger uretir.
+        // Axis 0 (xHizi) sag = pozitif; WPILib mecanum +y sola oldugu icin saga gitmek icin terslenir.
         SurusKomutu command = new SurusKomutu(
-            () -> -0.4,
-            () -> 0.7,
+            () -> 0.4,
+            () -> -0.7,
             () -> -0.2,
             (x, y, z) -> outputs.set(new double[] {x, y, z}),
             req
         );
 
         command.execute();
-        Timer.delay(0.02);
+        SimHooks.stepTiming(0.02); // FPGA saatini 20ms ilerlet — Timer.delay CI'da FPGA zamanini ilerletmez
         command.execute();
         double[] out = outputs.get();
 
