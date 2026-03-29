@@ -15,7 +15,7 @@ public class FieldConstants {
      * 2026 Hub (scoring yapısı) merkez koordinatları — WPILib mavi-alliance orijini.
      * Kaynak: Hammerheads 5000 fmap ölçümleri (181.56 in = 4.61 m)
      *
-     * Taret arka tarafta, Limelight arka bakıyor.
+     * Taret ön tarafta, Limelight öne bakıyor (TARET_ON_OFFSET_DERECE = 0°).
      * Tareti hedefe döndürmek için bu koordinatlar kullanılır.
      */
     public static final Translation2d HUB_MAVI = new Translation2d(4.61, FIELD_WIDTH / 2.0);

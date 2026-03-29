@@ -25,6 +25,12 @@ public class TaretAltSistemi extends SubsystemBase {
     private double sonKomutHizi = 0.0;
     private double hedefAci = 0.0;
 
+    /**
+     * Enkoder sıfırlanmadan otomatik taret çalışmaz.
+     * TaretHomingKomutu tamamlandığında true olur.
+     */
+    private boolean homingTamamlandi = false;
+
     // NC switch + Signal/GND: basili degil=false (kapali devre/GND), basili=true (acik devre/pull-up)
     private final DigitalInput limitSwitch;
 
@@ -83,12 +89,18 @@ public class TaretAltSistemi extends SubsystemBase {
         return aciDerece / (360.0 / MotorSabitleri.TARET_DISLI_ORANI);
     }
 
-    /** Enkoderi limit switch pozisyonuna ayarla (-90°) */
+    /** Enkoderi limit switch pozisyonuna ayarla (-90°) ve homing tamamlandı bayrağını set et. */
     public void enkoderiSifirla() {
         if (taretEnkoderi != null) {
             double motorRotasyonu = aciToMotorRotasyonu(MotorSabitleri.TARET_MIN_ACI);
             taretEnkoderi.setPosition(motorRotasyonu);
         }
+        homingTamamlandi = true;
+    }
+
+    /** Otomatik taret için homing tamamlandı mı? */
+    public boolean isHomingTamamlandi() {
+        return homingTamamlandi;
     }
 
     public void dondur(double hiz) {
@@ -158,6 +170,9 @@ public class TaretAltSistemi extends SubsystemBase {
         if (taretEnkoderi != null) {
             SmartDashboard.putNumber("Taret/EnkoderRotasyonu", taretEnkoderi.getPosition());
         }
+
+        // Homing durumu
+        SmartDashboard.putBoolean("Taret/HomingTamamlandi", homingTamamlandi);
 
         // Limit switch ve blokaj
         SmartDashboard.putBoolean("Taret/LimitSwitch", switchTetik);
