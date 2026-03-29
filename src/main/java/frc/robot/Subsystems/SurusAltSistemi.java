@@ -26,6 +26,7 @@ import edu.wpi.first.math.kinematics.MecanumDriveKinematics;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelPositions;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelSpeeds;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
@@ -448,8 +449,15 @@ public class SurusAltSistemi extends SubsystemBase {
     if (result.valid && Timer.getFPGATimestamp() - lastVisionUpdateTimestamp >=
         frc.robot.Sabitler.GorusSabitleri.POZ_GUNCELLEME_ARALIGI_SN) {
 
+      // MegaTag2: mesafeye gore olceklenmis standart sapmalar
+      // 1 tag uzakta -> yuksek belirsizlik; cok tag -> daha dusuk
+      double stdDevOlcek = result.avgTagDist / Math.max(1, result.tagCount);
+      double xyStdDev = 0.3 * stdDevOlcek;
+      double tetaStdDev = 9999.0; // MegaTag2 yaw degeri navx ile hizalanmis, guncelleme gereksiz
+
       // Fuse vision into estimator to correct drift without pose jumps.
-      poseEstimator.addVisionMeasurement(result.robotPose, result.timestamp);
+      poseEstimator.addVisionMeasurement(result.robotPose, result.timestamp,
+          VecBuilder.fill(xyStdDev, xyStdDev, tetaStdDev));
 
       lastVisionUpdateTimestamp = Timer.getFPGATimestamp();
 
@@ -497,6 +505,11 @@ public class SurusAltSistemi extends SubsystemBase {
             // Approximate rotation based on velocity difference (simple sim)
             simulatedHeading += (getVelocity(frontRightMotor.getEncoder()) - getVelocity(frontLeftMotor.getEncoder())) * 0.01;
             poseEstimator.update(getHeading(), getWheelPositions());
+        }
+
+        // MegaTag2: her dongude robot yonunu Limelight'a bildir (jiro destekli poz icin gerekli)
+        if (GorusAltSistemi != null) {
+            GorusAltSistemi.setRobotOrientation(getHeading().getDegrees());
         }
 
         // Update odometry with vision measurements to correct drift

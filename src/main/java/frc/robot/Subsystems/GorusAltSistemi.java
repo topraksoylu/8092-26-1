@@ -19,6 +19,7 @@ public class GorusAltSistemi extends SubsystemBase {
         String getString(String key, String defaultValue);
         double[] getDoubleArray(String key, double[] defaultValue);
         void setNumber(String key, double value);
+        void setDoubleArray(String key, double[] value);
     }
 
     interface RuntimeIO {
@@ -62,6 +63,11 @@ public class GorusAltSistemi extends SubsystemBase {
         public void setNumber(String key, double value) {
             entry(key).setNumber(value);
         }
+
+        @Override
+        public void setDoubleArray(String key, double[] value) {
+            entry(key).setDoubleArray(value);
+        }
     }
 
     static class WpiRuntimeIO implements RuntimeIO {
@@ -98,6 +104,8 @@ public class GorusAltSistemi extends SubsystemBase {
         public double ambiguity;
         public double timestamp;
         public boolean valid;
+        public int tagCount;      // MegaTag2: kac tag kullanildi
+        public double avgTagDist; // MegaTag2: ortalama tag mesafesi (m), std dev olcekleme icin
     }
 
     public GorusAltSistemi() {
@@ -109,6 +117,16 @@ public class GorusAltSistemi extends SubsystemBase {
         this.runtime = runtime;
         initializeTuningDashboard();
         applyDesiredLimelightConfig();
+    }
+
+    /**
+     * MegaTag2 icin jiro yonunu Limelight'a bildir.
+     * SurusAltSistemi.periodic() tarafindan her dongude cagrilmali.
+     * @param yawDegrees Robot yonu (WPILib CCW+, derece)
+     */
+    public void setRobotOrientation(double yawDegrees) {
+        // Limelight format: [yaw, yawRate, pitch, pitchRate, roll, rollRate]
+        io.setDoubleArray("robot_orientation_set", new double[]{yawDegrees, 0, 0, 0, 0, 0});
     }
 
     public boolean hasTarget() {
@@ -301,12 +319,14 @@ public class GorusAltSistemi extends SubsystemBase {
             return result;
         }
 
-        String poseEntry = runtime.isRedAlliance() ? "botpose_wpired" : "botpose_wpiblue";
+        // MegaTag2: botpose_orb_* — jiro destekli, cok daha kararli
+        String poseEntry = runtime.isRedAlliance() ? "botpose_orb_wpired" : "botpose_orb_wpiblue";
         SmartDashboard.putString("Vision/Debug/PoseEntry", poseEntry);
 
         double[] botPoseArray = io.getDoubleArray(poseEntry, new double[0]);
         SmartDashboard.putNumber("Vision/Debug/PoseArrayLength", botPoseArray.length);
 
+        // MegaTag2 array: [x, y, z, rx, ry, rz, latency_ms, tagCount, tagSpan, avgTagDist, avgTagArea]
         if (botPoseArray.length < 7) {
             SmartDashboard.putString("Vision/Debug/Status", "Array too short: " + botPoseArray.length);
             return result;
@@ -321,6 +341,8 @@ public class GorusAltSistemi extends SubsystemBase {
         result.robotPose = new Pose2d(x, y, Rotation2d.fromDegrees(yaw));
         result.timestamp = timestamp;
         result.tagId = (int) io.getInteger("tid", 0);
+        result.tagCount = botPoseArray.length > 7 ? (int) botPoseArray[7] : 1;
+        result.avgTagDist = botPoseArray.length > 9 ? botPoseArray[9] : 1.0;
 
         double[] targetPoseArray = io.getDoubleArray("targetpose_cameraspace", new double[0]);
         result.ambiguity = (targetPoseArray.length >= 7) ? targetPoseArray[6] : 1.0;

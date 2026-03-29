@@ -41,6 +41,11 @@ class GorusAltSistemiTest {
         public void setNumber(String key, double value) {
             doubles.put(key, value);
         }
+
+        @Override
+        public void setDoubleArray(String key, double[] value) {
+            arrays.put(key, value);
+        }
     }
 
     private static class FakeRuntimeIO implements GorusAltSistemi.RuntimeIO {
@@ -93,7 +98,7 @@ class GorusAltSistemiTest {
 
         io.doubles.put("tv", 1.0);
         io.integers.put("tid", 4L);
-        io.arrays.put("botpose_wpiblue", new double[] {2.0, 3.0, 0, 0, 0, 90.0, 20.0});
+        io.arrays.put("botpose_orb_wpiblue", new double[] {2.0, 3.0, 0, 0, 0, 90.0, 20.0});
         io.arrays.put("targetpose_cameraspace", new double[] {0, 0, 0, 0, 0, 0, 0.05});
         io.integers.put("fmap/tagCount", 32L);
 
@@ -120,8 +125,8 @@ class GorusAltSistemiTest {
 
         io.doubles.put("tv", 1.0);
         io.integers.put("tid", 5L);
-        io.arrays.put("botpose_wpiblue", new double[] {1.0, 2.0, 0, 0, 0, 0.0, 0.0});
-        io.arrays.put("botpose_wpired", new double[] {8.0, 9.0, 0, 0, 0, 180.0, 0.0});
+        io.arrays.put("botpose_orb_wpiblue", new double[] {1.0, 2.0, 0, 0, 0, 0.0, 0.0});
+        io.arrays.put("botpose_orb_wpired", new double[] {8.0, 9.0, 0, 0, 0, 180.0, 0.0});
         io.arrays.put("targetpose_cameraspace", new double[] {0, 0, 0, 0, 0, 0, 0.05});
         io.integers.put("fmap/tagCount", 32L);
 
