@@ -446,7 +446,24 @@ public class SurusAltSistemi extends SubsystemBase {
 
     GorusAltSistemi.VisionResult result = GorusAltSistemi.aprilTagdanRobotPozuAl();
 
-    if (result.valid && Timer.getFPGATimestamp() - lastVisionUpdateTimestamp >=
+    // --- 2.3 Vision Filtreleri ---
+    // Filtre 1: Tag sayisi — 2+ tag gerekli (tek uzak tag guvensiz)
+    boolean tagSayisiFiltreGecti = result.tagCount >= 2 || (result.tagCount == 1 && result.avgTagDist < 3.0);
+
+    // Filtre 2: Donus hizi — robot hizli donerken gorus olcumu guvensiz
+    MecanumDriveWheelSpeeds mevcutHizlar = getWheelSpeeds();
+    ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(mevcutHizlar);
+    double domusHizDegSn = Math.abs(Math.toDegrees(chassisSpeeds.omegaRadiansPerSecond));
+    boolean donusFiltreGecti = domusHizDegSn < 360.0; // >360 deg/s ise reddet
+
+    boolean filtreGecti = tagSayisiFiltreGecti && donusFiltreGecti;
+
+    SmartDashboard.putNumber("Drive/VisionTagCount", result.tagCount);
+    SmartDashboard.putNumber("Drive/VisionAvgTagDist", result.avgTagDist);
+    SmartDashboard.putNumber("Drive/VisionRotRateDegSn", domusHizDegSn);
+    SmartDashboard.putBoolean("Drive/VisionFiltreGecti", filtreGecti);
+
+    if (result.valid && filtreGecti && Timer.getFPGATimestamp() - lastVisionUpdateTimestamp >=
         frc.robot.Sabitler.GorusSabitleri.POZ_GUNCELLEME_ARALIGI_SN) {
 
       // MegaTag2: mesafeye gore olceklenmis standart sapmalar
