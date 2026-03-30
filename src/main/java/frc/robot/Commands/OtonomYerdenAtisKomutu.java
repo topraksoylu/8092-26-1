@@ -150,10 +150,10 @@ public class OtonomYerdenAtisKomutu extends Command {
      *   • Hazırlık koşulları sağlanınca veya timeout'ta ATIS'e geç.
      */
     private void executeHizlanma() {
-        boolean limelightGorüyor = gorusAltSistemi.isHedefTagGorunuyor();
+        boolean limelightGoruyor = gorusAltSistemi.isHedefTagGorunuyor();
 
         // 1 — RPM hesapla (limelight mesafesi → tablo interpolasyonu)
-        if (limelightGorüyor) {
+        if (limelightGoruyor) {
             double mesafe = gorusAltSistemi.getDistanceToTarget();
             hedefRpm = AtisHesaplayici.hesaplaHedefRpm(mesafe);
         } else if (hedefRpm == 0.0) {
@@ -162,11 +162,11 @@ public class OtonomYerdenAtisKomutu extends Command {
         aticiAltSistemi.atRPM(hedefRpm);
 
         // 2 — Taret hizalama
-        hedefeTaretAyarla(limelightGorüyor);
+        hedefeTaretAyarla(limelightGoruyor);
 
         // 3 — Hazırlık kontrolü
         double tx        = gorusAltSistemi.getHorizontalOffset();
-        boolean hizali   = limelightGorüyor && Math.abs(tx) < TX_TOLERANS_DERECE;
+        boolean hizali   = limelightGoruyor && Math.abs(tx) < TX_TOLERANS_DERECE;
         boolean rpmHazir = aticiAltSistemi.isHizaUlasti();
         boolean timeout  = fazTimer.hasElapsed(HIZLANMA_ZAMAN_ASIMI_SN);
 
@@ -201,8 +201,8 @@ public class OtonomYerdenAtisKomutu extends Command {
      * Tareti Limelight tx'e göre hizalar.
      * Homing tamamlandıysa MAXMotion position control, değilse açık döngü.
      */
-    private void hedefeTaretAyarla(boolean limelightGorüyor) {
-        if (!limelightGorüyor) return; // görünmüyorsa mevcut konumda bekle
+    private void hedefeTaretAyarla(boolean limelightGoruyor) {
+        if (!limelightGoruyor) return; // görünmüyorsa mevcut konumda bekle
 
         double tx = gorusAltSistemi.getHorizontalOffset();
 

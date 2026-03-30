@@ -22,7 +22,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    Elastic.selectTab("Pit");
+    Elastic.selectTab("Ayarlama");
     Elastic.sendNotification(new Notification(NotificationLevel.INFO,
         "Robot Hazir", "Sistem baslatildi. Kontroller ve sensörleri dogrulayın."));
   }
@@ -38,7 +38,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    Elastic.selectTab("Pit");
+    Elastic.selectTab("Ayarlama");
   }
 
   @Override

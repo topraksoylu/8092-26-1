@@ -38,17 +38,17 @@ public final class Sabitler {
         public static final boolean DEPO_ATICI_YUKARI_TASIYICI_TERS = false;
 
         // Atici motoru (tek Spark Max)
-        public static final int ATICI_MOTOR_ID = 5;
+        public static final int ATICI_MOTOR_ID = 6;
         public static final boolean ATICI_MOTOR_TERS = false;
 
         // Taret motoru (tek Spark Max)
-        public static final int TARET_MOTOR_ID = 6;
+        public static final int TARET_MOTOR_ID = 5;
         public static final boolean TARET_MOTOR_TERS = false;
 
         // Taret disli orani: 200T ring / 19T pinion = ~10.526:1
         public static final double TARET_DISLI_ORANI = 200.0 / 19.0;
 
-        // Poz tabanli taret takibi
+        // Poz tabanli taret takibi,
         public static final double TARET_POZ_KP = 0.01;           // derece hata -> motor hizi
         public static final double TARET_KI = 0.001;              // statik surunme hatasini giderir
         public static final double TARET_HIZALAMA_ESIGI_DERECE = 2.0;
@@ -68,9 +68,12 @@ public final class Sabitler {
 
         // Taret limit switch (homing icin, normally closed)
         public static final int TARET_LIMIT_SWITCH_DIO = 9;
+        // DIO okuma seviyesi: true=aktif high, false=aktif low.
+        // Mevcut robot kurulumunda switch basili durum "low" olarak okunuyor.
+        public static final boolean TARET_LIMIT_SWITCH_AKTIF_HIGH = true;
         // Homing sirasinda tareti limit switch'e dogru dondurmek icin hiz
-        // Manuel hizla esit (TARET_HIZI = 0.04), negatif = sol yön (limit switch tarafi, -90°)
-        public static final double TARET_HOMING_HIZI = -0.04;
+        // Manuel hizla esit (TARET_HIZI = 0.08), negatif = sol yön (limit switch tarafi, -90°)
+        public static final double TARET_HOMING_HIZI = -0.08;
     }
 
     public static class SurusSabitleri {
@@ -195,7 +198,7 @@ public final class Sabitler {
             {2750, 3240, 3700, 4110, 4490, 4860};
         public static final double ATICI_KP = 0.0001;        // Velocity PID P kazanci (REV resmi)
         public static final double ATICI_KV = 12.0 / 5676.0; // Feedforward: 12V / NEO max RPM
-        public static final double TARET_HIZI = 0.04;
+        public static final double TARET_HIZI = 0.08;
     }
 
     /**

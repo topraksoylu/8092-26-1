@@ -81,7 +81,8 @@ public class TaretAltSistemi extends SubsystemBase {
     /** Normally closed switch tetiklendi mi? (taret deydi mi?)
      *  NC + Signal/GND baglantisi: basili degil=false, basili=true */
     public boolean limitSwitchTetiklendi() {
-        return limitSwitch.get();
+        boolean hamDeger = limitSwitch.get();
+        return MotorSabitleri.TARET_LIMIT_SWITCH_AKTIF_HIGH ? hamDeger : !hamDeger;
     }
 
     /** Taret acisini (derece) motor rotasyonuna donusturur (disli orani dikkate alinir) */
@@ -175,6 +176,7 @@ public class TaretAltSistemi extends SubsystemBase {
         SmartDashboard.putBoolean("Taret/HomingTamamlandi", homingTamamlandi);
 
         // Limit switch ve blokaj
+        SmartDashboard.putBoolean("Taret/LimitSwitchHam", limitSwitch.get());
         SmartDashboard.putBoolean("Taret/LimitSwitch", switchTetik);
         SmartDashboard.putBoolean("Taret/Blok_LimitSwitch", sonKomutHizi == 0 && switchTetik);
         SmartDashboard.putBoolean("Taret/Blok_MinLimit",    aci <= MotorSabitleri.TARET_MIN_ACI);
