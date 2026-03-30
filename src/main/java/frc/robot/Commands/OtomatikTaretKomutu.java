@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.FieldConstants;
 import frc.robot.Sabitler.MotorSabitleri;
+import frc.robot.Sabitler.ModulSabitleri;
 import frc.robot.Subsystems.GorusAltSistemi;
 import frc.robot.Subsystems.SurusAltSistemi;
 import frc.robot.Subsystems.TaretAltSistemi;
@@ -72,7 +73,21 @@ public class OtomatikTaretKomutu extends Command {
         hedefAci = Math.max(MotorSabitleri.TARET_MIN_ACI,
                     Math.min(MotorSabitleri.TARET_MAKS_ACI, hedefAci));
 
-        taretAltSistemi.aciAyarla(hedefAci);
+        // Manuel gibi hizalı kontrol - MAXMotion yerine direkt hız
+        double mevcutAci = taretAltSistemi.getAci();
+        double aciHatasi = hedefAci - mevcutAci;
+        double hiz = aciHatasi * 0.5; // Daha hizli response (once MAXMotion idi)
+
+        // Hızı limitle (manuel hız ile aynı)
+        double maxHiz = SmartDashboard.getNumber("Ayarlama/TaretHizi", ModulSabitleri.TARET_HIZI);
+        hiz = Math.max(-maxHiz, Math.min(maxHiz, hiz));
+
+        // Kucuk hata icin dur (titreme osilasyon onleme)
+        if (Math.abs(aciHatasi) < 2.0) {
+            taretAltSistemi.durdur();
+        } else {
+            taretAltSistemi.dondurManuel(hiz);
+        }
 
         SmartDashboard.putString("Taret/OtoMod", aktifMod.name());
         SmartDashboard.putBoolean("Taret/OtoAktif", true);

@@ -58,8 +58,8 @@ public class SurusKomutu extends Command {
     double hamZ = zDonusu.getAsDouble(); // Axis 2 (donus)
 
     double x = eksenSekillendir(-hamX, SurusKontrolSabitleri.OTELEME_OLCEGI);
-    // PS4 left X sag itildiginde pozitif gelir; WPILib'de +y robotun soludur.
-    double y = eksenSekillendir(-hamY, SurusKontrolSabitleri.YANLAMASINA_OLCEK);
+    // PS4 left X sag itildiginde pozitif gelir; +hamY ile sag hareket saglanir.
+    double y = eksenSekillendir(hamY, SurusKontrolSabitleri.YANLAMASINA_OLCEK);
     double z = eksenSekillendir(hamZ, SurusKontrolSabitleri.DONUS_OLCEGI);
 
     double xKomutu = xSinirlayici.calculate(x);

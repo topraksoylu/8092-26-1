@@ -3,7 +3,8 @@
     "allow": [
       "Bash(curl -s https://limelightvision.io/pages/installation)",
       "Bash(./gradlew compileJava)",
-      "Bash(bash gradlew:*)"
+      "Bash(bash gradlew:*)",
+      "Bash(./gradlew deploy:*)"
     ]
   }
 }

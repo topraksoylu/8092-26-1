@@ -40,6 +40,8 @@ public abstract class KontrolcuProfili {
 
     /** Ateş tetikleyici — RobotKapsayici'de atıcı kilidiyle birleştirilir. */
     public abstract boolean atesBasili();
+    /** Shooter motorunu dogrudan calistiran dijital tus (opsiyonel). */
+    public boolean shooterDirektBasili() { return false; }
 
     // ── Alım / taşıyıcı ──────────────────────────────────────────────────────
     public abstract boolean alimBasili();
@@ -56,6 +58,8 @@ public abstract class KontrolcuProfili {
 
     // ── Sistem ───────────────────────────────────────────────────────────────
     public abstract boolean gyroSifirlaBasili();
+    /** Opsiyonel: tek tusla gecikmeli atis sirasi (spin-up + gecikmeli tasiyici). */
+    public boolean gecikmeliAtisBasili() { return false; }
 
     // ── Geri bildirim ─────────────────────────────────────────────────────────
     /** Kontrolcü titreşimi (0.0 = kapalı, 1.0 = tam). */
@@ -82,3 +86,5 @@ public abstract class KontrolcuProfili {
         return (DriverStation.getStickButtons(port) & (1 << (dugme - 1))) != 0;
     }
 }
+
+

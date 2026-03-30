@@ -5,8 +5,8 @@ import frc.robot.Sabitler.MotorSabitleri;
 import frc.robot.Subsystems.TaretAltSistemi;
 
 /**
- * Tareti limit switch'e kadar döndürür, switch tetiklenince durur ve
- * enkoderi sıfırlar. Normally closed switch varsayılır.
+ * Tareti limit switch'e kadar sola döndürür, switch tetiklenince durur ve
+ * enkoderi sıfırlar. Açı kontrolü yok - basit homing.
  */
 public class TaretHomingKomutu extends Command {
     private final TaretAltSistemi taretAltSistemi;
@@ -18,7 +18,7 @@ public class TaretHomingKomutu extends Command {
 
     @Override
     public void initialize() {
-        // Zaten switch üzerindeyse sıfırla, homing gerekmez
+        // Zaten switch üzerindeyse hemen sıfırla ve bitir
         if (taretAltSistemi.limitSwitchTetiklendi()) {
             taretAltSistemi.enkoderiSifirla();
         }
@@ -26,21 +26,23 @@ public class TaretHomingKomutu extends Command {
 
     @Override
     public void execute() {
+        // Sola dön - limit switch'e değene kadar devam et
+        // Açı kontrolü yok, sadece negatif hız
         if (!taretAltSistemi.limitSwitchTetiklendi()) {
-            taretAltSistemi.dondur(MotorSabitleri.TARET_HOMING_HIZI);
+            taretAltSistemi.dondurManuel(MotorSabitleri.TARET_HOMING_HIZI);
         }
     }
 
     @Override
     public boolean isFinished() {
+        // Limit switch tetiklenince bitir
         return taretAltSistemi.limitSwitchTetiklendi();
     }
 
     @Override
     public void end(boolean interrupted) {
         taretAltSistemi.durdur();
-        if (!interrupted) {
-            taretAltSistemi.enkoderiSifirla();
-        }
+        // dondurManuel() zaten limit switch'te -90 olarak ayarladı
+        // Burada tekrar sıfırlamaya gerek yok
     }
 }

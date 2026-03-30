@@ -23,7 +23,8 @@ import edu.wpi.first.wpilibj.GenericHID;
  *   7 = L2 digital -> turret homing
  *   8 = R2 digital -> gyro reset
  *   9 = Share     -> spare
- *  10 = Options   -> spare
+ *  10 = Options   -> gecikmeli atis (1 s spin-up + tasiyici)
+ *  12 = Touchpad  -> shooter direkt
  */
 public class PS4TamProfili extends KontrolcuProfili {
 
@@ -42,6 +43,8 @@ public class PS4TamProfili extends KontrolcuProfili {
     private static final int TARET_SAG_BTN     = 6;  // R1
     private static final int HOMING_BTN        = 7;  // L2 digital
     private static final int GYRO_RESET_BTN    = 8;  // R2 digital
+    private static final int GECIKMELI_ATIS_BTN = 10; // Options
+    private static final int SHOOTER_DIREKT_BTN = 12; // Touchpad
 
     public PS4TamProfili(GenericHID hid) {
         super(hid);
@@ -64,4 +67,8 @@ public class PS4TamProfili extends KontrolcuProfili {
     @Override public boolean taretHomingBasili() { return dugmeGuvenliOku(HOMING_BTN); }
 
     @Override public boolean gyroSifirlaBasili() { return dugmeGuvenliOku(GYRO_RESET_BTN); }
+    @Override public boolean gecikmeliAtisBasili() { return dugmeGuvenliOku(GECIKMELI_ATIS_BTN); }
+    @Override public boolean shooterDirektBasili() { return dugmeGuvenliOku(SHOOTER_DIREKT_BTN); }
 }
+
+

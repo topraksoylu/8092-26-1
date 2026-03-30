@@ -255,8 +255,8 @@ public class GorusAltSistemi extends SubsystemBase {
         boolean camModeOk = getCurrentCamMode() == getDesiredCamMode();
         boolean ledModeOk = getCurrentLedMode() == getDesiredLedMode();
         boolean streamOk = getCurrentStreamMode() == getDesiredStreamMode();
-        boolean fmapLoaded = getFmapTagCount() > 0;
-        return pipelineOk && camModeOk && ledModeOk && streamOk && fmapLoaded;
+        // FMAP zorunlu degil - sadece uyarı verir, sistem calismaya devam eder
+        return pipelineOk && camModeOk && ledModeOk && streamOk;
     }
 
     public String getLimelightConfigStatus() {

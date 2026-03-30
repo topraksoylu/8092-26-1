@@ -28,6 +28,8 @@ public class TaretAltSistemi extends SubsystemBase {
     /**
      * Enkoder sıfırlanmadan otomatik taret çalışmaz.
      * TaretHomingKomutu tamamlandığında true olur.
+     * Homing'de taret limit switch'e (-90° fiziksel) kadar döner,
+     * ardından enkoder -90° olarak sıfırlanır.
      */
     private boolean homingTamamlandi = false;
 
@@ -44,14 +46,10 @@ public class TaretAltSistemi extends SubsystemBase {
             yapilandirma.idleMode(IdleMode.kBrake); // Pozisyon tutar — taret hedefe kilitli kalir
             yapilandirma.voltageCompensation(12); // batarya voltaj dususunda tutarli cikis
 
-            // SparkMax donanim soft limitleri — RoboRIO cokse bile motor korunur
-            float ileriLimitRot = (float) aciToMotorRotasyonu(MotorSabitleri.TARET_MAKS_ACI);
-            float geriLimitRot  = (float) aciToMotorRotasyonu(MotorSabitleri.TARET_MIN_ACI);
+            // SparkMax donanim soft limitleri DEVRE DISI - sadece limit switch korur
             yapilandirma.softLimit
-                .forwardSoftLimitEnabled(true)
-                .forwardSoftLimit(ileriLimitRot)
-                .reverseSoftLimitEnabled(true)
-                .reverseSoftLimit(geriLimitRot);
+                .forwardSoftLimitEnabled(false)
+                .reverseSoftLimitEnabled(false);
 
             // MAXMotion trapezoidal profil (3.2) + kI surme hatasi giderici (3.4)
             yapilandirma.closedLoop
@@ -107,13 +105,27 @@ public class TaretAltSistemi extends SubsystemBase {
     public void dondur(double hiz) {
         double aci = getAci();
         boolean maksimumda = aci >= MotorSabitleri.TARET_MAKS_ACI && hiz > 0;
-        // Limit switch yonune (negatif) hareket ediliyorsa ve switch tetiklendiyse dur
+        // Sola hareket sadece limit switch basiliyken durur
         boolean limitSwitchYonunde = hiz < 0 && limitSwitchTetiklendi();
-        boolean minimumda = aci <= MotorSabitleri.TARET_MIN_ACI && hiz < 0;
+        // -90 kontrolu yok - limit switch basili degilse sola serbest doner
 
-        if (maksimumda || minimumda || limitSwitchYonunde) {
+        if (maksimumda || limitSwitchYonunde) {
             hiz = 0;
         }
+        sonKomutHizi = hiz;
+        if (taretMotoru != null) {
+            taretMotoru.set(hiz);
+        }
+    }
+
+    /** Manuel taret surusu: limit switch basiliyken sola durur,aksi yok. */
+    public void dondurManuel(double hiz) {
+        // Sola hareket sadece limit switch basiliyken durur
+        boolean limitSwitchYonunde = hiz < 0 && limitSwitchTetiklendi();
+        if (limitSwitchYonunde) {
+            hiz = 0;
+        }
+
         sonKomutHizi = hiz;
         if (taretMotoru != null) {
             taretMotoru.set(hiz);
@@ -163,6 +175,14 @@ public class TaretAltSistemi extends SubsystemBase {
     public void periodic() {
         double aci = getAci();
         boolean switchTetik = limitSwitchTetiklendi();
+
+        // Her dongude switch kontrolu - basiliysa -90 derece olarak ayarla
+        // Motor dis atladiginda aciyi otomatik duzeltir
+        if (switchTetik && taretEnkoderi != null) {
+            double motorRotasyonu = aciToMotorRotasyonu(MotorSabitleri.TARET_MIN_ACI);
+            taretEnkoderi.setPosition(motorRotasyonu);
+            homingTamamlandi = true;
+        }
 
         // Pozisyon ve hedef
         SmartDashboard.putNumber("Taret/Aci", aci);

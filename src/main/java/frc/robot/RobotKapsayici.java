@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Commands.AprilTagTakipKomutu;
 import frc.robot.Commands.AprilTagaHizalamaKomutu;
@@ -150,10 +151,7 @@ public class RobotKapsayici {
         )
     );
 
-    // Otomatik taret — homing yapılmamışsa durdurur, yapılmışsa Limelight/odometri
-    taretAltSistemi.setDefaultCommand(
-        new OtomatikTaretKomutu(taretAltSistemi, gorusAltSistemi, surusAltSistemi)
-    );
+    // Taret varsayılan komutu yok - sadece manuel kontrol (L1/R1)
   }
 
   // ── Buton bağlamaları ─────────────────────────────────────────────────────
@@ -168,11 +166,13 @@ public class RobotKapsayici {
     Trigger tasiyiciTetik     = new Trigger(() -> profil().tasiyiciBasili());
     Trigger tasiyiciTersTetik = new Trigger(() -> profil().tasiyiciTersBasili());
     Trigger spinupTetik       = new Trigger(() -> profil().aticiSpinupBasili());
+    Trigger shooterDirektTetik = new Trigger(() -> profil().shooterDirektBasili());
     Trigger atesTetik         = new Trigger(() -> profil().atesBasili());
     Trigger taretSolaTetik    = new Trigger(() -> profil().taretSolaBasili());
     Trigger taretSagaTetik    = new Trigger(() -> profil().taretSagaBasili());
     Trigger taretHomingTetik  = new Trigger(() -> profil().taretHomingBasili());
     Trigger gyroSifirTetik    = new Trigger(() -> profil().gyroSifirlaBasili());
+    Trigger gecikmeliAtisTetik = new Trigger(() -> profil().gecikmeliAtisBasili());
 
     // ── Atıcı hazır Trigger ────────────────────────────────────────────────
     Trigger aticiHazirTetik = new Trigger(aticiAltSistemi::isHizaUlasti);
@@ -202,17 +202,31 @@ public class RobotKapsayici {
                 () -> alimAltSistemi.depodanAticiyaYukariTasimaDurdur(), alimAltSistemi))
     );
 
-    // ── Atıcı spin-up (mesafe tabanlı RPM — hedef yoksa sabit fallback) ────
+    // ── Atıcı spin-up (Triangle) - Dogrudan tam guc ────────────────────────────
     spinupTetik
-        .whileTrue(new RunCommand(this::hedefMesafesineGoreAticiCalistir, aticiAltSistemi))
+        .whileTrue(new RunCommand(() -> aticiAltSistemi.calistir(1.0), aticiAltSistemi))
         .onFalse(new InstantCommand(() -> aticiAltSistemi.durdur(), aticiAltSistemi));
 
-    // ── Ateş kilidi: sadece atıcı hedef RPM'deyse taşıyıcı çalışır ────────
+    // ── Ateş kilidi: sadece atıcı hedef RPM'deyse taşıcı çalışır ────────────
     atesTetik.and(aticiHazirTetik)
         .whileTrue(new RunCommand(
             () -> alimAltSistemi.depodanAticiyaYukariTasimaBaslat(), alimAltSistemi))
         .onFalse(new InstantCommand(
             () -> alimAltSistemi.depodanAticiyaYukariTasimaDurdur(), alimAltSistemi));
+
+    // Tek tus: shooter hemen calisir, 1 s sonra tasiyici devreye girer.
+    gecikmeliAtisTetik
+        .whileTrue(
+            new RunCommand(this::aticiyiSabitHizdaCalistir, aticiAltSistemi)
+                .alongWith(
+                    new WaitCommand(1.0)
+                        .andThen(new RunCommand(
+                            () -> alimAltSistemi.depodanAticiyaYukariTasimaBaslat(),
+                            alimAltSistemi))))
+        .onFalse(new InstantCommand(() -> {
+          alimAltSistemi.depodanAticiyaYukariTasimaDurdur();
+          aticiAltSistemi.durdur();
+        }, alimAltSistemi, aticiAltSistemi));
 
     // ── Titreşim: atıcı hedefe ulaşınca bildir ────────────────────────────
     aticiHazirTetik
@@ -222,14 +236,14 @@ public class RobotKapsayici {
     // ── Taret fallback (manuel) — otomatik taret komutunu keser ───────────
     taretSolaTetik
         .whileTrue(new RunCommand(
-            () -> taretAltSistemi.dondur(
+            () -> taretAltSistemi.dondurManuel(
                 -SmartDashboard.getNumber("Ayarlama/TaretHizi", ModulSabitleri.TARET_HIZI)),
             taretAltSistemi))
         .onFalse(new InstantCommand(() -> taretAltSistemi.durdur(), taretAltSistemi));
 
     taretSagaTetik
         .whileTrue(new RunCommand(
-            () -> taretAltSistemi.dondur(
+            () -> taretAltSistemi.dondurManuel(
                 SmartDashboard.getNumber("Ayarlama/TaretHizi", ModulSabitleri.TARET_HIZI)),
             taretAltSistemi))
         .onFalse(new InstantCommand(() -> taretAltSistemi.durdur(), taretAltSistemi));
@@ -240,6 +254,12 @@ public class RobotKapsayici {
     // ── Gyro sıfırla ──────────────────────────────────────────────────────
     gyroSifirTetik.onTrue(new InstantCommand(
         () -> surusAltSistemi.yonuSifirla(), surusAltSistemi));
+
+    // ── Otomatik taret (Touchpad - Button 12) ───────────────────────────────
+    // Butona basılıyken otomatik taret aktif, bırakılınca durur
+    shooterDirektTetik.whileTrue(new OtomatikTaretKomutu(
+        taretAltSistemi, gorusAltSistemi, surusAltSistemi))
+      .onFalse(new InstantCommand(() -> taretAltSistemi.durdur(), taretAltSistemi));
   }
 
   // ── PathPlanner ───────────────────────────────────────────────────────────
@@ -340,6 +360,13 @@ public class RobotKapsayici {
     SmartDashboard.putNumber("Atici/HesaplananRPM", mod.rpm);
   }
 
+  private void aticiyiSabitHizdaCalistir() {
+    aticiAltSistemi.atRPM(ModulSabitleri.ATICI_HEDEF_RPM);
+    SmartDashboard.putString("Atici/AtisModu", "SabitRPM");
+    SmartDashboard.putNumber("Atici/HedefMesafe_m", Double.NaN);
+    SmartDashboard.putNumber("Atici/HesaplananRPM", ModulSabitleri.ATICI_HEDEF_RPM);
+  }
+
   // ── Bağlantı / Elastic bildirimleri ──────────────────────────────────────
 
   private void girdiBaglantiDurumunuGuncelle() {
@@ -432,3 +459,5 @@ public class RobotKapsayici {
     return gorusAltSistemi;
   }
 }
+
+

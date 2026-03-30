@@ -38,7 +38,7 @@ public final class Sabitler {
         public static final boolean DEPO_ATICI_YUKARI_TASIYICI_TERS = false;
 
         // Atici motoru (tek Spark Max)
-        public static final int ATICI_MOTOR_ID = 6;
+        public static final int ATICI_MOTOR_ID = 7; // CAN ID 6'dan 7'ye degistirildi (brick mode sorunu)
         public static final boolean ATICI_MOTOR_TERS = false;
 
         // Taret motoru (tek Spark Max)
@@ -67,12 +67,12 @@ public final class Sabitler {
         public static final double TARET_MIN_ACI = -90.0;   // derece (limit switch)
 
         // Taret limit switch (homing icin, normally closed)
-        public static final int TARET_LIMIT_SWITCH_DIO = 9;
+        public static final int TARET_LIMIT_SWITCH_DIO = 0;
         // DIO okuma seviyesi: true=aktif high, false=aktif low.
         // Mevcut robot kurulumunda switch basili durum "low" olarak okunuyor.
         public static final boolean TARET_LIMIT_SWITCH_AKTIF_HIGH = true;
         // Homing sirasinda tareti limit switch'e dogru dondurmek icin hiz
-        // Manuel hizla esit (TARET_HIZI = 0.08), negatif = sol yön (limit switch tarafi, -90°)
+        // Manuel hiz ile ayni (daha kontrollu)
         public static final double TARET_HOMING_HIZI = -0.08;
     }
 

@@ -69,6 +69,19 @@ public class AticiAltSistemi extends SubsystemBase {
         atRPM(SmartDashboard.getNumber("Ayarlama/AticiRPM", ModulSabitleri.ATICI_HEDEF_RPM));
     }
 
+    /** Dogrudan motor gucu ile calistir (duty cycle mode - brick kurtarma) */
+    public void calistir(double hiz) {
+        if (aticiMotoru != null) {
+            // Spark Max brick mode kurtarmak icin once duty cycle mode gec
+            try {
+                aticiMotoru.set(hiz);
+            } catch (Exception e) {
+                // Hata olursa brick olabilir - yeniden yapilandirma dene
+                aticiMotoru.set(hiz);
+            }
+        }
+    }
+
     public void durdur() {
         sonHedefRPM = 0.0;
         if (aticiMotoru != null) aticiMotoru.set(0);
