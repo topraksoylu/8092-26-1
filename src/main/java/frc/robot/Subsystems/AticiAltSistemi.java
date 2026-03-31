@@ -72,7 +72,6 @@ public class AticiAltSistemi extends SubsystemBase {
             yapilandirma.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 .pid(kp, ki, kd)
-                .velocityFF(kff)
                 .outputRange(0.0, ModulSabitleri.ATICI_MAKS_CIKIS);
 
             aticiMotoru.configure(yapilandirma,
@@ -93,8 +92,14 @@ public class AticiAltSistemi extends SubsystemBase {
         double sinirliHedefRpm = rpmSinirla(hedefRPM);
         sonHedefRPM = sinirliHedefRpm;
         if (pidKontrolcu != null) {
-            // Velocity closed-loop kontrol - RPM biriminde
-            pidKontrolcu.setSetpoint(sinirliHedefRpm, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+            double kff = SmartDashboard.getNumber("Ayarlama/AticiKFF", ModulSabitleri.ATICI_KFF);
+            double arbFF = kff * sinirliHedefRpm;
+            pidKontrolcu.setReference(
+                sinirliHedefRpm,
+                SparkBase.ControlType.kVelocity,
+                ClosedLoopSlot.kSlot0,
+                arbFF,
+                SparkClosedLoopController.ArbFFUnits.kPercentOut);
         }
     }
 
@@ -203,7 +208,7 @@ public class AticiAltSistemi extends SubsystemBase {
             double kff = SmartDashboard.getNumber("Ayarlama/AticiKFF", ModulSabitleri.ATICI_KFF);
 
             SparkMaxConfig pidGuncelle = new SparkMaxConfig();
-            pidGuncelle.closedLoop.p(kp).i(ki).d(kd).velocityFF(kff);
+            pidGuncelle.closedLoop.p(kp).i(ki).d(kd);
             aticiMotoru.configure(pidGuncelle,
                 ResetMode.kNoResetSafeParameters,
                 PersistMode.kNoPersistParameters);
