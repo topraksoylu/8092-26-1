@@ -7,7 +7,6 @@ package frc.robot.Commands;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,9 +24,6 @@ public class SurusKomutu extends Command {
   private final DoubleSupplier xHizi;
   private final DoubleSupplier yHizi;
   private final DoubleSupplier zDonusu;
-  private final SlewRateLimiter xSinirlayici = new SlewRateLimiter(SurusKontrolSabitleri.OTELEME_SINIRLAMA_ORANI);
-  private final SlewRateLimiter ySinirlayici = new SlewRateLimiter(SurusKontrolSabitleri.OTELEME_SINIRLAMA_ORANI);
-  private final SlewRateLimiter zSinirlayici = new SlewRateLimiter(SurusKontrolSabitleri.DONUS_SINIRLAMA_ORANI);
 
 
   public SurusKomutu(DoubleSupplier xHizi, DoubleSupplier yHizi, DoubleSupplier zDonusu, SurusAltSistemi surusAltSistemi) {
@@ -62,11 +58,7 @@ public class SurusKomutu extends Command {
     double y = eksenSekillendir(hamY, SurusKontrolSabitleri.YANLAMASINA_OLCEK);
     double z = eksenSekillendir(hamZ, SurusKontrolSabitleri.DONUS_OLCEGI);
 
-    double xKomutu = xSinirlayici.calculate(x);
-    double yKomutu = ySinirlayici.calculate(y);
-    double zKomutu = zSinirlayici.calculate(z);
-
-    surusCikisi.sur(xKomutu, yKomutu, zKomutu);
+    surusCikisi.sur(x, y, z);
 
     // Ham eksen degerleri (joystick'ten gelen ham deger)
     SmartDashboard.putNumber("Surus/HamEksen_Ileri", hamX);
@@ -76,10 +68,10 @@ public class SurusKomutu extends Command {
     SmartDashboard.putNumber("Surus/SekillendX", x);
     SmartDashboard.putNumber("Surus/SekillendY", y);
     SmartDashboard.putNumber("Surus/SekillendZ", z);
-    // Slew rate sonrasi suruculere giden nihai komutlar
-    SmartDashboard.putNumber("Surus/KomutX", xKomutu);
-    SmartDashboard.putNumber("Surus/KomutY", yKomutu);
-    SmartDashboard.putNumber("Surus/KomutZ", zKomutu);
+    // Nihai komutlar (lineer + deadband + olcek)
+    SmartDashboard.putNumber("Surus/KomutX", x);
+    SmartDashboard.putNumber("Surus/KomutY", y);
+    SmartDashboard.putNumber("Surus/KomutZ", z);
   }
 
   // Called once the command ends or is interrupted.
@@ -97,6 +89,6 @@ public class SurusKomutu extends Command {
 
   static double eksenSekillendir(double hamGirdi, double olcek) {
     double oluBolgeli = MathUtil.applyDeadband(hamGirdi, SurusKontrolSabitleri.OLU_BOLGE);
-    return Math.copySign(oluBolgeli * oluBolgeli, oluBolgeli) * olcek;
+    return oluBolgeli * olcek;
   }
 }

@@ -1,0 +1,68 @@
+package frc.robot.Commands;
+
+import java.util.Set;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Subsystems.GorusAltSistemi;
+import frc.robot.Subsystems.SurusAltSistemi;
+
+/**
+ * Robotu Limelight tx hatasina gore saga/sola dondurerek hedefi merkeze alir.
+ * Sadece istenen merkez taglari (9,10,25,26) geldiginde aktif olur.
+ */
+public class LimelightMerkezlemeKomutu extends Command {
+    private static final Set<Integer> MERKEZ_TAGLER = Set.of(9, 10, 25, 26);
+    private static final double TX_TOLERANS_DEG = 1.0;
+    private static final double DONUS_KP = -0.02;
+    private static final double MAX_DONUS = 0.30;
+
+    private final SurusAltSistemi surusAltSistemi;
+    private final GorusAltSistemi gorusAltSistemi;
+
+    public LimelightMerkezlemeKomutu(SurusAltSistemi surusAltSistemi, GorusAltSistemi gorusAltSistemi) {
+        this.surusAltSistemi = surusAltSistemi;
+        this.gorusAltSistemi = gorusAltSistemi;
+        addRequirements(surusAltSistemi);
+    }
+
+    @Override
+    public void execute() {
+        if (!gorusAltSistemi.hasTarget()) {
+            surusAltSistemi.drive(0.0, 0.0, 0.0);
+            SmartDashboard.putString("Vision/MerkezlemeDurum", "HEDEF_YOK");
+            return;
+        }
+
+        int tagId = gorusAltSistemi.getTagId();
+        if (!MERKEZ_TAGLER.contains(tagId)) {
+            surusAltSistemi.drive(0.0, 0.0, 0.0);
+            SmartDashboard.putString("Vision/MerkezlemeDurum", "GECERSIZ_TAG_" + tagId);
+            return;
+        }
+
+        double tx = gorusAltSistemi.getHorizontalOffset();
+        double donusKomutu = 0.0;
+        if (Math.abs(tx) > TX_TOLERANS_DEG) {
+            donusKomutu = MathUtil.clamp(tx * DONUS_KP, -MAX_DONUS, MAX_DONUS);
+        }
+
+        surusAltSistemi.drive(0.0, 0.0, donusKomutu);
+        SmartDashboard.putString("Vision/MerkezlemeDurum", Math.abs(tx) <= TX_TOLERANS_DEG ? "ORTALANDI" : "HIZALANIYOR");
+        SmartDashboard.putNumber("Vision/MerkezlemeTagID", tagId);
+        SmartDashboard.putNumber("Vision/MerkezlemeTx", tx);
+        SmartDashboard.putNumber("Vision/MerkezlemeDonus", donusKomutu);
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        surusAltSistemi.drive(0.0, 0.0, 0.0);
+    }
+
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
+}
+

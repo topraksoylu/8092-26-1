@@ -25,17 +25,14 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Commands.AprilTagTakipKomutu;
 import frc.robot.Commands.AprilTagaHizalamaKomutu;
-import frc.robot.Commands.OtomatikTaretKomutu;
-import frc.robot.Commands.OtonomYerdenAtisKomutu;
+import frc.robot.Commands.LimelightMerkezlemeKomutu;
 import frc.robot.Commands.SurusKomutu;
-import frc.robot.Commands.TaretHomingKomutu;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Sabitler.*;
 import frc.robot.Subsystems.AlimAltSistemi;
 import frc.robot.Subsystems.AticiAltSistemi;
 import frc.robot.Subsystems.GorusAltSistemi;
 import frc.robot.Subsystems.SurusAltSistemi;
-import frc.robot.Subsystems.TaretAltSistemi;
 import frc.robot.util.Elastic;
 import frc.robot.util.AtisHesaplayici;
 import frc.robot.util.Elastic.Notification;
@@ -50,7 +47,6 @@ public class RobotKapsayici {
   // ── Alt sistemler ──────────────────────────────────────────────────────────
   private final GorusAltSistemi   gorusAltSistemi;
   private final SurusAltSistemi   surusAltSistemi;
-  private final TaretAltSistemi   taretAltSistemi;
   private final AlimAltSistemi    alimAltSistemi;
   private final AticiAltSistemi   aticiAltSistemi;
 
@@ -102,7 +98,6 @@ public class RobotKapsayici {
         new Pose2d(),
         gorusAltSistemi
     );
-    taretAltSistemi  = new TaretAltSistemi();
     alimAltSistemi   = new AlimAltSistemi();
     aticiAltSistemi  = new AticiAltSistemi();
 
@@ -112,8 +107,6 @@ public class RobotKapsayici {
     baglamalariYapilandir();
     pathPlannerKomutlariniKaydet();
     otonomSeciciKur();
-
-    SmartDashboard.putNumber("Ayarlama/TaretHizi", ModulSabitleri.TARET_HIZI);
 
     System.out.println("===================================================");
     System.out.println("ROBOT KAPSAYICI BASLATILDI");
@@ -212,9 +205,7 @@ public class RobotKapsayici {
     Trigger yakinAtisTetik    = new Trigger(() -> atisKonveyorProfili().yakinAtisBasili());
     Trigger ortaAtisTetik    = new Trigger(() -> atisKonveyorProfili().ortaAtisBasili());
     Trigger uzakAtisTetik    = new Trigger(() -> atisKonveyorProfili().uzakAtisBasili());
-    Trigger taretSolaTetik    = new Trigger(() -> atisKonveyorProfili().taretSolaBasili());
-    Trigger taretSagaTetik    = new Trigger(() -> atisKonveyorProfili().taretSagaBasili());
-    Trigger taretHomingTetik  = new Trigger(() -> atisKonveyorProfili().taretHomingBasili());
+    Trigger limelightHizalaTetik = new Trigger(() -> surucuKontrolcusu.getRawButton(8));
     Trigger gyroSifirTetik    = new Trigger(() -> surucuProfili().gyroSifirlaBasili());
     Trigger gecikmeliAtisTetik = new Trigger(() -> atisKonveyorProfili().gecikmeliAtisBasili());
 
@@ -267,23 +258,8 @@ public class RobotKapsayici {
         .onTrue(new InstantCommand(() -> atisKonveyorProfili().titrestir(0.6)))
         .onFalse(new InstantCommand(() -> atisKonveyorProfili().titrestir(0.0)));
 
-    // ── Taret manuel (L1/R1) — sadece manuel kontrol ───────────────────────
-    taretSolaTetik
-        .whileTrue(new RunCommand(
-            () -> taretAltSistemi.dondurManuel(
-                -SmartDashboard.getNumber("Ayarlama/TaretHizi", ModulSabitleri.TARET_HIZI)),
-            taretAltSistemi))
-        .onFalse(new InstantCommand(() -> taretAltSistemi.durdur(), taretAltSistemi));
-
-    taretSagaTetik
-        .whileTrue(new RunCommand(
-            () -> taretAltSistemi.dondurManuel(
-                SmartDashboard.getNumber("Ayarlama/TaretHizi", ModulSabitleri.TARET_HIZI)),
-            taretAltSistemi))
-        .onFalse(new InstantCommand(() -> taretAltSistemi.durdur(), taretAltSistemi));
-
-    // ── Taret homing ──────────────────────────────────────────────────────
-    taretHomingTetik.toggleOnTrue(new TaretHomingKomutu(taretAltSistemi));
+    // ── Limelight ile robotu hedefe ortala (Tag 9/10/25/26) ───────────────
+    limelightHizalaTetik.whileTrue(new LimelightMerkezlemeKomutu(surusAltSistemi, gorusAltSistemi));
 
     // ── Gyro sıfırla ──────────────────────────────────────────────────────
     gyroSifirTetik.onTrue(new InstantCommand(
@@ -306,8 +282,7 @@ public class RobotKapsayici {
             alimAltSistemi.depodanAticiyaYukariTasimaDurdur();
         }, aticiAltSistemi, alimAltSistemi));
 
-    // Otomatik taret varsayılan komut - her zaman aktif
-    // L1/R1 manuel butonlari otomatik taret komutunu keser
+    // Taret iptal edildi - robot govdesi limelight ile dogrudan hizalanir
   }
 
   // ── PathPlanner ───────────────────────────────────────────────────────────
@@ -326,28 +301,6 @@ public class RobotKapsayici {
         "SurusuDurdur",
         new RunCommand(() -> surusAltSistemi.tumMotorlariDurdur(), surusAltSistemi)
             .withTimeout(0.1));
-
-    // ── Otonom: Yerden Ateş (tam sıralama) ──────────────────────────────
-    // Adım 1: Taret homing (max 3 s — limit switch yoksa timeout'ta devam et)
-    // Adım 2: AprilTag'lere kilitlen + mesafeye göre RPM spin-up + ateş (max 12 s)
-    NamedCommands.registerCommand(
-        "YerdenAtisTam",
-        new SequentialCommandGroup(
-            new TaretHomingKomutu(taretAltSistemi)
-                .withTimeout(3.0),
-            new OtonomYerdenAtisKomutu(
-                taretAltSistemi, aticiAltSistemi, alimAltSistemi, gorusAltSistemi)
-                .withTimeout(12.0)
-        )
-    );
-
-    // Parçalı kullanım için ayrı kayıt (PathPlanner içinde sürüşle birleştirilebilir)
-    NamedCommands.registerCommand(
-        "YerdenAtisSadece",
-        new OtonomYerdenAtisKomutu(
-            taretAltSistemi, aticiAltSistemi, alimAltSistemi, gorusAltSistemi)
-            .withTimeout(10.0)
-    );
 
     // Otonom devre disi / bekleme komutu
     NamedCommands.registerCommand(
@@ -566,10 +519,6 @@ public class RobotKapsayici {
         aticiHazirBildirimGonderildi = false;
       }
 
-      // Taret homing uyarısı
-      if (!taretAltSistemi.isHomingTamamlandi() && !limelightHataBildirimGonderildi) {
-        SmartDashboard.putString("Taret/OtoMod", "HOMING_GEREKLI");
-      }
     } else {
       limelightHataBildirimGonderildi = false;
       aticiHazirBildirimGonderildi    = false;
