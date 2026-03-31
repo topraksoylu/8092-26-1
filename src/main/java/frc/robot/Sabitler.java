@@ -252,9 +252,10 @@ public final class Sabitler {
         public static final String FMAP_KAYNAGI = "FRC2026_ANDYMARK.fmap";
         public static final int TOPLAM_APRILTAG = 32; // Her ittifak tarafi icin 16
 
-        // Kamera montaji \(ROBOT UZERINDE OLCEK - simdilik varsayilan\)
-        public static final double KAMERA_YUKSEKLIGI_METRE = 0.5;
-        public static final double KAMERA_EGIMI_RADYAN = Math.toRadians(25.0);
+        // Kamera montaji (robot merkezine gore)
+        public static final double KAMERA_YUKSEKLIGI_METRE  = 0.5;    // yerden yukseklik (m)
+        public static final double KAMERA_EGIMI_RADYAN      = Math.toRadians(30.0); // yukari bakis acisi
+        public static final double KAMERA_YAN_OFFSET_METRE  = -0.26;  // saga = negatif (Limelight Y+ sola)
 
         // AprilTag ayarlari
         public static final double APRILTAG_BOYUTU_METRE = 0.1651; // 6.5 inches (from FMAP)
