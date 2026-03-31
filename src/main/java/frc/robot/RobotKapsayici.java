@@ -36,52 +36,35 @@ import frc.robot.Subsystems.SurusAltSistemi;
 import frc.robot.util.Elastic;
 import frc.robot.util.Elastic.Notification;
 import frc.robot.util.Elastic.NotificationLevel;
-import frc.robot.util.KontrolcuProfili;
-import frc.robot.util.PS4BasitProfili;
 import frc.robot.util.PS4TamProfili;
-import frc.robot.util.XboxProfili;
 
 public class RobotKapsayici {
 
-  // ── Alt sistemler ──────────────────────────────────────────────────────────
+  //  Alt sistemler 
   private final GorusAltSistemi   gorusAltSistemi;
   private final SurusAltSistemi   surusAltSistemi;
   private final AlimAltSistemi    alimAltSistemi;
   private final AticiAltSistemi   aticiAltSistemi;
 
-  // ── Kontrolcü ─────────────────────────────────────────────────────────────
+  //  Kontrolc 
   private final GenericHID surucuKontrolcusu = new GenericHID(OISabitleri.SURUCU_JOYSTICK_PORTU);
-  private final GenericHID operatorKontrolcusu = new GenericHID(OISabitleri.OPERATOR_JOYSTICK_PORTU);
+  private final PS4TamProfili surucuProfili = new PS4TamProfili(surucuKontrolcusu);
 
-  private enum SurucuModu {
-    TEK_SURUCU,
-    IKI_SURUCU
-  }
-
-  /**
-   * Elastic / SmartDashboard'dan runtime'da seçilebilir kontrolcü profili.
-   * Yeni kol takılınca veya kol değişince deploy gerekmez.
-   */
-  private final SendableChooser<KontrolcuProfili> profilSecici = new SendableChooser<>();
-  private final SendableChooser<KontrolcuProfili> operatorProfilSecici = new SendableChooser<>();
-  private final SendableChooser<SurucuModu> surucuModuSecici = new SendableChooser<>();
-
-  // ── Durum izleme ──────────────────────────────────────────────────────────
+  //  Durum izleme 
   private boolean surucuBagliOncekiDurum        = false;
-  private boolean operatorBagliOncekiDurum      = false;
   private boolean limelightHataBildirimGonderildi = false;
   private boolean aticiHazirBildirimGonderildi   = false;
 
-  // ── Otonomi ───────────────────────────────────────────────────────────────
+  //  Otonomi 
   private SendableChooser<Command> otonomSecici;
 
-  // ── SmartDashboard anahtar yardımcısı ────────────────────────────────────
+  //  SmartDashboard anahtar yardmcs 
   private static String surucuIstasyonuAnahtari(String ad) {
     return "SurucuIstasyonu_" + ad;
   }
 
   public RobotKapsayici() {
-    // Görüş alt sistemi önce kurulur — sürüşe poz fuzyonu için gerekli
+    // Gr alt sistemi nce kurulur  sre poz fuzyonu iin gerekli
     gorusAltSistemi = new GorusAltSistemi();
     surusAltSistemi = new SurusAltSistemi(
         MotorSabitleri.ON_SOL_MOTOR_ID,
@@ -93,8 +76,6 @@ public class RobotKapsayici {
     );
     alimAltSistemi   = new AlimAltSistemi();
     aticiAltSistemi  = new AticiAltSistemi();
-
-    kontrolcuProfilleriniKur();
     defaultKomutlariniKur();
     baglamalariYapilandir();
     pathPlannerKomutlariniKaydet();
@@ -103,97 +84,48 @@ public class RobotKapsayici {
     System.out.println("===================================================");
     System.out.println("ROBOT KAPSAYICI BASLATILDI");
     System.out.println("Surucu Kontrolcu Portu: " + OISabitleri.SURUCU_JOYSTICK_PORTU);
-    System.out.println("Operator Kontrolcu Portu: " + OISabitleri.OPERATOR_JOYSTICK_PORTU);
-    System.out.println("Kontrol modu Elastic'ten secilir: 'Kontrolcu/SurucuModu'");
+    System.out.println("PS4 tek surucu modu aktif.");
     System.out.println("===================================================");
   }
 
-  // ── Profil kurulumu ────────────────────────────────────────────────────────
-
-  private void kontrolcuProfilleriniKur() {
-    profilSecici.setDefaultOption(
-        "PS4 Tam (Axis 4/5 analog)",  new PS4TamProfili(surucuKontrolcusu));
-    profilSecici.addOption(
-        "PS4 Basit (analog trigger yok)", new PS4BasitProfili(surucuKontrolcusu));
-    profilSecici.addOption(
-        "Xbox",                        new XboxProfili(surucuKontrolcusu));
-
-    SmartDashboard.putData("Kontrolcu/Profil", profilSecici);
-
-    operatorProfilSecici.setDefaultOption(
-        "PS4 Tam (Axis 4/5 analog)",  new PS4TamProfili(operatorKontrolcusu));
-    operatorProfilSecici.addOption(
-        "PS4 Basit (analog trigger yok)", new PS4BasitProfili(operatorKontrolcusu));
-    operatorProfilSecici.addOption(
-        "Xbox",                        new XboxProfili(operatorKontrolcusu));
-    SmartDashboard.putData("Kontrolcu/OperatorProfil", operatorProfilSecici);
-
-    surucuModuSecici.setDefaultOption("Tek Surucu", SurucuModu.TEK_SURUCU);
-    surucuModuSecici.addOption("Iki Surucu", SurucuModu.IKI_SURUCU);
-    SmartDashboard.putData("Kontrolcu/SurucuModu", surucuModuSecici);
-  }
-
-  /** Surucu profili null-safe döndürür; seçim yoksa PS4 Tam fallback. */
-  private KontrolcuProfili surucuProfili() {
-    KontrolcuProfili secili = profilSecici.getSelected();
-    // SendableChooser setDefaultOption sonrası null olmaz, yine de güvenli
-    return secili != null ? secili : new PS4TamProfili(surucuKontrolcusu);
-  }
-
-  /** Operator profili null-safe döndürür; seçim yoksa PS4 Tam fallback. */
-  private KontrolcuProfili operatorProfili() {
-    KontrolcuProfili secili = operatorProfilSecici.getSelected();
-    return secili != null ? secili : new PS4TamProfili(operatorKontrolcusu);
-  }
-
-  private SurucuModu aktifSurucuModu() {
-    SurucuModu secili = surucuModuSecici.getSelected();
-    return secili != null ? secili : SurucuModu.TEK_SURUCU;
-  }
-
-  private KontrolcuProfili atisKonveyorProfili() {
-    return aktifSurucuModu() == SurucuModu.IKI_SURUCU ? operatorProfili() : surucuProfili();
-  }
-
-  // ── Default komutlar ──────────────────────────────────────────────────────
-
+  //  Profil kurulumu 
   private void defaultKomutlariniKur() {
-    // Sürüş — profil lambdaları her döngüde getSelected() çağırır
+    // Sr  profil lambdalar her dngde getSelected() arr
     surusAltSistemi.setDefaultCommand(
         new SurusKomutu(
-            () -> surucuProfili().yanal(),
-            () -> surucuProfili().ileriGeri(),
-            () -> surucuProfili().donus(),
+            () -> surucuProfili.yanal(),
+            () -> surucuProfili.ileriGeri(),
+            () -> surucuProfili.donus(),
             surusAltSistemi
         )
     );
 
-    // Taret varsayılan komutu yok - sadece manuel kontrol (L1/R1/L2)
+    // Taret varsaylan komutu yok - sadece manuel kontrol (L1/R1/L2)
   }
 
-  // ── Buton bağlamaları ─────────────────────────────────────────────────────
+  //  Buton balamalar 
 
   private void baglamalariYapilandir() {
 
-    // ── Profil tabanlı Trigger'lar ─────────────────────────────────────────
-    // Her Trigger, profil değişince otomatik yeni profili kullanır (lambda capture)
+    //  Profil tabanl Trigger'lar 
+    // Her Trigger, profil deiince otomatik yeni profili kullanr (lambda capture)
 
     // Intake/Reverse butonlari profile'den bagimsiz sabit: 1 ve 2
     Trigger alimTetik         = new Trigger(() -> surucuKontrolcusu.getRawButton(1));
     Trigger geriAtTetik       = new Trigger(() -> surucuKontrolcusu.getRawButton(2));
-    Trigger tasiyiciTetik     = new Trigger(() -> atisKonveyorProfili().tasiyiciBasili());
-    Trigger tasiyiciTersTetik = new Trigger(() -> atisKonveyorProfili().tasiyiciTersBasili());
-    Trigger yakinAtisTetik    = new Trigger(() -> atisKonveyorProfili().yakinAtisBasili());
-    Trigger ortaAtisTetik    = new Trigger(() -> atisKonveyorProfili().ortaAtisBasili());
-    Trigger uzakAtisTetik    = new Trigger(() -> atisKonveyorProfili().uzakAtisBasili());
+    Trigger tasiyiciTetik     = new Trigger(() -> surucuProfili.tasiyiciBasili());
+    Trigger tasiyiciTersTetik = new Trigger(() -> surucuProfili.tasiyiciTersBasili());
+    Trigger yakinAtisTetik    = new Trigger(() -> surucuProfili.yakinAtisBasili());
+    Trigger ortaAtisTetik    = new Trigger(() -> surucuProfili.ortaAtisBasili());
+    Trigger uzakAtisTetik    = new Trigger(() -> surucuProfili.uzakAtisBasili());
     Trigger limelightHizalaTetik = new Trigger(() -> surucuKontrolcusu.getRawButton(8));
-    Trigger gyroSifirTetik    = new Trigger(() -> surucuProfili().gyroSifirlaBasili());
-    Trigger gecikmeliAtisTetik = new Trigger(() -> atisKonveyorProfili().gecikmeliAtisBasili());
+    Trigger gyroSifirTetik    = new Trigger(() -> surucuProfili.gyroSifirlaBasili());
+    Trigger gecikmeliAtisTetik = new Trigger(() -> surucuProfili.gecikmeliAtisBasili());
 
-    // ── Atıcı hazır Trigger ────────────────────────────────────────────────
+    //  Atc hazr Trigger 
     Trigger aticiHazirTetik = new Trigger(aticiAltSistemi::isHizaUlasti);
 
-    // ── Alım ──────────────────────────────────────────────────────────────
+    //  Alm 
     alimTetik
         .whileTrue(new RunCommand(() -> alimAltSistemi.al(), alimAltSistemi))
         .onFalse(new InstantCommand(() -> alimAltSistemi.durdur(), alimAltSistemi));
@@ -202,14 +134,14 @@ public class RobotKapsayici {
         .whileTrue(new RunCommand(() -> alimAltSistemi.geriAt(), alimAltSistemi))
         .onFalse(new InstantCommand(() -> alimAltSistemi.durdur(), alimAltSistemi));
 
-    // ── Taşıyıcı ──────────────────────────────────────────────────────────
+    //  Tayc 
     tasiyiciTetik
         .whileTrue(new RunCommand(
             () -> alimAltSistemi.depodanAticiyaYukariTasimaBaslat(), alimAltSistemi))
         .onFalse(new InstantCommand(
             () -> alimAltSistemi.depodanAticiyaYukariTasimaDurdur(), alimAltSistemi));
 
-    // Unjam: 0.5 sn ters çevirir, sonra otomatik durur
+    // Unjam: 0.5 sn ters evirir, sonra otomatik durur
     tasiyiciTersTetik.onTrue(
         new RunCommand(
             () -> alimAltSistemi.depodanAticiyaYukariTasimaTersBaslat(), alimAltSistemi)
@@ -218,9 +150,9 @@ public class RobotKapsayici {
                 () -> alimAltSistemi.depodanAticiyaYukariTasimaDurdur(), alimAltSistemi))
     );
 
-    // ── Atıcı kontrolleri - 3 mesafe için D-Pad butonları ─────────────────
-    // Yakın, Orta, Uzak atış - shooter belirtilen RPM'e ulaşınca titreşim
-    // Taşıyıcı manuel olarak Triangle ile çalışır
+    //  Atc kontrolleri - 3 mesafe iin D-Pad butonlar 
+    // Yakn, Orta, Uzak at - shooter belirtilen RPM'e ulanca titreim
+    // Tayc manuel olarak Triangle ile alr
 
     yakinAtisTetik
         .whileTrue(new RunCommand(() -> aticiAltSistemi.atYakin(), aticiAltSistemi))
@@ -234,20 +166,20 @@ public class RobotKapsayici {
         .whileTrue(new RunCommand(() -> aticiAltSistemi.atUzak(), aticiAltSistemi))
         .onFalse(new InstantCommand(() -> aticiAltSistemi.durdur(), aticiAltSistemi));
 
-    // ── Titreşim: atıcı hedefe ulaşınca bildir ────────────────────────────
+    //  Titreim: atc hedefe ulanca bildir 
     aticiHazirTetik
-        .onTrue(new InstantCommand(() -> atisKonveyorProfili().titrestir(0.6)))
-        .onFalse(new InstantCommand(() -> atisKonveyorProfili().titrestir(0.0)));
+        .onTrue(new InstantCommand(() -> surucuProfili.titrestir(0.6)))
+        .onFalse(new InstantCommand(() -> surucuProfili.titrestir(0.0)));
 
-    // ── Limelight ile robotu hedefe ortala (Tag 9/10/25/26) ───────────────
+    //  Limelight ile robotu hedefe ortala (Tag 9/10/25/26) 
     limelightHizalaTetik.whileTrue(new LimelightMerkezlemeKomutu(surusAltSistemi, gorusAltSistemi));
 
-    // ── Gyro sıfırla ──────────────────────────────────────────────────────
+    //  Gyro sfrla 
     gyroSifirTetik.onTrue(new InstantCommand(
         () -> surusAltSistemi.yonuSifirla(), surusAltSistemi));
 
-    // ── Gecikmeli atış (Button 10 - Options) ────────────────────────────────
-    // Önce shooter'ı 5000 RPM'e çalıştır, sonra conveyor'u başlat
+    //  Gecikmeli at (Button 10 - Options) 
+    // nce shooter' 5000 RPM'e altr, sonra conveyor'u balat
     gecikmeliAtisTetik
         .whileTrue(
             new ParallelCommandGroup(
@@ -266,10 +198,10 @@ public class RobotKapsayici {
     // Taret iptal edildi - robot govdesi limelight ile dogrudan hizalanir
   }
 
-  // ── PathPlanner ───────────────────────────────────────────────────────────
+  //  PathPlanner 
 
   private void pathPlannerKomutlariniKaydet() {
-    // ── Temel yardımcı komutlar ──────────────────────────────────────────
+    //  Temel yardmc komutlar 
     NamedCommands.registerCommand(
         "AprilTagHizala",
         new AprilTagaHizalamaKomutu(surusAltSistemi, gorusAltSistemi, 1, 1.0)
@@ -384,27 +316,20 @@ public class RobotKapsayici {
     ).withTimeout(3.0);
   }
 
-  // ── Periyodik ─────────────────────────────────────────────────────────────
+  //  Periyodik 
 
   public void periyodik() {
     girdiBaglantiDurumunuGuncelle();
     elasticDurumKontrol();
 
-    // Aktif profil adını dashboard'a yaz
-    KontrolcuProfili aktifProfil = profilSecici.getSelected();
-    KontrolcuProfili aktifOperatorProfil = operatorProfilSecici.getSelected();
-    SmartDashboard.putString(surucuIstasyonuAnahtari("AktifProfil"),
-        aktifProfil != null ? aktifProfil.getClass().getSimpleName() : "?");
-    SmartDashboard.putString("OperatorIstasyonu_AktifProfil",
-        aktifOperatorProfil != null ? aktifOperatorProfil.getClass().getSimpleName() : "?");
-    SmartDashboard.putString("Kontrolcu/AktifSurucuModu", aktifSurucuModu().name());
+    SmartDashboard.putString(surucuIstasyonuAnahtari("AktifProfil"), "PS4TamProfili");
 
-    // Ham buton durumları (debug)
+    // Ham buton durumlar (debug)
     for (int i = 1; i <= 12; i++) {
       SmartDashboard.putBoolean(surucuIstasyonuAnahtari("Dugme" + i), guvenliDugmeOku(i));
     }
 
-    // Eksen değerleri (debug)
+    // Eksen deerleri (debug)
     for (int i = 0; i <= 5; i++) {
       SmartDashboard.putNumber(surucuIstasyonuAnahtari("Eksen" + i), guvenliEksenOku(i));
     }
@@ -412,7 +337,7 @@ public class RobotKapsayici {
     SmartDashboard.putNumber(surucuIstasyonuAnahtari("POV"), guvenliPovOku());
   }
 
-  // ── Bağlantı / Elastic bildirimleri ──────────────────────────────────────
+  //  Balant / Elastic bildirimleri 
 
   private void girdiBaglantiDurumunuGuncelle() {
     boolean surucuBagli = DriverStation.isJoystickConnected(OISabitleri.SURUCU_JOYSTICK_PORTU);
@@ -420,51 +345,37 @@ public class RobotKapsayici {
       surucuBagliOncekiDurum = surucuBagli;
       if (surucuBagli) {
         Elastic.sendNotification(new Notification(NotificationLevel.INFO,
-            "Kontrolcü Bağlandı",
-            "PS4/Xbox port " + OISabitleri.SURUCU_JOYSTICK_PORTU + "'e bağlandı."));
+            "Kontrolc Baland",
+            "PS4/Xbox port " + OISabitleri.SURUCU_JOYSTICK_PORTU + "'e baland."));
       } else {
         Elastic.sendNotification(new Notification(NotificationLevel.ERROR,
-            "Kontrolcü Koptu!",
-            "Port " + OISabitleri.SURUCU_JOYSTICK_PORTU + " bağlantısı kesildi."));
+            "Kontrolc Koptu!",
+            "Port " + OISabitleri.SURUCU_JOYSTICK_PORTU + " balants kesildi."));
       }
     }
     SmartDashboard.putBoolean(surucuIstasyonuAnahtari("KontrolcuBagli"), surucuBagli);
 
-    boolean operatorBagli = DriverStation.isJoystickConnected(OISabitleri.OPERATOR_JOYSTICK_PORTU);
-    if (operatorBagli != operatorBagliOncekiDurum) {
-      operatorBagliOncekiDurum = operatorBagli;
-      if (operatorBagli) {
-        Elastic.sendNotification(new Notification(NotificationLevel.INFO,
-            "Operator Kontrolcu Baglandi",
-            "PS4/Xbox port " + OISabitleri.OPERATOR_JOYSTICK_PORTU + "'e baglandi."));
-      } else {
-        Elastic.sendNotification(new Notification(NotificationLevel.WARNING,
-            "Operator Kontrolcu Koptu",
-            "Port " + OISabitleri.OPERATOR_JOYSTICK_PORTU + " baglantisi kesildi."));
-      }
-    }
-    SmartDashboard.putBoolean("OperatorIstasyonu_KontrolcuBagli", operatorBagli);
   }
 
   private void elasticDurumKontrol() {
     if (DriverStation.isEnabled()) {
-      // Limelight config hatası
+      // Limelight config hatas
       boolean llOk = gorusAltSistemi.isLimelightConfigOk();
       if (!llOk && !limelightHataBildirimGonderildi) {
         Elastic.sendNotification(new Notification(NotificationLevel.WARNING,
-            "Limelight Config Hatası",
+            "Limelight Config Hatas",
             gorusAltSistemi.getLimelightConfigStatus(), 5000));
         limelightHataBildirimGonderildi = true;
       } else if (llOk) {
         limelightHataBildirimGonderildi = false;
       }
 
-      // Atıcı RPM hazır bildirimi (tek seferlik — titreşim de ayrıca çalışır)
+      // Atc RPM hazr bildirimi (tek seferlik  titreim de ayrca alr)
       boolean aticiHazir = aticiAltSistemi.isHizaUlasti();
       if (aticiHazir && !aticiHazirBildirimGonderildi) {
         Elastic.sendNotification(new Notification(NotificationLevel.INFO,
-            "Atıcı Hazır",
-            String.format("%.0f RPM — atış yapılabilir.", aticiAltSistemi.getAktuelRPM()),
+            "Atc Hazr",
+            String.format("%.0f RPM  at yaplabilir.", aticiAltSistemi.getAktuelRPM()),
             2000));
         aticiHazirBildirimGonderildi = true;
       } else if (!aticiHazir) {
@@ -477,7 +388,7 @@ public class RobotKapsayici {
     }
   }
 
-  // ── Güvenli HID okuma yardımcıları ───────────────────────────────────────
+  //  Gvenli HID okuma yardmclar 
 
   private double guvenliEksenOku(int eksen) {
     int port = OISabitleri.SURUCU_JOYSTICK_PORTU;
@@ -500,7 +411,7 @@ public class RobotKapsayici {
     return surucuKontrolcusu.getPOV();
   }
 
-  // ── Dışa açık metodlar ───────────────────────────────────────────────────
+  //  Da ak metodlar 
 
   public void sensorleriSifirla() {
     surusAltSistemi.yonuSifirla();
@@ -515,5 +426,7 @@ public class RobotKapsayici {
     return gorusAltSistemi;
   }
 }
+
+
 
 
