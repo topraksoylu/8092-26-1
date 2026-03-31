@@ -302,17 +302,6 @@ public class GorusAltSistemi extends SubsystemBase {
         io.setNumber("ledMode", getDesiredLedMode());
         io.setNumber("stream", getDesiredStreamMode());
 
-        // Kamera pozunu robot uzayında bildir: [ileri, yan, yukari, roll, pitch, yaw] (m / derece)
-        // Yan: -0.26 m (saga = negatif), Pitch: +30° (yukari bakis)
-        io.setDoubleArray("camerapose_robotspace_set", new double[]{
-            0.0,
-            GorusSabitleri.KAMERA_YAN_OFFSET_METRE,
-            GorusSabitleri.KAMERA_YUKSEKLIGI_METRE,
-            0.0,
-            Math.toDegrees(GorusSabitleri.KAMERA_EGIMI_RADYAN),
-            0.0
-        });
-
         lastConfigApplyTimestampSec = runtime.nowSec();
     }
 

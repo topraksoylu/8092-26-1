@@ -253,9 +253,8 @@ public final class Sabitler {
         public static final int TOPLAM_APRILTAG = 32; // Her ittifak tarafi icin 16
 
         // Kamera montaji (robot merkezine gore)
-        public static final double KAMERA_YUKSEKLIGI_METRE  = 0.5;    // yerden yukseklik (m)
-        public static final double KAMERA_EGIMI_RADYAN      = Math.toRadians(30.0); // yukari bakis acisi
-        public static final double KAMERA_YAN_OFFSET_METRE  = -0.26;  // saga = negatif (Limelight Y+ sola)
+        public static final double KAMERA_YUKSEKLIGI_METRE = 0.5;             // yerden yukseklik (m)
+        public static final double KAMERA_EGIMI_RADYAN     = Math.toRadians(30.0); // yukari bakis acisi
 
         // AprilTag ayarlari
         public static final double APRILTAG_BOYUTU_METRE = 0.1651; // 6.5 inches (from FMAP)
