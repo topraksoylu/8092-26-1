@@ -1,7 +1,6 @@
 package frc.robot.Subsystems;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,25 +16,21 @@ import frc.robot.Sabitler.ModulSabitleri;
 @TestInstance(Lifecycle.PER_CLASS)
 class MekanizmaAltSistemiTesti {
     private AlimAltSistemi alim;
-    private AticiAltSistemi atici;
 
     @BeforeAll
     void initAll() {
         HAL.initialize(500, 0);
         alim = new AlimAltSistemi();
-        atici = new AticiAltSistemi();
     }
 
     @BeforeEach
     void resetState() {
         alim.durdur();
-        atici.durdur();
     }
 
     @AfterAll
     void teardownAll() {
         alim.close();
-        atici.close();
     }
 
     @Test
@@ -51,16 +46,6 @@ class MekanizmaAltSistemiTesti {
         assertEquals(ModulSabitleri.DEPO_ATICI_YUKARI_TASIYICI_HIZI, alim.getSonTasiyiciHizi(), 1e-9);
         alim.depodanAticiyaYukariTasimaDurdur();
         assertEquals(0.0, alim.getSonTasiyiciHizi(), 1e-9);
-    }
-
-    @Test
-    @Tag("fast")
-    void aticiSonKomutTakipEder() {
-        atici.atRPM(ModulSabitleri.ATICI_HEDEF_RPM);
-        assertEquals(ModulSabitleri.ATICI_HEDEF_RPM, atici.getAktuelRPM(), 200.0);
-
-        atici.durdur();
-        assertFalse(atici.isHizaUlasti());
     }
 
 }

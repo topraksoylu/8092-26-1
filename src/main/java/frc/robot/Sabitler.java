@@ -68,13 +68,6 @@ public final class Sabitler {
         // Kayiplar dahil temkinli tahmin: ~3.0 m/s
         public static final double MAKS_HIZ_METRE_SANIYE = 3.0;
 
-        // Velocity PID + Feedforward sabitleri (otonom yol takibi icin)
-        // kS: motorun harekete gecmesi icin gereken minimum voltaj
-        // kV: hiz basvurusu basi dusurulmesi gereken voltaj (12V / maks_hiz)
-        public static final double SURUS_FF_KS = 0.1;   // Volt (statik katsayi)
-        public static final double SURUS_FF_KV = 12.0 / MAKS_HIZ_METRE_SANIYE; // V/(m/s)
-        public static final double SURUS_PID_KP = 0.3;  // Volt / (m/s hata)
-
     }
 
     public static class SurusKontrolSabitleri {
@@ -233,26 +226,10 @@ public final class Sabitler {
         // Mavi taraf scoring yapıları çevresindeki taglar
         public static final int[] MAVI_HEDEF_TAGLERI = {18, 19, 20, 21, 24, 25, 26, 27};
 
-        // Gorus olcum guvenilirligi
-        public static final double GORUS_OLCUM_STD_SAPMA_SN = 0.5;
-        public static final double BELIRSIZLIK_ESIGI = 0.2;
-        
-
-        // Poz guncelleme hizi
-        public static final double POZ_GUNCELLEME_ARALIGI_SN = 0.05; // 20Hz
-
         // GorusAltSistemi ile geriye donuk uyumluluk sabitleri
         public static final double HEDEF_YUKSEKLIGI = SPEAKER_TAG_YUKSEKLIGI_METRE;
         public static final double LIMELIGHT_YUKSEKLIGI = KAMERA_YUKSEKLIGI_METRE;
         public static final double LIMELIGHT_ACISI = Math.toDegrees(KAMERA_EGIMI_RADYAN);
-    }
-
-    public static class NavXTestSabitleri {
-        public static final long SIFIRLAMA_OTURMA_MS = 500;
-        public static final double TEST_DONUS_CIKTISI = 0.3;
-        public static final double BEKLENEN_MIN_DELTA_DERECE = 45.0;
-        public static final double MAKS_MUTLAK_YAW_SICRAMA_DERECE = 180.0;
-        public static final double DONUS_ASAMA_ZAMAN_ASIMI_SN = 5.0;
     }
 
 }
