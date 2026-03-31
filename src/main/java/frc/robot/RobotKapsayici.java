@@ -171,8 +171,22 @@ public class RobotKapsayici {
         .onTrue(new InstantCommand(() -> surucuProfili.titrestir(0.6)))
         .onFalse(new InstantCommand(() -> surucuProfili.titrestir(0.0)));
 
-    //  Limelight ile robotu hedefe ortala (Tag 9/10/25/26) 
-    limelightHizalaTetik.whileTrue(new LimelightMerkezlemeKomutu(surusAltSistemi, gorusAltSistemi));
+    //  Limelight hizalama → conveyor başlat → 0.3s bekle → orta atış
+    limelightHizalaTetik
+        .whileTrue(
+            new LimelightMerkezlemeKomutu(surusAltSistemi, gorusAltSistemi)
+                .andThen(new RunCommand(
+                        () -> alimAltSistemi.depodanAticiyaYukariTasimaBaslat(), alimAltSistemi)
+                    .withTimeout(0.3))
+                .andThen(new ParallelCommandGroup(
+                    new RunCommand(() -> alimAltSistemi.depodanAticiyaYukariTasimaBaslat(), alimAltSistemi),
+                    new RunCommand(() -> aticiAltSistemi.atOrta(), aticiAltSistemi)
+                ))
+        )
+        .onFalse(new InstantCommand(() -> {
+            aticiAltSistemi.durdur();
+            alimAltSistemi.depodanAticiyaYukariTasimaDurdur();
+        }, aticiAltSistemi, alimAltSistemi));
 
     //  Gyro sfrla 
     gyroSifirTetik.onTrue(new InstantCommand(

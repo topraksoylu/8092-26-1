@@ -14,12 +14,15 @@ import frc.robot.Subsystems.SurusAltSistemi;
  */
 public class LimelightMerkezlemeKomutu extends Command {
     private static final Set<Integer> MERKEZ_TAGLER = Set.of(9, 10, 25, 26);
-    private static final double TX_TOLERANS_DEG = 1.0;
+    private static final double TX_TOLERANS_DEG = 2.5;
     private static final double DONUS_KP = -0.02;
     private static final double MAX_DONUS = 0.30;
+    // Kararlı hizalama için arka arkaya kaç döngü tolerans içinde kalmalı
+    private static final int KARARLI_SAYAC_ESIGI = 5;
 
     private final SurusAltSistemi surusAltSistemi;
     private final GorusAltSistemi gorusAltSistemi;
+    private int kararlıSayac;
 
     public LimelightMerkezlemeKomutu(SurusAltSistemi surusAltSistemi, GorusAltSistemi gorusAltSistemi) {
         this.surusAltSistemi = surusAltSistemi;
@@ -28,9 +31,15 @@ public class LimelightMerkezlemeKomutu extends Command {
     }
 
     @Override
+    public void initialize() {
+        kararlıSayac = 0;
+    }
+
+    @Override
     public void execute() {
         if (!gorusAltSistemi.hasTarget()) {
             surusAltSistemi.drive(0.0, 0.0, 0.0);
+            kararlıSayac = 0;
             SmartDashboard.putString("Vision/MerkezlemeDurum", "HEDEF_YOK");
             return;
         }
@@ -38,6 +47,7 @@ public class LimelightMerkezlemeKomutu extends Command {
         int tagId = gorusAltSistemi.getTagId();
         if (!MERKEZ_TAGLER.contains(tagId)) {
             surusAltSistemi.drive(0.0, 0.0, 0.0);
+            kararlıSayac = 0;
             SmartDashboard.putString("Vision/MerkezlemeDurum", "GECERSIZ_TAG_" + tagId);
             return;
         }
@@ -46,13 +56,17 @@ public class LimelightMerkezlemeKomutu extends Command {
         double donusKomutu = 0.0;
         if (Math.abs(tx) > TX_TOLERANS_DEG) {
             donusKomutu = MathUtil.clamp(tx * DONUS_KP, -MAX_DONUS, MAX_DONUS);
+            kararlıSayac = 0;
+        } else {
+            kararlıSayac++;
         }
 
         surusAltSistemi.drive(0.0, 0.0, donusKomutu);
-        SmartDashboard.putString("Vision/MerkezlemeDurum", Math.abs(tx) <= TX_TOLERANS_DEG ? "ORTALANDI" : "HIZALANIYOR");
+        SmartDashboard.putString("Vision/MerkezlemeDurum", isFinished() ? "HIZALANDI" : (Math.abs(tx) <= TX_TOLERANS_DEG ? "YAKLASIK" : "HIZALANIYOR"));
         SmartDashboard.putNumber("Vision/MerkezlemeTagID", tagId);
         SmartDashboard.putNumber("Vision/MerkezlemeTx", tx);
         SmartDashboard.putNumber("Vision/MerkezlemeDonus", donusKomutu);
+        SmartDashboard.putNumber("Vision/KararliSayac", kararlıSayac);
     }
 
     @Override
@@ -62,7 +76,7 @@ public class LimelightMerkezlemeKomutu extends Command {
 
     @Override
     public boolean isFinished() {
-        return false;
+        return kararlıSayac >= KARARLI_SAYAC_ESIGI;
     }
 }
 
