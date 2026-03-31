@@ -8,7 +8,11 @@
       "WebFetch(domain:docs.wpilib.org)",
       "WebSearch",
       "WebFetch(domain:github.wpilib.org)",
-      "WebFetch(domain:docs.limelightvision.io)"
+      "WebFetch(domain:docs.limelightvision.io)",
+      "WebFetch(domain:limelightvision.io)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:limelightlib-wpijava-reference.limelightvision.io)"
     ]
   }
 }

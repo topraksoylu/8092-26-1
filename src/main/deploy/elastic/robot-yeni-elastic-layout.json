@@ -192,22 +192,6 @@
             }
           },
           {
-            "title": "Homing Tamam",
-            "x": 128.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Taret/HomingTamamlandi",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
             "title": "Atis Modu",
             "x": 256.0,
             "y": 384.0,
@@ -268,22 +252,6 @@
               "topic": "/SmartDashboard/Atici/AtisModu",
               "period": 0.033,
               "show_submit_button": false
-            }
-          },
-          {
-            "title": "Homing Tamam",
-            "x": 512.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Taret/HomingTamamlandi",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
             }
           },
           {
@@ -352,16 +320,29 @@
             }
           },
           {
-            "title": "RPM Ayar (Ayarlama)",
+            "title": "RPM Hatasi",
             "x": 512.0,
             "y": 256.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "/SmartDashboard/Ayarlama/AticiRPM",
+              "topic": "/SmartDashboard/Atici/RPMHata",
               "period": 0.033,
-              "show_submit_button": true
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Motor Cikisi (V)",
+            "x": 768.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Atici/MotorCikisi",
+              "period": 0.033,
+              "show_submit_button": false
             }
           }
         ]
@@ -407,74 +388,6 @@
             "type": "Boolean Box",
             "properties": {
               "topic": "/SmartDashboard/SurucuIstasyonu_KontrolcuBagli",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Surucu Modu",
-            "x": 896.0,
-            "y": 0.0,
-            "width": 384.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
-            "properties": {
-              "topic": "/SmartDashboard/Kontrolcu/SurucuModu",
-              "period": 0.033,
-              "sort_options": false
-            }
-          },
-          {
-            "title": "Operator Profil Secici",
-            "x": 0.0,
-            "y": 512.0,
-            "width": 512.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
-            "properties": {
-              "topic": "/SmartDashboard/Kontrolcu/OperatorProfil",
-              "period": 0.033,
-              "sort_options": false
-            }
-          },
-          {
-            "title": "Operator Aktif Profil",
-            "x": 512.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/OperatorIstasyonu_AktifProfil",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Aktif Surucu Modu",
-            "x": 768.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Kontrolcu/AktifSurucuModu",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Operator Kontrolcu Bagli",
-            "x": 1024.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/OperatorIstasyonu_KontrolcuBagli",
               "period": 0.033,
               "true_color": 4283215696,
               "false_color": 4294198070,
@@ -950,236 +863,112 @@
               "period": 0.033,
               "show_submit_button": false
             }
-          }
-        ]
-      }
-    },
-    {
-      "name": "Turret",
-      "grid_layout": {
-        "layouts": [],
-        "containers": [
+          },
           {
-            "title": "Turret Angle",
+            "title": "FL Speed (m/s)",
             "x": 0.0,
-            "y": 0.0,
+            "y": 384.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "/SmartDashboard/Taret/Aci",
+              "topic": "/SmartDashboard/Drive/HizOnSol_ms",
               "period": 0.033,
               "show_submit_button": false
             }
           },
           {
-            "title": "Target Angle",
+            "title": "FR Speed (m/s)",
             "x": 256.0,
-            "y": 0.0,
+            "y": 384.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "/SmartDashboard/Taret/HedefAci",
+              "topic": "/SmartDashboard/Drive/HizOnSag_ms",
               "period": 0.033,
               "show_submit_button": false
             }
           },
           {
-            "title": "Angle Error",
+            "title": "RL Speed (m/s)",
             "x": 512.0,
-            "y": 0.0,
+            "y": 384.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "/SmartDashboard/Taret/AciHatasi",
+              "topic": "/SmartDashboard/Drive/HizArkaSol_ms",
               "period": 0.033,
               "show_submit_button": false
             }
           },
           {
-            "title": "Oto Mod",
+            "title": "RR Speed (m/s)",
             "x": 768.0,
-            "y": 0.0,
+            "y": 384.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "/SmartDashboard/Taret/OtoMod",
+              "topic": "/SmartDashboard/Drive/HizArkaSag_ms",
               "period": 0.033,
               "show_submit_button": false
             }
           },
           {
-            "title": "Limit Switch",
-            "x": 0.0,
+            "title": "Vision Tag Count",
+            "x": 1024.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Drive/VisionTagCount",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Vision Avg Dist",
+            "x": 1024.0,
             "y": 128.0,
-            "width": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Drive/VisionAvgTagDist",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Vision Rot Rate",
+            "x": 1024.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Drive/VisionRotRateDegSn",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Vision Filter Pass",
+            "x": 1024.0,
+            "y": 384.0,
+            "width": 256.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
-              "topic": "/SmartDashboard/Taret/LimitSwitch",
+              "topic": "/SmartDashboard/Drive/VisionFiltreGecti",
               "period": 0.033,
               "true_color": 4283215696,
               "false_color": 4294198070,
               "true_icon": "None",
               "false_icon": "None"
-            }
-          },
-          {
-            "title": "Homing Tamam",
-            "x": 128.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Taret/HomingTamamlandi",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Blk: Switch",
-            "x": 256.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Taret/Blok_LimitSwitch",
-              "period": 0.033,
-              "true_color": 4294198070,
-              "false_color": 4283215696,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Blk: Min",
-            "x": 384.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Taret/Blok_MinLimit",
-              "period": 0.033,
-              "true_color": 4294198070,
-              "false_color": 4283215696,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Blk: Max",
-            "x": 512.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Taret/Blok_MaksLimit",
-              "period": 0.033,
-              "true_color": 4294198070,
-              "false_color": 4283215696,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Command Speed",
-            "x": 640.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Taret/KomutHizi",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Motor Cikisi",
-            "x": 0.0,
-            "y": 256.0,
-            "width": 192.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Taret/MotorCikisi",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Akim (A)",
-            "x": 192.0,
-            "y": 256.0,
-            "width": 192.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Taret/Akim_A",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Sicaklik (C)",
-            "x": 384.0,
-            "y": 256.0,
-            "width": 192.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Taret/Sicaklik_C",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Voltaj (V)",
-            "x": 576.0,
-            "y": 256.0,
-            "width": 192.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Taret/Voltaj_V",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Enkoder Rot.",
-            "x": 768.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Taret/EnkoderRotasyonu",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Taret Hizi",
-            "x": 896.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Ayarlama/TaretHizi",
-              "period": 0.033,
-              "show_submit_button": true
             }
           }
         ]
@@ -1194,7 +983,7 @@
             "title": "Auto Chooser",
             "x": 0.0,
             "y": 0.0,
-            "width": 384.0,
+            "width": 512.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
             "properties": {
@@ -1204,14 +993,27 @@
             }
           },
           {
-            "title": "NavX Run",
-            "x": 384.0,
+            "title": "PathPlanner Status",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Auto/PathPlannerStatus",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "PathPlanner Configured",
+            "x": 768.0,
             "y": 0.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
-              "topic": "/SmartDashboard/NavXTest/Run",
+              "topic": "/SmartDashboard/Auto/PathPlannerConfigured",
               "period": 0.033,
               "true_color": 4283215696,
               "false_color": 4294198070,
@@ -1220,96 +1022,10 @@
             }
           },
           {
-            "title": "NavX Status",
-            "x": 0.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/NavXTest/Status",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "NavX Error",
-            "x": 256.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/NavXTest/ErrorCode",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Yaw Delta",
-            "x": 0.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/NavXTest/DeltaDeg",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Yaw Start",
-            "x": 256.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/NavXTest/LastYawStartDeg",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Yaw End",
-            "x": 512.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/NavXTest/LastYawEndDeg",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Field",
-            "x": 512.0,
+            "title": "Ozel Baslangic",
+            "x": 896.0,
             "y": 0.0,
-            "width": 512.0,
-            "height": 256.0,
-            "type": "Field",
-            "properties": {
-              "topic": "/SmartDashboard/Field",
-              "period": 0.033,
-              "field_game": "Rebuilt",
-              "robot_width": 0.82,
-              "robot_length": 1.0,
-              "show_other_objects": true,
-              "show_trajectories": true,
-              "field_rotation": 0.0,
-              "robot_color": 4294198070,
-              "trajectory_color": 4294967295,
-              "show_robot_outside_widget": true
-            }
-          },
-          {
-            "title": "Ozel Oto Baslangic",
-            "x": 768.0,
-            "y": 384.0,
-            "width": 256.0,
+            "width": 384.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
@@ -1322,60 +1038,270 @@
       }
     },
     {
-      "name": "Ayarlama",
+      "name": "Kalibrasyon",
       "grid_layout": {
         "layouts": [],
         "containers": [
           {
-            "title": "Intake Speed",
+            "title": "HEDEF ORTALANDI",
             "x": 0.0,
             "y": 0.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
+            "width": 512.0,
+            "height": 256.0,
+            "type": "Boolean Box",
             "properties": {
-              "topic": "/SmartDashboard/Ayarlama/AlimHizi",
+              "topic": "/SmartDashboard/Vision/HedefOrtalandi",
               "period": 0.033,
-              "show_submit_button": true
+              "true_color": 4283215696,
+              "false_color": 4294901760,
+              "true_icon": "None",
+              "false_icon": "None"
             }
           },
           {
-            "title": "Conveyor Speed",
-            "x": 256.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Ayarlama/TasiyiciHizi",
-              "period": 0.033,
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Shooter RPM",
+            "title": "Has Target",
             "x": 512.0,
             "y": 0.0,
-            "width": 256.0,
+            "width": 128.0,
             "height": 128.0,
-            "type": "Text Display",
+            "type": "Boolean Box",
             "properties": {
-              "topic": "/SmartDashboard/Ayarlama/AticiRPM",
+              "topic": "/SmartDashboard/Vision/HasTarget",
               "period": 0.033,
-              "show_submit_button": true
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
             }
           },
           {
-            "title": "Turret Speed",
+            "title": "Pose Valid",
+            "x": 640.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/PoseValid",
+              "period": 0.033,
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "NT Connected",
             "x": 768.0,
             "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/NT/Connected",
+              "period": 0.033,
+              "true_color": 4283215696,
+              "false_color": 4294901760,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Config OK",
+            "x": 896.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/ConfigOk",
+              "period": 0.033,
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Tag ID",
+            "x": 512.0,
+            "y": 128.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "/SmartDashboard/Ayarlama/TaretHizi",
+              "topic": "/SmartDashboard/Vision/TagID",
               "period": 0.033,
-              "show_submit_button": true
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Horizontal Offset (tx)",
+            "x": 768.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/HorizontalOffset",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Vertical Offset (ty)",
+            "x": 0.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/VerticalOffset",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Target Area",
+            "x": 256.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/TargetArea",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Distance To Target",
+            "x": 512.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/DistanceToTarget",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Ambiguity",
+            "x": 768.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/Ambiguity",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Pipeline",
+            "x": 0.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/Pipeline",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "CamMode",
+            "x": 128.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/CamMode",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "LEDMode",
+            "x": 256.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/LEDMode",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "FMAP Status",
+            "x": 384.0,
+            "y": 384.0,
+            "width": 384.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/FmapStatus",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Config Status",
+            "x": 768.0,
+            "y": 384.0,
+            "width": 512.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/ConfigStatus",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Robot X",
+            "x": 0.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/RobotX",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Robot Y",
+            "x": 256.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/RobotY",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Robot Yaw",
+            "x": 512.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/RobotYaw",
+              "period": 0.033,
+              "show_submit_button": false
             }
           }
         ]

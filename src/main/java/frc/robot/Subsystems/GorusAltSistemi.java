@@ -419,10 +419,15 @@ public class GorusAltSistemi extends SubsystemBase {
 
             SmartDashboard.putBoolean("Vision/HasTarget", cachedHasTarget);
             if (cachedHasTarget) {
-                SmartDashboard.putNumber("Vision/HorizontalOffset", io.getDouble("tx", 0));
+                double tx = io.getDouble("tx", 0);
+                SmartDashboard.putNumber("Vision/HorizontalOffset", tx);
                 SmartDashboard.putNumber("Vision/VerticalOffset", io.getDouble("ty", 0));
                 SmartDashboard.putNumber("Vision/TargetArea", io.getDouble("ta", 0));
                 SmartDashboard.putNumber("Vision/DistanceToTarget", getDistanceToTarget());
+                // Hedef ortaland mi? - tolerans: +/- 2 derece
+                SmartDashboard.putBoolean("Vision/HedefOrtalandi", Math.abs(tx) < 2.0);
+            } else {
+                SmartDashboard.putBoolean("Vision/HedefOrtalandi", false);
             }
             SmartDashboard.putNumber("Vision/FmapTagCount", getFmapTagCount());
             SmartDashboard.putString("Vision/FmapStatus", getFmapStatus());
