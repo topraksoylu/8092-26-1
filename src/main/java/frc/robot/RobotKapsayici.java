@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -163,18 +164,28 @@ public class RobotKapsayici {
         .onTrue(new InstantCommand(() -> surucuProfili.titrestir(0.6)))
         .onFalse(new InstantCommand(() -> surucuProfili.titrestir(0.0)));
 
-    //  Limelight hizalama + mesafe tabanlı RPM → hizalanınca conveyor başlat
+    //  R2: Kilitle → Döndür → RPM'e ulaş → Konveyör
     limelightHizalaTetik
         .whileTrue(
-            new ParallelCommandGroup(
-                // Hizala, bitince conveyor başlat
-                new LimelightMerkezlemeKomutu(surusAltSistemi, gorusAltSistemi)
-                    .andThen(new RunCommand(
-                        () -> alimAltSistemi.depodanAticiyaYukariTasimaBaslat(), alimAltSistemi)),
-                // Hizalanırken paralel: mesafeye göre RPM
-                new RunCommand(
-                    () -> aticiAltSistemi.atMesafeyeGore(gorusAltSistemi.getMesafeHedef()),
-                    aticiAltSistemi)
+            new SequentialCommandGroup(
+                // 1. Hizala + ısın (ikisi paralel; hizalanınca race biter)
+                new ParallelRaceGroup(
+                    new LimelightMerkezlemeKomutu(surusAltSistemi, gorusAltSistemi),
+                    new RunCommand(
+                        () -> aticiAltSistemi.atMesafeyeGore(gorusAltSistemi.getMesafeHedef()),
+                        aticiAltSistemi)
+                ),
+                // 2. RPM'e ulaşana kadar bekle (max 2 s)
+                new WaitUntilCommand(aticiAltSistemi::isHizaUlasti).withTimeout(2.0),
+                // 3. Atıcı + konveyör — düğme bırakılana kadar
+                new ParallelCommandGroup(
+                    new RunCommand(
+                        () -> aticiAltSistemi.atMesafeyeGore(gorusAltSistemi.getMesafeHedef()),
+                        aticiAltSistemi),
+                    new RunCommand(
+                        () -> alimAltSistemi.depodanAticiyaYukariTasimaBaslat(),
+                        alimAltSistemi)
+                )
             )
         )
         .onFalse(new InstantCommand(() -> {
