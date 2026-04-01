@@ -156,10 +156,10 @@ public final class Sabitler {
 
         // 3 mesafe için atış RPM değerleri (Elastic Dashboard'dan değiştirilebilir)
         // SAHA TESTI ile kalibre edildi: 5200 RPM → 2.8m atış başarılı
-        public static double YAKIN_ATIS_RPM    = 3900.0;  // D-Pad Yukari  (~1.2 m)
-        public static double ORTA_ATIS_RPM   = 4000.0;  // D-Pad Sag     (~2.0 m)
-        public static double UZAK_ATIS_RPM   = 4500.0;  // D-Pad Asagi   (~2.8 m)
-        public static double COK_UZAK_ATIS_RPM = 4900.0; // D-Pad Sol     (~4.4 m)
+        public static double YAKIN_ATIS_RPM    = 3822.0;  // D-Pad Yukari  (~1.2 m)
+        public static double ORTA_ATIS_RPM   = 3920.0;  // D-Pad Sag     (~2.0 m)
+        public static double UZAK_ATIS_RPM   = 4410.0;  // D-Pad Asagi   (~2.8 m)
+        public static double COK_UZAK_ATIS_RPM = 4802.0; // D-Pad Sol     (~4.4 m)
         public static final double YAKIN_ATIS_HIZI = YAKIN_ATIS_RPM / 5676.0;
         public static final double ORTA_ATIS_HIZI  = ORTA_ATIS_RPM / 5676.0;
         public static final double UZAK_ATIS_HIZI  = UZAK_ATIS_RPM / 5676.0;
@@ -171,7 +171,7 @@ public final class Sabitler {
         public static final double[] ATIS_MESAFE_TABLOSU_METRE =
             {1.2,  2.0,  2.8,  3.6,  4.4,  5.2};
         public static final double[] ATIS_RPM_TABLOSU =
-            {3215, 3807, 4399, 4526, 4568, 4568};
+            {3200, 3500, 4044, 4161, 4200, 4200};
         public static final double ATICI_KP = 0.0003;         // Velocity PID P kazanci
         public static final double ATICI_KFF = 1.0 / 5676.0; // Velocity feedforward: 1/NEO max RPM
     }
