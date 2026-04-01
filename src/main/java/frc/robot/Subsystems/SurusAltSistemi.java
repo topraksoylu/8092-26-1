@@ -7,7 +7,14 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.studica.frc.AHRS;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.MecanumDriveKinematics;
+import edu.wpi.first.math.kinematics.MecanumDriveOdometry;
+import edu.wpi.first.math.kinematics.MecanumDriveWheelPositions;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
@@ -20,6 +27,10 @@ import frc.robot.Sabitler.SurusSabitleri;
 public class SurusAltSistemi extends SubsystemBase {
 
   private final MecanumDrive mecanumDrive;
+  private final AHRS navX;
+  private final MecanumDriveKinematics kinematics;
+  private final MecanumDriveOdometry odometri;
+  private Pose2d mevcutPoz = new Pose2d();
 
   private final SparkMax frontLeftMotor;
   private final SparkMax frontRightMotor;
@@ -60,10 +71,87 @@ public class SurusAltSistemi extends SubsystemBase {
     mecanumDrive = new MecanumDrive(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor);
     mecanumDrive.setExpiration(0.5);
     mecanumDrive.setSafetyEnabled(true);
+
+    navX = new AHRS(AHRS.NavXComType.kMXP_SPI);
+
+    kinematics = new MecanumDriveKinematics(
+        SurusSabitleri.TEKER_POZISYONLARI[0],
+        SurusSabitleri.TEKER_POZISYONLARI[1],
+        SurusSabitleri.TEKER_POZISYONLARI[2],
+        SurusSabitleri.TEKER_POZISYONLARI[3]
+    );
+    odometri = new MecanumDriveOdometry(kinematics, navX.getRotation2d(), getWheelPositions());
   }
 
   public void drive(double xSpeed, double ySpeed, double zRotation) {
     mecanumDrive.driveCartesian(xSpeed, ySpeed, zRotation);
+  }
+
+  // ── NavX ─────────────────────────────────────────────────────────────────
+
+  public void gyroSifirla() {
+    navX.reset();
+  }
+
+  public double getAngleDegrees() {
+    return navX.getAngle();
+  }
+
+  public Rotation2d getRotation2d() {
+    return navX.getRotation2d();
+  }
+
+  public boolean isNavXConnected() {
+    return navX.isConnected();
+  }
+
+  // ── Odometri ──────────────────────────────────────────────────────────────
+
+  public Pose2d getPoz() {
+    return mevcutPoz;
+  }
+
+  public void odometriSifirla(Pose2d poz) {
+    odometri.resetPosition(navX.getRotation2d(), getWheelPositions(), poz);
+    mevcutPoz = poz;
+  }
+
+  public void odometriSifirla() {
+    odometriSifirla(new Pose2d());
+  }
+
+  public MecanumDriveWheelPositions getWheelPositions() {
+    return new MecanumDriveWheelPositions(
+        getPosition(frontLeftMotor.getEncoder()),
+        getPosition(frontRightMotor.getEncoder()),
+        getPosition(rearLeftMotor.getEncoder()),
+        getPosition(rearRightMotor.getEncoder())
+    );
+  }
+
+  private double getPosition(RelativeEncoder encoder) {
+    return SurusMatematigi.encoderPositionToMeters(
+        encoder.getPosition(),
+        SurusSabitleri.DISLI_ORANI,
+        SurusSabitleri.TEKER_CEVRESI
+    );
+  }
+
+  // ── PathPlanner entegrasyonu ───────────────────────────────────────────────
+
+  public ChassisSpeeds getChassisSpeeds() {
+    return kinematics.toChassisSpeeds(getWheelSpeeds());
+  }
+
+  public void driveRobotRelative(ChassisSpeeds speeds) {
+    MecanumDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(speeds);
+    wheelSpeeds.desaturate(SurusSabitleri.MAKS_HIZ_METRE_SANIYE);
+    double maxSpeed = SurusSabitleri.MAKS_HIZ_METRE_SANIYE;
+    frontLeftMotor.set(wheelSpeeds.frontLeftMetersPerSecond   / maxSpeed);
+    frontRightMotor.set(wheelSpeeds.frontRightMetersPerSecond / maxSpeed);
+    rearLeftMotor.set(wheelSpeeds.rearLeftMetersPerSecond     / maxSpeed);
+    rearRightMotor.set(wheelSpeeds.rearRightMetersPerSecond   / maxSpeed);
+    mecanumDrive.feed();
   }
 
   public void tumMotorlariDurdur() {
@@ -130,6 +218,14 @@ public class SurusAltSistemi extends SubsystemBase {
 
     // Batarya
     SmartDashboard.putNumber("Robot/BataryaVolt", RobotController.getBatteryVoltage());
+
+    // NavX + Odometri
+    mevcutPoz = odometri.update(navX.getRotation2d(), getWheelPositions());
+    SmartDashboard.putNumber("Drive/NavXAci",        navX.getAngle());
+    SmartDashboard.putBoolean("Drive/NavXBagli",     navX.isConnected());
+    SmartDashboard.putBoolean("Drive/NavXKalibre",   navX.isCalibrating());
+    SmartDashboard.putNumber("Drive/PozX",           mevcutPoz.getX());
+    SmartDashboard.putNumber("Drive/PozY",           mevcutPoz.getY());
 
     // Manuel motor testi — sadece robot devre dışıyken
     if (DriverStation.isDisabled()) {

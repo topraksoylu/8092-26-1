@@ -256,6 +256,61 @@
               "period": 0.033,
               "show_submit_button": false
             }
+          },
+          {
+            "title": "NavX Aci",
+            "x": 0.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Drive/NavXAci",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "NavX Bagli",
+            "x": 256.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/Drive/NavXBagli",
+              "period": 0.033,
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Poz X (m)",
+            "x": 384.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Drive/PozX",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Poz Y (m)",
+            "x": 640.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Drive/PozY",
+              "period": 0.033,
+              "show_submit_button": false
+            }
           }
         ]
       }

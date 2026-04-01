@@ -4,6 +4,12 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -62,9 +68,10 @@ public class RobotKapsayici {
     );
     alimAltSistemi   = new AlimAltSistemi();
     aticiAltSistemi  = new AticiAltSistemi();
+    pathPlannerKur();
     defaultKomutlariniKur();
     baglamalariYapilandir();
-    // otonomSeciciKur();
+    otonomSeciciKur();
 
     System.out.println("===================================================");
     System.out.println("ROBOT KAPSAYICI BASLATILDI");
@@ -251,9 +258,51 @@ public class RobotKapsayici {
     }, aticiAltSistemi, alimAltSistemi);
   }
 
+  private void pathPlannerKur() {
+    // Top yerleştirme: 0.3s ileri + 0.3s geri (intake aşağı yerleşsin)
+    NamedCommands.registerCommand("TopYerlestir",
+        new SequentialCommandGroup(
+            new RunCommand(() -> surusAltSistemi.drive(0.4, 0, 0), surusAltSistemi).withTimeout(0.3),
+            new RunCommand(() -> surusAltSistemi.drive(-0.4, 0, 0), surusAltSistemi).withTimeout(0.3),
+            new InstantCommand(() -> surusAltSistemi.drive(0, 0, 0), surusAltSistemi)
+        )
+    );
+
+    // AprilTag hizalama (max 3s)
+    NamedCommands.registerCommand("Hizala",
+        new LimelightMerkezlemeKomutu(surusAltSistemi, gorusAltSistemi).withTimeout(3.0)
+    );
+
+    NamedCommands.registerCommand("AtisYap", atisYapKomutu());
+
+    try {
+      RobotConfig config = RobotConfig.fromGUISettings();
+      AutoBuilder.configure(
+          surusAltSistemi::getPoz,
+          surusAltSistemi::odometriSifirla,
+          surusAltSistemi::getChassisSpeeds,
+          (speeds, feedforwards) -> surusAltSistemi.driveRobotRelative(speeds),
+          new PPHolonomicDriveController(
+              new PIDConstants(1.0, 0.0, 0.0),
+              new PIDConstants(1.0, 0.0, 0.0)
+          ),
+          config,
+          () -> DriverStation.getAlliance()
+                  .map(a -> a == DriverStation.Alliance.Red)
+                  .orElse(false),
+          surusAltSistemi
+      );
+    } catch (Exception e) {
+      System.err.println("PathPlanner AutoBuilder kurulamadı: " + e.getMessage());
+    }
+  }
+
   private void otonomSeciciKur() {
     otonomSecici = new SendableChooser<>();
-    otonomSecici.setDefaultOption("Geri Git + Hizala + At", geriGitHizalaAtisKomutu());
+    otonomSecici.setDefaultOption("Orta (Y=4.0)",  new PathPlannerAuto("GeriGitAtisTam"));
+    otonomSecici.addOption("Sol (Y=6.2)",           new PathPlannerAuto("GeriGitAtisTam_Y62"));
+    otonomSecici.addOption("Sağ (Y=2.2)",          new PathPlannerAuto("GeriGitAtisTam_Y22"));
+    otonomSecici.addOption("Manuel (yedek)",       geriGitHizalaAtisKomutu());
     SmartDashboard.putData("Auto Chooser", otonomSecici);
   }
 
@@ -361,11 +410,55 @@ public class RobotKapsayici {
   //  Da ak metodlar
 
   public void sensorleriSifirla() {
-    // Gyro ve odometri kaldırıldı — sıfırlanacak sensör yok
+    surusAltSistemi.gyroSifirla();
+    surusAltSistemi.odometriSifirla();
   }
 
   public Command otonomKomutAl() {
-    return null; // otonomSecici.getSelected();
+    return otonomSecici.getSelected();
+  }
+
+  /** 6 top atmak için: ısın → RPM bekle → konveyör döngüsü (max 10 s) */
+  /** Otonom atış: ısın → RPM bekle → konveyör 1s + sağ-sol strafe 0.5s döngüsü (8 s) */
+  private Command atisYapKomutu() {
+    return new SequentialCommandGroup(
+        // 1. Isın + RPM bekle (max 2s, shooter çalışıyor)
+        new ParallelRaceGroup(
+            new WaitUntilCommand(aticiAltSistemi::isHizaUlasti).withTimeout(2.0),
+            new RunCommand(
+                () -> aticiAltSistemi.atMesafeyeGore(gorusAltSistemi.getMesafeHedef()),
+                aticiAltSistemi)
+        ),
+        // 2. 8s boyunca: konveyör 1s → strafe sağ 0.25s → strafe sol 0.25s → tekrar
+        new ParallelCommandGroup(
+            new RunCommand(
+                () -> aticiAltSistemi.atMesafeyeGore(gorusAltSistemi.getMesafeHedef()),
+                aticiAltSistemi),
+            new RepeatCommand(
+                new SequentialCommandGroup(
+                    new RunCommand(
+                        () -> alimAltSistemi.depodanAticiyaYukariTasimaBaslat(),
+                        alimAltSistemi).withTimeout(1.0),
+                    new InstantCommand(
+                        () -> alimAltSistemi.depodanAticiyaYukariTasimaDurdur(),
+                        alimAltSistemi),
+                    new RunCommand(
+                        () -> surusAltSistemi.drive(0, 0.5, 0),
+                        surusAltSistemi).withTimeout(0.25),
+                    new RunCommand(
+                        () -> surusAltSistemi.drive(0, -0.5, 0),
+                        surusAltSistemi).withTimeout(0.25),
+                    new InstantCommand(
+                        () -> surusAltSistemi.drive(0, 0, 0),
+                        surusAltSistemi)
+                )
+            )
+        ).withTimeout(8.0)
+    ).finallyDo(() -> {
+        aticiAltSistemi.durdur();
+        alimAltSistemi.depodanAticiyaYukariTasimaDurdur();
+        surusAltSistemi.drive(0, 0, 0);
+    });
   }
 
   public GorusAltSistemi gorusAltSistemiAl() {

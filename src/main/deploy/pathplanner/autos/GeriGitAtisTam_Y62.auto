@@ -1,0 +1,37 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "GeriGitAtisPathi_Y62"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "TopYerlestir"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Hizala"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AtisYap"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
