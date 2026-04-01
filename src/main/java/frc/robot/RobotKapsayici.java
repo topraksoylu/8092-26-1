@@ -106,6 +106,7 @@ public class RobotKapsayici {
     Trigger shooterDirektTetik    = new Trigger(() -> surucuProfili.shooterDirektBasili());
 
     //  Atc hazr Trigger 
+    Trigger sikisikGiderTetik = new Trigger(() -> surucuKontrolcusu.getRawButton(5));
     Trigger aticiHazirTetik = new Trigger(aticiAltSistemi::isHizaUlasti);
 
     //  Alm 
@@ -150,7 +151,16 @@ public class RobotKapsayici {
         .whileTrue(manuelAtisKomutu(() -> aticiAltSistemi.atCokUzak()))
         .onFalse(atisTemizleKomutu());
 
-    //  Titreim: atc hedefe ulanca bildir 
+    //  L1: Sıkışık top giderici — 0.25 s sağ + 0.25 s sol strafe
+    sikisikGiderTetik.onTrue(
+        new SequentialCommandGroup(
+            new RunCommand(() -> surusAltSistemi.drive(0, 0.5, 0), surusAltSistemi).withTimeout(0.25),
+            new RunCommand(() -> surusAltSistemi.drive(0, -0.5, 0), surusAltSistemi).withTimeout(0.25),
+            new InstantCommand(() -> surusAltSistemi.drive(0, 0, 0), surusAltSistemi)
+        )
+    );
+
+    //  Titreim: atc hedefe ulanca bildir
     aticiHazirTetik
         .onTrue(new InstantCommand(() -> surucuProfili.titrestir(0.6)))
         .onFalse(new InstantCommand(() -> surucuProfili.titrestir(0.0)));
