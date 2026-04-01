@@ -50,11 +50,6 @@ public class RobotKapsayici {
   //  Otonomi 
   private SendableChooser<Command> otonomSecici;
 
-  //  SmartDashboard anahtar yardmcs 
-  private static String surucuIstasyonuAnahtari(String ad) {
-    return "SurucuIstasyonu_" + ad;
-  }
-
   public RobotKapsayici() {
     // Gr alt sistemi nce kurulur  sre poz fuzyonu iin gerekli
     gorusAltSistemi = new GorusAltSistemi();
@@ -106,8 +101,9 @@ public class RobotKapsayici {
     Trigger ortaAtisTetik   = new Trigger(() -> surucuProfili.ortaAtisBasili());
     Trigger uzakAtisTetik   = new Trigger(() -> surucuProfili.uzakAtisBasili());
     Trigger cokUzakAtisTetik = new Trigger(() -> surucuProfili.cokUzakAtisBasili());
-    Trigger limelightHizalaTetik = new Trigger(() -> surucuKontrolcusu.getRawButton(8));
-    Trigger gecikmeliAtisTetik = new Trigger(() -> surucuProfili.gecikmeliAtisBasili());
+    Trigger limelightHizalaTetik  = new Trigger(() -> surucuKontrolcusu.getRawButton(8));
+    Trigger gecikmeliAtisTetik    = new Trigger(() -> surucuProfili.gecikmeliAtisBasili());
+    Trigger shooterDirektTetik    = new Trigger(() -> surucuProfili.shooterDirektBasili());
 
     //  Atc hazr Trigger 
     Trigger aticiHazirTetik = new Trigger(aticiAltSistemi::isHizaUlasti);
@@ -205,7 +201,11 @@ public class RobotKapsayici {
             alimAltSistemi.depodanAticiyaYukariTasimaDurdur();
         }, aticiAltSistemi, alimAltSistemi));
 
-    // Taret iptal edildi - robot govdesi limelight ile dogrudan hizalanir
+    //  Touchpad: Manuel shooter (konveyör yok)
+    shooterDirektTetik
+        .whileTrue(new RunCommand(
+            () -> aticiAltSistemi.atRPM(ModulSabitleri.ATICI_HEDEF_RPM), aticiAltSistemi))
+        .onFalse(new InstantCommand(() -> aticiAltSistemi.durdur(), aticiAltSistemi));
   }
 
   /** Atıcı ısın → RPM'e ulaş (max 3s) → konveyör + atıcı birlikte. */
@@ -281,20 +281,6 @@ public class RobotKapsayici {
   public void periyodik() {
     girdiBaglantiDurumunuGuncelle();
     elasticDurumKontrol();
-
-    SmartDashboard.putString(surucuIstasyonuAnahtari("AktifProfil"), "PS4TamProfili");
-
-    // Ham buton durumlar (debug)
-    for (int i = 1; i <= 12; i++) {
-      SmartDashboard.putBoolean(surucuIstasyonuAnahtari("Dugme" + i), guvenliDugmeOku(i));
-    }
-
-    // Eksen deerleri (debug)
-    for (int i = 0; i <= 5; i++) {
-      SmartDashboard.putNumber(surucuIstasyonuAnahtari("Eksen" + i), guvenliEksenOku(i));
-    }
-
-    SmartDashboard.putNumber(surucuIstasyonuAnahtari("POV"), guvenliPovOku());
   }
 
   //  Balant / Elastic bildirimleri 
@@ -313,7 +299,7 @@ public class RobotKapsayici {
             "Port " + OISabitleri.SURUCU_JOYSTICK_PORTU + " balants kesildi."));
       }
     }
-    SmartDashboard.putBoolean(surucuIstasyonuAnahtari("KontrolcuBagli"), surucuBagli);
+    SmartDashboard.putBoolean("SurucuIstasyonu_KontrolcuBagli", surucuBagli);
 
   }
 
@@ -348,30 +334,7 @@ public class RobotKapsayici {
     }
   }
 
-  //  Gvenli HID okuma yardmclar 
-
-  private double guvenliEksenOku(int eksen) {
-    int port = OISabitleri.SURUCU_JOYSTICK_PORTU;
-    if (!DriverStation.isJoystickConnected(port)) return 0.0;
-    if (eksen < 0 || eksen >= DriverStation.getStickAxisCount(port)) return 0.0;
-    return surucuKontrolcusu.getRawAxis(eksen);
-  }
-
-  private boolean guvenliDugmeOku(int dugme) {
-    int port = OISabitleri.SURUCU_JOYSTICK_PORTU;
-    if (!DriverStation.isJoystickConnected(port)) return false;
-    if (dugme <= 0 || dugme > 32) return false;
-    return (DriverStation.getStickButtons(port) & (1 << (dugme - 1))) != 0;
-  }
-
-  private int guvenliPovOku() {
-    int port = OISabitleri.SURUCU_JOYSTICK_PORTU;
-    if (!DriverStation.isJoystickConnected(port)) return -1;
-    if (DriverStation.getStickPOVCount(port) <= 0) return -1;
-    return surucuKontrolcusu.getPOV();
-  }
-
-  //  Da ak metodlar 
+  //  Da ak metodlar
 
   public void sensorleriSifirla() {
     // Gyro ve odometri kaldırıldı — sıfırlanacak sensör yok

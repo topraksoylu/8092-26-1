@@ -49,7 +49,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    Elastic.selectTab("Auto");
+    Elastic.selectTab("Robot");
     Elastic.sendNotification(new Notification(NotificationLevel.INFO,
         "Otonom Başladı", "Sensörler sıfırlandı, otonom rota çalışıyor."));
 
@@ -70,7 +70,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    Elastic.selectTab("Teleop");
+    Elastic.selectTab("Robot");
     Elastic.sendNotification(new Notification(NotificationLevel.INFO,
         "Teleop Başladı", "Süruş kontrolü sürücüye devredildi."));
 

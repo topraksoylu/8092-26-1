@@ -3,103 +3,27 @@
   "grid_size": 128,
   "tabs": [
     {
-      "name": "Teleop",
+      "name": "Robot",
       "grid_layout": {
         "layouts": [],
         "containers": [
           {
-            "title": "Field",
+            "title": "Auto Secici",
             "x": 0.0,
             "y": 0.0,
-            "width": 512.0,
-            "height": 384.0,
-            "type": "Field",
+            "width": 384.0,
+            "height": 128.0,
+            "type": "ComboBox Chooser",
             "properties": {
-              "topic": "/SmartDashboard/Field",
+              "topic": "/SmartDashboard/Auto Chooser",
               "period": 0.033,
-              "field_game": "Rebuilt",
-              "robot_width": 0.82,
-              "robot_length": 1.0,
-              "show_other_objects": true,
-              "show_trajectories": true,
-              "field_rotation": 0.0,
-              "robot_color": 4294198070,
-              "trajectory_color": 4294967295,
-              "show_robot_outside_widget": true
+              "sort_options": false
             }
           },
           {
-            "title": "Robot Heading",
-            "x": 512.0,
+            "title": "FMS",
+            "x": 384.0,
             "y": 0.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "Gyro",
-            "properties": {
-              "topic": "/SmartDashboard/Robot Heading",
-              "period": 0.033,
-              "counter_clockwise_positive": false
-            }
-          },
-          {
-            "title": "Robot X (m)",
-            "x": 512.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Robot X",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Robot Y (m)",
-            "x": 640.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Robot Y",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Vision Update",
-            "x": 768.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Drive/VisionUpdate",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Vision Tag ID",
-            "x": 768.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Drive/VisionTagID",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "FMSInfo",
-            "x": 768.0,
-            "y": 256.0,
             "width": 256.0,
             "height": 128.0,
             "type": "FMSInfo",
@@ -109,8 +33,8 @@
             }
           },
           {
-            "title": "Match Time",
-            "x": 1024.0,
+            "title": "Sure",
+            "x": 640.0,
             "y": 0.0,
             "width": 256.0,
             "height": 128.0,
@@ -124,264 +48,21 @@
             }
           },
           {
-            "title": "FL Output",
+            "title": "Batarya (V)",
+            "x": 896.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Robot/BataryaVolt",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Kontrolcu",
             "x": 1024.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Drive/FrontLeftOutput",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "FR Output",
-            "x": 1152.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Drive/FrontRightOutput",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "RL Output",
-            "x": 1024.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Drive/RearLeftOutput",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "RR Output",
-            "x": 1152.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Drive/RearRightOutput",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Atici Hazir",
-            "x": 0.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Atici/HizaUlasti",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Atis Modu",
-            "x": 256.0,
-            "y": 384.0,
-            "width": 384.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Atici/AtisModu",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Aktuel RPM",
-            "x": 640.0,
-            "y": 384.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Atici/AktuelRPM",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "Atici",
-      "grid_layout": {
-        "layouts": [],
-        "containers": [
-          {
-            "title": "Atici Hazir",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Atici/HizaUlasti",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Atis Modu",
-            "x": 128.0,
-            "y": 0.0,
-            "width": 384.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Atici/AtisModu",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Manuel Mod Secici",
-            "x": 0.0,
-            "y": 128.0,
-            "width": 512.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
-            "properties": {
-              "topic": "/SmartDashboard/Atici/ManuelMod",
-              "period": 0.033,
-              "sort_options": false
-            }
-          },
-          {
-            "title": "Aktuel RPM",
-            "x": 512.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Atici/AktuelRPM",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Hedef RPM (PID)",
-            "x": 768.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Atici/HedefRPM",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Hesaplanan RPM",
-            "x": 0.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Atici/HesaplananRPM",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Hedef Mesafe (m)",
-            "x": 256.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Atici/HedefMesafe_m",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "RPM Hatasi",
-            "x": 512.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Atici/RPMHata",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Motor Cikisi (V)",
-            "x": 768.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Atici/MotorCikisi",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "Kontrolcu",
-      "grid_layout": {
-        "layouts": [],
-        "containers": [
-          {
-            "title": "Profil Secici",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 512.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
-            "properties": {
-              "topic": "/SmartDashboard/Kontrolcu/Profil",
-              "period": 0.033,
-              "sort_options": false
-            }
-          },
-          {
-            "title": "Aktif Profil",
-            "x": 512.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_AktifProfil",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Kontrolcu Bagli",
-            "x": 768.0,
             "y": 0.0,
             "width": 128.0,
             "height": 128.0,
@@ -396,331 +77,8 @@
             }
           },
           {
-            "title": "Eksen 0 (Sol X)",
-            "x": 0.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_Eksen0",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Eksen 1 (Sol Y)",
-            "x": 128.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_Eksen1",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Eksen 2 (Sag X / PS4) / LT (Xbox)",
-            "x": 256.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_Eksen2",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Eksen 3 (RT Xbox)",
-            "x": 512.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_Eksen3",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Eksen 4 (L2 PS4 / Sag X Xbox)",
-            "x": 640.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_Eksen4",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Eksen 5 (R2 PS4)",
-            "x": 896.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_Eksen5",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Btn 1",
-            "x": 0.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_Dugme1",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4286611584,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Btn 2",
-            "x": 128.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_Dugme2",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4286611584,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Btn 3",
-            "x": 256.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_Dugme3",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4286611584,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Btn 4",
-            "x": 384.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_Dugme4",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4286611584,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Btn 5",
-            "x": 512.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_Dugme5",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4286611584,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Btn 6",
-            "x": 640.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_Dugme6",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4286611584,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Btn 7",
-            "x": 0.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_Dugme7",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4286611584,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Btn 8",
-            "x": 128.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_Dugme8",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4286611584,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Btn 9",
-            "x": 256.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_Dugme9",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4286611584,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Btn 10",
-            "x": 384.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_Dugme10",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4286611584,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Btn 11",
-            "x": 512.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_Dugme11",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4286611584,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Btn 12",
-            "x": 640.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_Dugme12",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4286611584,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "POV",
-            "x": 768.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/SurucuIstasyonu_POV",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "Vision",
-      "grid_layout": {
-        "layouts": [],
-        "containers": [
-          {
-            "title": "Has Target",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/HasTarget",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Pose Valid",
-            "x": 128.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/PoseValid",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Config OK",
-            "x": 256.0,
+            "title": "Vision OK",
+            "x": 1152.0,
             "y": 0.0,
             "width": 128.0,
             "height": 128.0,
@@ -735,285 +93,95 @@
             }
           },
           {
-            "title": "Horizontal Offset",
+            "title": "ATICI HAZIR",
             "x": 0.0,
             "y": 128.0,
             "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/HorizontalOffset",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Vertical Offset",
-            "x": 256.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/VerticalOffset",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Target Area",
-            "x": 0.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/TargetArea",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Distance To Target",
-            "x": 256.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/DistanceToTarget",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Robot X",
-            "x": 512.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/RobotX",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Robot Y",
-            "x": 512.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/RobotY",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Robot Yaw",
-            "x": 512.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/RobotYaw",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Tag ID",
-            "x": 768.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/TagID",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Ambiguity",
-            "x": 768.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/Ambiguity",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Config Status",
-            "x": 768.0,
-            "y": 256.0,
-            "width": 512.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/ConfigStatus",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "FL Speed (m/s)",
-            "x": 0.0,
-            "y": 384.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Drive/HizOnSol_ms",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "FR Speed (m/s)",
-            "x": 256.0,
-            "y": 384.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Drive/HizOnSag_ms",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "RL Speed (m/s)",
-            "x": 512.0,
-            "y": 384.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Drive/HizArkaSol_ms",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "RR Speed (m/s)",
-            "x": 768.0,
-            "y": 384.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Drive/HizArkaSag_ms",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Vision Tag Count",
-            "x": 1024.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Drive/VisionTagCount",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Vision Avg Dist",
-            "x": 1024.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Drive/VisionAvgTagDist",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Vision Rot Rate",
-            "x": 1024.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Drive/VisionRotRateDegSn",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Vision Filter Pass",
-            "x": 1024.0,
-            "y": 384.0,
-            "width": 256.0,
-            "height": 128.0,
+            "height": 256.0,
             "type": "Boolean Box",
             "properties": {
-              "topic": "/SmartDashboard/Drive/VisionFiltreGecti",
+              "topic": "/SmartDashboard/Atici/HizaUlasti",
               "period": 0.033,
               "true_color": 4283215696,
               "false_color": 4294198070,
               "true_icon": "None",
               "false_icon": "None"
             }
-          }
-        ]
-      }
-    },
-    {
-      "name": "Auto",
-      "grid_layout": {
-        "layouts": [],
-        "containers": [
-          {
-            "title": "Auto Chooser",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 512.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
-            "properties": {
-              "topic": "/SmartDashboard/Auto Chooser",
-              "period": 0.033,
-              "sort_options": false
-            }
           },
           {
-            "title": "PathPlanner Status",
-            "x": 512.0,
-            "y": 0.0,
+            "title": "Aktuel RPM",
+            "x": 256.0,
+            "y": 128.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "/SmartDashboard/Auto/PathPlannerStatus",
+              "topic": "/SmartDashboard/Atici/AktuelRPM",
               "period": 0.033,
               "show_submit_button": false
             }
           },
           {
-            "title": "PathPlanner Configured",
+            "title": "Hedef RPM",
+            "x": 512.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Atici/HedefRPM",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Aktif Preset",
             "x": 768.0,
-            "y": 0.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Atici/AktifPreset",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "RPM Hata",
+            "x": 1024.0,
+            "y": 128.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Atici/RPMHata",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Motor (V)",
+            "x": 1152.0,
+            "y": 128.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Atici/MotorCikisi",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Hedef Var",
+            "x": 256.0,
+            "y": 256.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
-              "topic": "/SmartDashboard/Auto/PathPlannerConfigured",
+              "topic": "/SmartDashboard/Vision/HasTarget",
               "period": 0.033,
               "true_color": 4283215696,
               "false_color": 4294198070,
@@ -1022,160 +190,23 @@
             }
           },
           {
-            "title": "Ozel Baslangic",
-            "x": 896.0,
-            "y": 0.0,
-            "width": 384.0,
+            "title": "Hizalandi",
+            "x": 384.0,
+            "y": 256.0,
+            "width": 128.0,
             "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Auto/OzelBaslangic",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "Kalibrasyon",
-      "grid_layout": {
-        "layouts": [],
-        "containers": [
-          {
-            "title": "HEDEF ORTALANDI",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 512.0,
-            "height": 256.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/SmartDashboard/Vision/HedefOrtalandi",
               "period": 0.033,
               "true_color": 4283215696,
-              "false_color": 4294901760,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Has Target",
-            "x": 512.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/HasTarget",
-              "period": 0.033,
-              "true_color": 4283215696,
               "false_color": 4294198070,
               "true_icon": "None",
               "false_icon": "None"
             }
           },
           {
-            "title": "Pose Valid",
-            "x": 640.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/PoseValid",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "NT Connected",
-            "x": 768.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/NT/Connected",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4294901760,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Config OK",
-            "x": 896.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/ConfigOk",
-              "period": 0.033,
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Tag ID",
-            "x": 512.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/TagID",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Horizontal Offset (tx)",
-            "x": 768.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/HorizontalOffset",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Vertical Offset (ty)",
-            "x": 0.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/VerticalOffset",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Target Area",
-            "x": 256.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/TargetArea",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Distance To Target",
+            "title": "Mesafe (m)",
             "x": 512.0,
             "y": 256.0,
             "width": 256.0,
@@ -1188,120 +219,244 @@
             }
           },
           {
-            "title": "Ambiguity",
+            "title": "Hizalama Durumu",
             "x": 768.0,
             "y": 256.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "/SmartDashboard/Vision/Ambiguity",
+              "topic": "/SmartDashboard/Vision/MerkezlemeDurum",
               "period": 0.033,
               "show_submit_button": false
             }
           },
           {
-            "title": "Pipeline",
+            "title": "Tx (derece)",
+            "x": 1024.0,
+            "y": 256.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/HorizontalOffset",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Tag ID",
+            "x": 1152.0,
+            "y": 256.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/MerkezlemeTagID",
+              "period": 0.033,
+              "show_submit_button": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Ayarlama",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Yakin RPM (~1.2m)",
             "x": 0.0,
-            "y": 384.0,
-            "width": 128.0,
+            "y": 0.0,
+            "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "/SmartDashboard/Vision/Pipeline",
-              "period": 0.033,
-              "show_submit_button": false
+              "topic": "/SmartDashboard/Ayarlama/YakinAtisRPM",
+              "period": 0.1,
+              "show_submit_button": true
             }
           },
           {
-            "title": "CamMode",
-            "x": 128.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/CamMode",
-              "period": 0.033,
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "LEDMode",
+            "title": "Orta RPM (~2.0m)",
             "x": 256.0,
-            "y": 384.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Ayarlama/OrtaAtisRPM",
+              "period": 0.1,
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Uzak RPM (~2.8m)",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Ayarlama/UzakAtisRPM",
+              "period": 0.1,
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Cok Uzak RPM (~4.4m)",
+            "x": 768.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Ayarlama/CokUzakAtisRPM",
+              "period": 0.1,
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Alim Hizi",
+            "x": 1024.0,
+            "y": 0.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "/SmartDashboard/Vision/LEDMode",
-              "period": 0.033,
-              "show_submit_button": false
+              "topic": "/SmartDashboard/Ayarlama/AlimHizi",
+              "period": 0.1,
+              "show_submit_button": true
             }
           },
           {
-            "title": "FMAP Status",
-            "x": 384.0,
-            "y": 384.0,
-            "width": 384.0,
+            "title": "Tasiyici Hizi",
+            "x": 1152.0,
+            "y": 0.0,
+            "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "/SmartDashboard/Vision/FmapStatus",
-              "period": 0.033,
-              "show_submit_button": false
+              "topic": "/SmartDashboard/Ayarlama/TasiyiciHizi",
+              "period": 0.1,
+              "show_submit_button": true
             }
           },
           {
-            "title": "Config Status",
-            "x": 768.0,
-            "y": 384.0,
+            "title": "Atici KP",
+            "x": 0.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Ayarlama/AticiKP",
+              "period": 0.1,
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Atici KFF",
+            "x": 256.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Ayarlama/AticiKFF",
+              "period": 0.1,
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Limelight Durumu",
+            "x": 512.0,
+            "y": 128.0,
             "width": 512.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
               "topic": "/SmartDashboard/Vision/ConfigStatus",
-              "period": 0.033,
+              "period": 0.1,
               "show_submit_button": false
             }
           },
           {
-            "title": "Robot X",
+            "title": "FMAP",
+            "x": 1024.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/FmapStatus",
+              "period": 0.1,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "FL Motor Testi",
             "x": 0.0,
-            "y": 512.0,
-            "width": 256.0,
+            "y": 256.0,
+            "width": 128.0,
             "height": 128.0,
-            "type": "Text Display",
+            "type": "Toggle Switch",
             "properties": {
-              "topic": "/SmartDashboard/Vision/RobotX",
-              "period": 0.033,
-              "show_submit_button": false
+              "topic": "/SmartDashboard/MotorTest/FrontLeft",
+              "period": 0.1
             }
           },
           {
-            "title": "Robot Y",
+            "title": "FR Motor Testi",
+            "x": 128.0,
+            "y": 256.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "/SmartDashboard/MotorTest/FrontRight",
+              "period": 0.1
+            }
+          },
+          {
+            "title": "RL Motor Testi",
             "x": 256.0,
-            "y": 512.0,
-            "width": 256.0,
+            "y": 256.0,
+            "width": 128.0,
             "height": 128.0,
-            "type": "Text Display",
+            "type": "Toggle Switch",
             "properties": {
-              "topic": "/SmartDashboard/Vision/RobotY",
-              "period": 0.033,
-              "show_submit_button": false
+              "topic": "/SmartDashboard/MotorTest/RearLeft",
+              "period": 0.1
             }
           },
           {
-            "title": "Robot Yaw",
-            "x": 512.0,
-            "y": 512.0,
-            "width": 256.0,
+            "title": "RR Motor Testi",
+            "x": 384.0,
+            "y": 256.0,
+            "width": 128.0,
             "height": 128.0,
-            "type": "Text Display",
+            "type": "Toggle Switch",
             "properties": {
-              "topic": "/SmartDashboard/Vision/RobotYaw",
-              "period": 0.033,
-              "show_submit_button": false
+              "topic": "/SmartDashboard/MotorTest/RearRight",
+              "period": 0.1
+            }
+          },
+          {
+            "title": "NT Bagli",
+            "x": 512.0,
+            "y": 256.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/NT/Connected",
+              "period": 0.1,
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
             }
           }
         ]

@@ -60,18 +60,9 @@ public class SurusKomutu extends Command {
 
     surusCikisi.sur(x, y, z);
 
-    // Ham eksen degerleri (joystick'ten gelen ham deger)
     SmartDashboard.putNumber("Surus/HamEksen_Ileri", hamX);
     SmartDashboard.putNumber("Surus/HamEksen_Yanal", hamY);
     SmartDashboard.putNumber("Surus/HamEksen_Donus", hamZ);
-    // Olubolgeli + kare yanit + olcekli degerler
-    SmartDashboard.putNumber("Surus/SekillendX", x);
-    SmartDashboard.putNumber("Surus/SekillendY", y);
-    SmartDashboard.putNumber("Surus/SekillendZ", z);
-    // Nihai komutlar (lineer + deadband + olcek)
-    SmartDashboard.putNumber("Surus/KomutX", x);
-    SmartDashboard.putNumber("Surus/KomutY", y);
-    SmartDashboard.putNumber("Surus/KomutZ", z);
   }
 
   // Called once the command ends or is interrupted.
