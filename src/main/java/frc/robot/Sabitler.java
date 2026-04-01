@@ -41,39 +41,6 @@ public final class Sabitler {
         public static final int ATICI_MOTOR_ID = 7; // CAN ID 6'dan 7'ye degistirildi (brick mode sorunu)
         public static final boolean ATICI_MOTOR_TERS = false;
 
-        // Taret motoru (tek Spark Max)
-        public static final int TARET_MOTOR_ID = 5;
-        public static final boolean TARET_MOTOR_TERS = false;
-
-        // Taret disli orani: 200T ring / 20T pinion = 10.0:1
-        public static final double TARET_DISLI_ORANI = 200.0 / 20.0;
-
-        // Poz tabanli taret takibi - DEVRE DISI (sadece manuel kontrol)
-        public static final double TARET_POZ_KP = 0.0;            // derece hata -> motor hizi (0 = otomatik kapali)
-        public static final double TARET_KI = 0.0;               // statik surunme hatasini giderir
-        public static final double TARET_HIZALAMA_ESIGI_DERECE = 2.0;
-
-        // MAXMotion trapezoidal profil (SparkMax onboard)
-        public static final double TARET_MAXMOTION_CRUISE_RPM = 200.0;    // Motor cruise hizi (RPM)
-        public static final double TARET_MAXMOTION_ACCEL_RPM_S = 400.0;   // Motor ivme (RPM/s)
-        public static final double TARET_MAXMOTION_HATA_TOLERANSI = 0.1;  // Motor rotasyon hatasi
-        // Taret one bakiyor: 0° = robotun onu, offset sifir
-        // (Eski: TARET_ARKA_OFFSET_DERECE = 180.0 — taret arkadaydi)
-        public static final double TARET_ON_OFFSET_DERECE = 0.0;
-
-        // Taret aci sinirlari (toplam 180 derece hareket alani)
-        // 0° = robotun onu, -90° = limit switch pozisyonu (baslangic)
-        public static final double TARET_MAKS_ACI = 90.0;   // derece
-        public static final double TARET_MIN_ACI = -90.0;   // derece (limit switch)
-
-        // Taret limit switch (homing icin, normally closed)
-        public static final int TARET_LIMIT_SWITCH_DIO = 0;
-        // DIO okuma seviyesi: true=aktif high, false=aktif low.
-        // Mevcut robot kurulumunda switch basili durum "low" olarak okunuyor.
-        public static final boolean TARET_LIMIT_SWITCH_AKTIF_HIGH = true;
-        // Homing sirasinda tareti limit switch'e dogru dondurmek icin hiz
-        // Manuel hiz ile ayni (daha kontrollu)
-        public static final double TARET_HOMING_HIZI = -0.08;
     }
 
     public static class SurusSabitleri {
@@ -100,13 +67,6 @@ public final class Sabitler {
         // Teker hizi: 530 / 60 * pi * 0.1524 = 4.23 m/s teorik
         // Kayiplar dahil temkinli tahmin: ~3.0 m/s
         public static final double MAKS_HIZ_METRE_SANIYE = 3.0;
-
-        // Velocity PID + Feedforward sabitleri (otonom yol takibi icin)
-        // kS: motorun harekete gecmesi icin gereken minimum voltaj
-        // kV: hiz basvurusu basi dusurulmesi gereken voltaj (12V / maks_hiz)
-        public static final double SURUS_FF_KS = 0.1;   // Volt (statik katsayi)
-        public static final double SURUS_FF_KV = 12.0 / MAKS_HIZ_METRE_SANIYE; // V/(m/s)
-        public static final double SURUS_PID_KP = 0.3;  // Volt / (m/s hata)
 
     }
 
@@ -196,9 +156,10 @@ public final class Sabitler {
 
         // 3 mesafe için atış RPM değerleri (Elastic Dashboard'dan değiştirilebilir)
         // SAHA TESTI ile kalibre edildi: 5200 RPM → 2.8m atış başarılı
-        public static double YAKIN_ATIS_RPM = 3800.0;  // ~1.2 m
-        public static double ORTA_ATIS_RPM  = 5200.0;  // ~2.8 m (test edilmiş değer)
-        public static double UZAK_ATIS_RPM  = 5400.0;  // ~4.4 m (stabilite icin limitli)
+        public static double YAKIN_ATIS_RPM    = 3822.0;  // D-Pad Yukari  (~1.2 m)
+        public static double ORTA_ATIS_RPM   = 3920.0;  // D-Pad Sag     (~2.0 m)
+        public static double UZAK_ATIS_RPM   = 4410.0;  // D-Pad Asagi   (~2.8 m)
+        public static double COK_UZAK_ATIS_RPM = 4802.0; // D-Pad Sol     (~4.4 m)
         public static final double YAKIN_ATIS_HIZI = YAKIN_ATIS_RPM / 5676.0;
         public static final double ORTA_ATIS_HIZI  = ORTA_ATIS_RPM / 5676.0;
         public static final double UZAK_ATIS_HIZI  = UZAK_ATIS_RPM / 5676.0;
@@ -210,10 +171,9 @@ public final class Sabitler {
         public static final double[] ATIS_MESAFE_TABLOSU_METRE =
             {1.2,  2.0,  2.8,  3.6,  4.4,  5.2};
         public static final double[] ATIS_RPM_TABLOSU =
-            {3800, 4500, 5200, 5350, 5400, 5400};
-        public static final double ATICI_KP = 0.0001;        // Velocity PID P kazanci (REV resmi)
-        public static final double ATICI_KV = 12.0 / 5676.0; // Feedforward: 12V / NEO max RPM
-        public static final double TARET_HIZI = 0.08;
+            {3300, 3609, 4171, 4291, 4332, 4332};
+        public static final double ATICI_KP = 0.0003;         // Velocity PID P kazanci
+        public static final double ATICI_KFF = 1.0 / 5676.0; // Velocity feedforward: 1/NEO max RPM
     }
 
     /**
@@ -252,9 +212,9 @@ public final class Sabitler {
         public static final String FMAP_KAYNAGI = "FRC2026_ANDYMARK.fmap";
         public static final int TOPLAM_APRILTAG = 32; // Her ittifak tarafi icin 16
 
-        // Kamera montaji \(ROBOT UZERINDE OLCEK - simdilik varsayilan\)
-        public static final double KAMERA_YUKSEKLIGI_METRE = 0.5;
-        public static final double KAMERA_EGIMI_RADYAN = Math.toRadians(25.0);
+        // Kamera montaji (robot merkezine gore)
+        public static final double KAMERA_YUKSEKLIGI_METRE = 0.58;            // yerden yukseklik (m)
+        public static final double KAMERA_EGIMI_RADYAN     = Math.toRadians(30.0); // yukari bakis acisi
 
         // AprilTag ayarlari
         public static final double APRILTAG_BOYUTU_METRE = 0.1651; // 6.5 inches (from FMAP)
@@ -266,26 +226,10 @@ public final class Sabitler {
         // Mavi taraf scoring yapıları çevresindeki taglar
         public static final int[] MAVI_HEDEF_TAGLERI = {18, 19, 20, 21, 24, 25, 26, 27};
 
-        // Gorus olcum guvenilirligi
-        public static final double GORUS_OLCUM_STD_SAPMA_SN = 0.5;
-        public static final double BELIRSIZLIK_ESIGI = 0.2;
-        
-
-        // Poz guncelleme hizi
-        public static final double POZ_GUNCELLEME_ARALIGI_SN = 0.05; // 20Hz
-
         // GorusAltSistemi ile geriye donuk uyumluluk sabitleri
         public static final double HEDEF_YUKSEKLIGI = SPEAKER_TAG_YUKSEKLIGI_METRE;
         public static final double LIMELIGHT_YUKSEKLIGI = KAMERA_YUKSEKLIGI_METRE;
         public static final double LIMELIGHT_ACISI = Math.toDegrees(KAMERA_EGIMI_RADYAN);
-    }
-
-    public static class NavXTestSabitleri {
-        public static final long SIFIRLAMA_OTURMA_MS = 500;
-        public static final double TEST_DONUS_CIKTISI = 0.3;
-        public static final double BEKLENEN_MIN_DELTA_DERECE = 45.0;
-        public static final double MAKS_MUTLAK_YAW_SICRAMA_DERECE = 180.0;
-        public static final double DONUS_ASAMA_ZAMAN_ASIMI_SN = 5.0;
     }
 
 }

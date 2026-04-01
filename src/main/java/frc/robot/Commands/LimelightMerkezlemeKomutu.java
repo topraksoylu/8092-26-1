@@ -54,7 +54,8 @@ public class LimelightMerkezlemeKomutu extends Command {
         }
 
         int gorunenTagSayisi = gorusAltSistemi.getGorunenTagSayisi(MERKEZ_TAGLER);
-        double tx = gorusAltSistemi.getOrtalamaHorizontalOffset(MERKEZ_TAGLER);
+        // tx: Limelight crosshair kalibrasyonunu dikkate alir (txnc degil)
+        double tx = gorusAltSistemi.getHorizontalOffset();
         double donusKomutu = 0.0;
         if (Math.abs(tx) > TX_TOLERANS_DEG) {
             donusKomutu = MathUtil.clamp(tx * DONUS_KP, -MAX_DONUS, MAX_DONUS);

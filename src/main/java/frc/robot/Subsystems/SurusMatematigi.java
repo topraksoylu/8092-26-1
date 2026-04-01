@@ -1,5 +1,7 @@
 package frc.robot.Subsystems;
 
+import edu.wpi.first.math.MathUtil;
+
 public final class SurusMatematigi {
     private SurusMatematigi() {}
 
@@ -9,5 +11,9 @@ public final class SurusMatematigi {
 
     public static double encoderVelocityRpmToMetersPerSecond(double encoderVelocityRpm, double gearboxRatio, double wheelCircumference) {
         return encoderVelocityRpm / gearboxRatio * wheelCircumference / 60.0;
+    }
+
+    public static double wrapDeltaDegrees(double startDeg, double endDeg) {
+        return MathUtil.inputModulus(endDeg - startDeg, -180.0, 180.0);
     }
 }

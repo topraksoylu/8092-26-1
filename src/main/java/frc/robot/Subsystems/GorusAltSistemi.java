@@ -1,7 +1,5 @@
 package frc.robot.Subsystems;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -92,21 +90,8 @@ public class GorusAltSistemi extends SubsystemBase {
     private final RuntimeIO runtime;
 
     private boolean cachedHasTarget = false;
-    private VisionResult cachedVisionResult = new VisionResult();
-    private int visionUpdateCounter = 0;
-    private static final int VISION_UPDATE_RATE = 5;
     private double lastConfigApplyTimestampSec = -1.0;
     private boolean tuningInitialized = false;
-
-    public static class VisionResult {
-        public Pose2d robotPose;
-        public int tagId;
-        public double ambiguity;
-        public double timestamp;
-        public boolean valid;
-        public int tagCount;      // MegaTag2: kac tag kullanildi
-        public double avgTagDist; // MegaTag2: ortalama tag mesafesi (m), std dev olcekleme icin
-    }
 
     public GorusAltSistemi() {
         this(new NetworkTableVisionIO(GorusSabitleri.LIMELIGHT_ADI), new WpiRuntimeIO());
@@ -117,16 +102,6 @@ public class GorusAltSistemi extends SubsystemBase {
         this.runtime = runtime;
         initializeTuningDashboard();
         applyDesiredLimelightConfig();
-    }
-
-    /**
-     * MegaTag2 icin jiro yonunu Limelight'a bildir.
-     * SurusAltSistemi.periodic() tarafindan her dongude cagrilmali.
-     * @param yawDegrees Robot yonu (WPILib CCW+, derece)
-     */
-    public void setRobotOrientation(double yawDegrees) {
-        // Limelight format: [yaw, yawRate, pitch, pitchRate, roll, rollRate]
-        io.setDoubleArray("robot_orientation_set", new double[]{yawDegrees, 0, 0, 0, 0, 0});
     }
 
     public boolean hasTarget() {
@@ -200,6 +175,23 @@ public class GorusAltSistemi extends SubsystemBase {
             if (hedefTagIds.contains(id)) sayac++;
         }
         return sayac;
+    }
+
+    /**
+     * Görünen AprilTag'lerden robota olan mesafeyi döner (metre).
+     * rawfiducials dizisindeki distToRobot değerlerinin ortalamasını kullanır.
+     * Tag görünmüyorsa -1 döner.
+     */
+    public double getMesafeHedef() {
+        double[] raw = io.getDoubleArray("rawfiducials", new double[0]);
+        double toplam = 0;
+        int sayac = 0;
+        for (int i = 0; i + 6 < raw.length; i += 7) {
+            toplam += raw[i + 5]; // distToRobot
+            sayac++;
+        }
+        if (sayac > 0) return toplam / sayac;
+        return cachedHasTarget ? getDistanceToTarget() : -1.0;
     }
 
     /** Görünen tag, mevcut ittifakın atış hedefi mi? */
@@ -284,6 +276,7 @@ public class GorusAltSistemi extends SubsystemBase {
         io.setNumber("camMode", getDesiredCamMode());
         io.setNumber("ledMode", getDesiredLedMode());
         io.setNumber("stream", getDesiredStreamMode());
+
         lastConfigApplyTimestampSec = runtime.nowSec();
     }
 
@@ -331,72 +324,6 @@ public class GorusAltSistemi extends SubsystemBase {
 
     private void updateCachedVisionData() {
         cachedHasTarget = io.getDouble("tv", 0) == 1;
-        visionUpdateCounter++;
-        if (visionUpdateCounter >= VISION_UPDATE_RATE) {
-            visionUpdateCounter = 0;
-            if (cachedHasTarget) {
-                cachedVisionResult = getRobotPoseFromAprilTagInternal();
-            } else {
-                cachedVisionResult.valid = false;
-            }
-        }
-    }
-
-    private VisionResult getRobotPoseFromAprilTagInternal() {
-        VisionResult result = new VisionResult();
-        result.valid = false;
-
-        // Debug: Check raw tv value
-        double tv = io.getDouble("tv", 0);
-        SmartDashboard.putBoolean("Vision/Debug/RawTV", tv == 1);
-
-        // BUG FIX: Check raw tv value, not cached value!
-        if (tv != 1) {
-            SmartDashboard.putString("Vision/Debug/Status", "No target (tv=" + tv + ")");
-            return result;
-        }
-
-        // MegaTag2: botpose_orb_* — jiro destekli, cok daha kararli
-        String poseEntry = runtime.isRedAlliance() ? "botpose_orb_wpired" : "botpose_orb_wpiblue";
-        SmartDashboard.putString("Vision/Debug/PoseEntry", poseEntry);
-
-        double[] botPoseArray = io.getDoubleArray(poseEntry, new double[0]);
-        SmartDashboard.putNumber("Vision/Debug/PoseArrayLength", botPoseArray.length);
-
-        // MegaTag2 array: [x, y, z, rx, ry, rz, latency_ms, tagCount, tagSpan, avgTagDist, avgTagArea]
-        if (botPoseArray.length < 7) {
-            SmartDashboard.putString("Vision/Debug/Status", "Array too short: " + botPoseArray.length);
-            return result;
-        }
-
-        double x = botPoseArray[0];
-        double y = botPoseArray[1];
-        double yaw = botPoseArray[5];
-        double latency = botPoseArray[6] / 1000.0;
-        double timestamp = runtime.nowSec() - latency;
-
-        result.robotPose = new Pose2d(x, y, Rotation2d.fromDegrees(yaw));
-        result.timestamp = timestamp;
-        result.tagId = (int) io.getInteger("tid", 0);
-        result.tagCount = botPoseArray.length > 7 ? (int) botPoseArray[7] : 1;
-        result.avgTagDist = botPoseArray.length > 9 ? botPoseArray[9] : 1.0;
-
-        double[] targetPoseArray = io.getDoubleArray("targetpose_cameraspace", new double[0]);
-        result.ambiguity = (targetPoseArray.length >= 7) ? targetPoseArray[6] : 1.0;
-
-        // Debug values
-        SmartDashboard.putNumber("Vision/Debug/TagID", result.tagId);
-        SmartDashboard.putNumber("Vision/Debug/RobotX", x);
-        SmartDashboard.putNumber("Vision/Debug/RobotY", y);
-        SmartDashboard.putNumber("Vision/Debug/Ambiguity", result.ambiguity);
-
-        // Validate result
-        result.valid = (result.ambiguity < GorusSabitleri.BELIRSIZLIK_ESIGI) && (result.tagId > 0);
-
-        SmartDashboard.putBoolean("Vision/Debug/Valid", result.valid);
-        SmartDashboard.putString("Vision/Debug/Status", result.valid ? "OK" : "Invalid");
-
-        return result;
     }
 
     @Override
@@ -438,28 +365,12 @@ public class GorusAltSistemi extends SubsystemBase {
             SmartDashboard.putBoolean("Vision/ConfigOk", isLimelightConfigOk());
             SmartDashboard.putString("Vision/ConfigStatus", getLimelightConfigStatus());
 
-            SmartDashboard.putBoolean("Vision/PoseValid", cachedVisionResult.valid);
-            if (cachedVisionResult.valid) {
-                SmartDashboard.putNumber("Vision/RobotX", cachedVisionResult.robotPose.getX());
-                SmartDashboard.putNumber("Vision/RobotY", cachedVisionResult.robotPose.getY());
-                SmartDashboard.putNumber("Vision/RobotYaw", cachedVisionResult.robotPose.getRotation().getDegrees());
-                SmartDashboard.putNumber("Vision/TagID", cachedVisionResult.tagId);
-                SmartDashboard.putNumber("Vision/Ambiguity", cachedVisionResult.ambiguity);
-            }
         } else {
             SmartDashboard.putBoolean("Vision/HasTarget", true);
             SmartDashboard.putNumber("Vision/HorizontalOffset", 5.0);
             SmartDashboard.putNumber("Vision/DistanceToTarget", 3.0);
-            SmartDashboard.putBoolean("Vision/PoseValid", true);
-            SmartDashboard.putNumber("Vision/RobotX", 2.0);
-            SmartDashboard.putNumber("Vision/RobotY", 3.0);
-            SmartDashboard.putNumber("Vision/RobotYaw", 0.0);
-            SmartDashboard.putNumber("Vision/TagID", 1);
             SmartDashboard.putString("Vision/Mode", "Simulation");
         }
     }
 
-    public VisionResult aprilTagdanRobotPozuAl() {
-        return cachedVisionResult;
-    }
 }

@@ -41,8 +41,11 @@ public abstract class KontrolcuProfili {
     /** Orta atış tetikleyici (~2.8m → 3700 RPM). */
     public abstract boolean ortaAtisBasili();
 
-    /** Uzak atış tetikleyici (~4.4m → 4490 RPM). */
+    /** Uzak atış tetikleyici (~2.8m). */
     public abstract boolean uzakAtisBasili();
+
+    /** Çok uzak atış tetikleyici (~4.4m). */
+    public abstract boolean cokUzakAtisBasili();
 
     /** @deprecated Kullanma - 3 atış butonu kullan */
     @Deprecated
@@ -62,11 +65,6 @@ public abstract class KontrolcuProfili {
     public abstract boolean tasiyiciBasili();
     /** Taşıyıcı ters — unjam (0.5 s). */
     public abstract boolean tasiyiciTersBasili();
-
-    // ── Taret (fallback manuel) ───────────────────────────────────────────────
-    public abstract boolean taretSolaBasili();
-    public abstract boolean taretSagaBasili();
-    public abstract boolean taretHomingBasili();
 
     // ── Sistem ───────────────────────────────────────────────────────────────
     public abstract boolean gyroSifirlaBasili();

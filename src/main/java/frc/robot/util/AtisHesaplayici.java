@@ -141,9 +141,13 @@ public final class AtisHesaplayici {
      * vy_min = √(2g·Δh)
      */
     public static double minAtisRpm() {
-        if (D_H <= 0.0) return 0.0; // hedef launcher'dan alçakta — her RPM'de ulaşır
-        double vyMin = Math.sqrt(2.0 * G * D_H);
-        return vyMin / (K_CIKIS * SIN_TETA);
+        return minAtisRpm(D_H, K_CIKIS, SIN_TETA);
+    }
+
+    static double minAtisRpm(double deltaH, double cikisKatsayisi, double sinTeta) {
+        if (deltaH <= 0.0) return 0.0; // hedef launcher'dan alçakta — her RPM'de ulaşır
+        double vyMin = Math.sqrt(2.0 * G * deltaH);
+        return vyMin / (cikisKatsayisi * sinTeta);
     }
 
     // ── Birincil metot: kalibre edilmiş tablo + fizik fallback ────────────────

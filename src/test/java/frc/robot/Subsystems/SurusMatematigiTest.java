@@ -30,7 +30,7 @@ class SurusMatematigiTest {
     @Test
     @Tag("fast")
     void wrapDeltaDegreesHandlesCrossingBoundary() {
-        assertEquals(20.0, SurusAltSistemi.wrapDeltaDegrees(170.0, -170.0), 1e-9);
-        assertEquals(-20.0, SurusAltSistemi.wrapDeltaDegrees(-170.0, 170.0), 1e-9);
+        assertEquals(20.0, SurusMatematigi.wrapDeltaDegrees(170.0, -170.0), 1e-9);
+        assertEquals(-20.0, SurusMatematigi.wrapDeltaDegrees(-170.0, 170.0), 1e-9);
     }
 }

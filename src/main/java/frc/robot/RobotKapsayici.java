@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -14,7 +12,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -51,11 +51,6 @@ public class RobotKapsayici {
   //  Otonomi 
   private SendableChooser<Command> otonomSecici;
 
-  //  SmartDashboard anahtar yardmcs 
-  private static String surucuIstasyonuAnahtari(String ad) {
-    return "SurucuIstasyonu_" + ad;
-  }
-
   public RobotKapsayici() {
     // Gr alt sistemi nce kurulur  sre poz fuzyonu iin gerekli
     gorusAltSistemi = new GorusAltSistemi();
@@ -63,15 +58,13 @@ public class RobotKapsayici {
         MotorSabitleri.ON_SOL_MOTOR_ID,
         MotorSabitleri.ON_SAG_MOTOR_ID,
         MotorSabitleri.ARKA_SOL_MOTOR_ID,
-        MotorSabitleri.ARKA_SAG_MOTOR_ID,
-        new Pose2d(),
-        gorusAltSistemi
+        MotorSabitleri.ARKA_SAG_MOTOR_ID
     );
     alimAltSistemi   = new AlimAltSistemi();
     aticiAltSistemi  = new AticiAltSistemi();
     defaultKomutlariniKur();
     baglamalariYapilandir();
-    otonomSeciciKur();
+    // otonomSeciciKur();
 
     System.out.println("===================================================");
     System.out.println("ROBOT KAPSAYICI BASLATILDI");
@@ -91,8 +84,6 @@ public class RobotKapsayici {
             surusAltSistemi
         )
     );
-
-    // Taret varsaylan komutu yok - sadece manuel kontrol (L1/R1/L2)
   }
 
   //  Buton balamalar 
@@ -107,14 +98,16 @@ public class RobotKapsayici {
     Trigger geriAtTetik       = new Trigger(() -> surucuKontrolcusu.getRawButton(2));
     Trigger tasiyiciTetik     = new Trigger(() -> surucuProfili.tasiyiciBasili());
     Trigger tasiyiciTersTetik = new Trigger(() -> surucuProfili.tasiyiciTersBasili());
-    Trigger yakinAtisTetik    = new Trigger(() -> surucuProfili.yakinAtisBasili());
-    Trigger ortaAtisTetik    = new Trigger(() -> surucuProfili.ortaAtisBasili());
-    Trigger uzakAtisTetik    = new Trigger(() -> surucuProfili.uzakAtisBasili());
-    Trigger limelightHizalaTetik = new Trigger(() -> surucuKontrolcusu.getRawButton(8));
-    Trigger gyroSifirTetik    = new Trigger(() -> surucuProfili.gyroSifirlaBasili());
-    Trigger gecikmeliAtisTetik = new Trigger(() -> surucuProfili.gecikmeliAtisBasili());
+    Trigger yakinAtisTetik   = new Trigger(() -> surucuProfili.yakinAtisBasili());
+    Trigger ortaAtisTetik   = new Trigger(() -> surucuProfili.ortaAtisBasili());
+    Trigger uzakAtisTetik   = new Trigger(() -> surucuProfili.uzakAtisBasili());
+    Trigger cokUzakAtisTetik = new Trigger(() -> surucuProfili.cokUzakAtisBasili());
+    Trigger limelightHizalaTetik  = new Trigger(() -> surucuKontrolcusu.getRawButton(8));
+    Trigger gecikmeliAtisTetik    = new Trigger(() -> surucuProfili.gecikmeliAtisBasili());
+    Trigger shooterDirektTetik    = new Trigger(() -> surucuProfili.shooterDirektBasili());
 
     //  Atc hazr Trigger 
+    Trigger sikisikGiderTetik = new Trigger(() -> surucuKontrolcusu.getRawButton(5));
     Trigger aticiHazirTetik = new Trigger(aticiAltSistemi::isHizaUlasti);
 
     //  Alm 
@@ -142,49 +135,80 @@ public class RobotKapsayici {
                 () -> alimAltSistemi.depodanAticiyaYukariTasimaDurdur(), alimAltSistemi))
     );
 
-    //  Atc kontrolleri - 3 mesafe iin D-Pad butonlar 
-    // Yakn, Orta, Uzak at - shooter belirtilen RPM'e ulanca titreim
-    // Tayc manuel olarak Triangle ile alr
-
+    //  D-Pad: Manuel atış (4 hız) — hizalama yok, atıcı ısın → RPM'e ulaş → konveyör
     yakinAtisTetik
-        .whileTrue(new RunCommand(() -> aticiAltSistemi.atYakin(), aticiAltSistemi))
-        .onFalse(new InstantCommand(() -> aticiAltSistemi.durdur(), aticiAltSistemi));
+        .whileTrue(manuelAtisKomutu(() -> aticiAltSistemi.atYakin()))
+        .onFalse(atisTemizleKomutu());
 
     ortaAtisTetik
-        .whileTrue(new RunCommand(() -> aticiAltSistemi.atOrta(), aticiAltSistemi))
-        .onFalse(new InstantCommand(() -> aticiAltSistemi.durdur(), aticiAltSistemi));
+        .whileTrue(manuelAtisKomutu(() -> aticiAltSistemi.atOrta()))
+        .onFalse(atisTemizleKomutu());
 
     uzakAtisTetik
-        .whileTrue(new RunCommand(() -> aticiAltSistemi.atUzak(), aticiAltSistemi))
-        .onFalse(new InstantCommand(() -> aticiAltSistemi.durdur(), aticiAltSistemi));
+        .whileTrue(manuelAtisKomutu(() -> aticiAltSistemi.atUzak()))
+        .onFalse(atisTemizleKomutu());
 
-    //  Titreim: atc hedefe ulanca bildir 
+    cokUzakAtisTetik
+        .whileTrue(manuelAtisKomutu(() -> aticiAltSistemi.atCokUzak()))
+        .onFalse(atisTemizleKomutu());
+
+    //  L1: Sıkışık top giderici — 0.25 s sağ + 0.25 s sol strafe
+    sikisikGiderTetik.onTrue(
+        new SequentialCommandGroup(
+            new RunCommand(() -> surusAltSistemi.drive(0, 0.5, 0), surusAltSistemi).withTimeout(0.25),
+            new RunCommand(() -> surusAltSistemi.drive(0, -0.5, 0), surusAltSistemi).withTimeout(0.25),
+            new InstantCommand(() -> surusAltSistemi.drive(0, 0, 0), surusAltSistemi)
+        )
+    );
+
+    //  Titreim: atc hedefe ulanca bildir
     aticiHazirTetik
         .onTrue(new InstantCommand(() -> surucuProfili.titrestir(0.6)))
         .onFalse(new InstantCommand(() -> surucuProfili.titrestir(0.0)));
 
-    //  Limelight hizalama → conveyor başlat → 0.3s bekle → orta atış
+    //  R2: Hizala → RPM'e ulaş → Konveyör
     limelightHizalaTetik
         .whileTrue(
-            new LimelightMerkezlemeKomutu(surusAltSistemi, gorusAltSistemi)
-                .andThen(new RunCommand(
-                        () -> alimAltSistemi.depodanAticiyaYukariTasimaBaslat(), alimAltSistemi)
-                    .withTimeout(0.3))
-                .andThen(new ParallelCommandGroup(
-                    new RunCommand(() -> alimAltSistemi.depodanAticiyaYukariTasimaBaslat(), alimAltSistemi),
-                    new RunCommand(() -> aticiAltSistemi.atOrta(), aticiAltSistemi)
-                ))
+            new SequentialCommandGroup(
+                // 1. Hizala + ısın (max 3 s; hizalanınca veya timeout'ta race biter)
+                new ParallelRaceGroup(
+                    new LimelightMerkezlemeKomutu(surusAltSistemi, gorusAltSistemi).withTimeout(3.0),
+                    new RunCommand(
+                        () -> aticiAltSistemi.atMesafeyeGore(gorusAltSistemi.getMesafeHedef()),
+                        aticiAltSistemi)
+                ),
+                // 2. RPM'e ulaşana kadar bekle — shooter çalışmaya devam eder (max 2 s)
+                new ParallelRaceGroup(
+                    new WaitUntilCommand(aticiAltSistemi::isHizaUlasti).withTimeout(2.0),
+                    new RunCommand(
+                        () -> aticiAltSistemi.atMesafeyeGore(gorusAltSistemi.getMesafeHedef()),
+                        aticiAltSistemi)
+                ),
+                // 3. Atıcı + konveyör döngüsü (2 sn çalış, 0.5 sn dur) — düğme bırakılana kadar
+                new ParallelCommandGroup(
+                    new RunCommand(
+                        () -> aticiAltSistemi.atMesafeyeGore(gorusAltSistemi.getMesafeHedef()),
+                        aticiAltSistemi),
+                    new RepeatCommand(
+                        new SequentialCommandGroup(
+                            new RunCommand(
+                                () -> alimAltSistemi.depodanAticiyaYukariTasimaBaslat(),
+                                alimAltSistemi).withTimeout(1.0),
+                            new InstantCommand(
+                                () -> alimAltSistemi.depodanAticiyaYukariTasimaDurdur(),
+                                alimAltSistemi)
+                                .andThen(new WaitCommand(0.5))
+                        )
+                    )
+                )
+            )
         )
         .onFalse(new InstantCommand(() -> {
             aticiAltSistemi.durdur();
             alimAltSistemi.depodanAticiyaYukariTasimaDurdur();
         }, aticiAltSistemi, alimAltSistemi));
 
-    //  Gyro sfrla 
-    gyroSifirTetik.onTrue(new InstantCommand(
-        () -> surusAltSistemi.yonuSifirla(), surusAltSistemi));
-
-    //  Gecikmeli at (Button 10 - Options) 
+    //  Gecikmeli at (Button 10 - Options)
     // nce shooter' 5000 RPM'e altr, sonra conveyor'u balat
     gecikmeliAtisTetik
         .whileTrue(
@@ -201,7 +225,30 @@ public class RobotKapsayici {
             alimAltSistemi.depodanAticiyaYukariTasimaDurdur();
         }, aticiAltSistemi, alimAltSistemi));
 
-    // Taret iptal edildi - robot govdesi limelight ile dogrudan hizalanir
+    //  Touchpad: Manuel shooter (konveyör yok)
+    shooterDirektTetik
+        .whileTrue(new RunCommand(
+            () -> aticiAltSistemi.atRPM(ModulSabitleri.ATICI_HEDEF_RPM), aticiAltSistemi))
+        .onFalse(new InstantCommand(() -> aticiAltSistemi.durdur(), aticiAltSistemi));
+  }
+
+  /** Atıcı ısın → RPM'e ulaş (max 3s) → konveyör + atıcı birlikte. */
+  private Command manuelAtisKomutu(Runnable atisMetodu) {
+    return new ParallelCommandGroup(
+        new RunCommand(atisMetodu::run, aticiAltSistemi),
+        new SequentialCommandGroup(
+            new WaitUntilCommand(aticiAltSistemi::isHizaUlasti).withTimeout(3.0),
+            new RunCommand(
+                () -> alimAltSistemi.depodanAticiyaYukariTasimaBaslat(), alimAltSistemi)
+        )
+    );
+  }
+
+  private Command atisTemizleKomutu() {
+    return new InstantCommand(() -> {
+        aticiAltSistemi.durdur();
+        alimAltSistemi.depodanAticiyaYukariTasimaDurdur();
+    }, aticiAltSistemi, alimAltSistemi);
   }
 
   private void otonomSeciciKur() {
@@ -211,49 +258,46 @@ public class RobotKapsayici {
   }
 
   /**
-   * Otonom: 1 m geri git → AprilTag'a kendi ekseni etrafında hizalan → orta atış yap.
-   * Sıra: geri(1m) → LimelightMerkezleme → conveyor(0.3s) → conveyor+atıcı(10s)
+   * Otonom:
+   *   1. Hedef AprilTag görünene kadar geri git (max 2 m / ~1.9 s)
+   *   2. Crosshair'a göre hedefe hizalan (max 4 s)
+   *   3. Mesafeye göre RPM'e ulaş → konveyör başlat → at (max 10 s)
    */
   private Command geriGitHizalaAtisKomutu() {
-    Command geriKomutu = mesafeIlerleKomutu(1.0, -0.35);
+    // 1. Tag görünene kadar geri — isHedefTagGorunuyor() biter ya da 2m timeout
+    double maxSureS = 2.0 / (0.35 * SurusSabitleri.MAKS_HIZ_METRE_SANIYE);
+    Command geriKomutu = new FunctionalCommand(
+        () -> {},
+        () -> surusAltSistemi.drive(-0.35, 0.0, 0.0),
+        interrupted -> surusAltSistemi.drive(0.0, 0.0, 0.0),
+        gorusAltSistemi::isHedefTagGorunuyor,
+        surusAltSistemi
+    ).withTimeout(maxSureS);
 
+    // 2. Crosshair'a göre dön
     Command hizalaKomutu = new LimelightMerkezlemeKomutu(surusAltSistemi, gorusAltSistemi)
         .withTimeout(4.0);
 
+    // 3. Mesafeye göre atış: ısın → RPM'e ulaş (max 2s) → konveyör
     Command atisKomutu = new ParallelCommandGroup(
-        new RunCommand(() -> aticiAltSistemi.atOrta(), aticiAltSistemi)
-            .withTimeout(10.0),
-        new WaitCommand(0.3)
+        new RunCommand(
+            () -> aticiAltSistemi.atMesafeyeGore(gorusAltSistemi.getMesafeHedef()),
+            aticiAltSistemi),
+        new WaitUntilCommand(aticiAltSistemi::isHizaUlasti)
+            .withTimeout(2.0)
             .andThen(new RunCommand(
-                () -> alimAltSistemi.depodanAticiyaYukariTasimaBaslat(), alimAltSistemi)
-                .withTimeout(9.7))
-    ).finallyDo(() -> {
+                () -> alimAltSistemi.depodanAticiyaYukariTasimaBaslat(), alimAltSistemi))
+    ).withTimeout(10.0)
+     .finallyDo(() -> {
         aticiAltSistemi.durdur();
         alimAltSistemi.depodanAticiyaYukariTasimaDurdur();
-    });
+     });
 
     return new SequentialCommandGroup(
-        new InstantCommand(() ->
-            SmartDashboard.putString("Auto/OzelBaslangic", "GERI_HIZALA_AT"), surusAltSistemi),
         geriKomutu,
         hizalaKomutu,
         atisKomutu
     );
-  }
-
-  private Command mesafeIlerleKomutu(double hedefMesafeMetre, double hiz) {
-    final Translation2d[] baslangicPozu = new Translation2d[1];
-
-    return new FunctionalCommand(
-        () -> baslangicPozu[0] = surusAltSistemi.getPose().getTranslation(),
-        () -> surusAltSistemi.drive(hiz, 0.0, 0.0),
-        interrupted -> surusAltSistemi.drive(0.0, 0.0, 0.0),
-        () -> {
-          double gidilen = surusAltSistemi.getPose().getTranslation().getDistance(baslangicPozu[0]);
-          return gidilen >= hedefMesafeMetre;
-        },
-        surusAltSistemi
-    ).withTimeout(3.0);
   }
 
   //  Periyodik 
@@ -261,20 +305,6 @@ public class RobotKapsayici {
   public void periyodik() {
     girdiBaglantiDurumunuGuncelle();
     elasticDurumKontrol();
-
-    SmartDashboard.putString(surucuIstasyonuAnahtari("AktifProfil"), "PS4TamProfili");
-
-    // Ham buton durumlar (debug)
-    for (int i = 1; i <= 12; i++) {
-      SmartDashboard.putBoolean(surucuIstasyonuAnahtari("Dugme" + i), guvenliDugmeOku(i));
-    }
-
-    // Eksen deerleri (debug)
-    for (int i = 0; i <= 5; i++) {
-      SmartDashboard.putNumber(surucuIstasyonuAnahtari("Eksen" + i), guvenliEksenOku(i));
-    }
-
-    SmartDashboard.putNumber(surucuIstasyonuAnahtari("POV"), guvenliPovOku());
   }
 
   //  Balant / Elastic bildirimleri 
@@ -293,7 +323,7 @@ public class RobotKapsayici {
             "Port " + OISabitleri.SURUCU_JOYSTICK_PORTU + " balants kesildi."));
       }
     }
-    SmartDashboard.putBoolean(surucuIstasyonuAnahtari("KontrolcuBagli"), surucuBagli);
+    SmartDashboard.putBoolean("SurucuIstasyonu_KontrolcuBagli", surucuBagli);
 
   }
 
@@ -328,38 +358,14 @@ public class RobotKapsayici {
     }
   }
 
-  //  Gvenli HID okuma yardmclar 
-
-  private double guvenliEksenOku(int eksen) {
-    int port = OISabitleri.SURUCU_JOYSTICK_PORTU;
-    if (!DriverStation.isJoystickConnected(port)) return 0.0;
-    if (eksen < 0 || eksen >= DriverStation.getStickAxisCount(port)) return 0.0;
-    return surucuKontrolcusu.getRawAxis(eksen);
-  }
-
-  private boolean guvenliDugmeOku(int dugme) {
-    int port = OISabitleri.SURUCU_JOYSTICK_PORTU;
-    if (!DriverStation.isJoystickConnected(port)) return false;
-    if (dugme <= 0 || dugme > 32) return false;
-    return (DriverStation.getStickButtons(port) & (1 << (dugme - 1))) != 0;
-  }
-
-  private int guvenliPovOku() {
-    int port = OISabitleri.SURUCU_JOYSTICK_PORTU;
-    if (!DriverStation.isJoystickConnected(port)) return -1;
-    if (DriverStation.getStickPOVCount(port) <= 0) return -1;
-    return surucuKontrolcusu.getPOV();
-  }
-
-  //  Da ak metodlar 
+  //  Da ak metodlar
 
   public void sensorleriSifirla() {
-    surusAltSistemi.yonuSifirla();
-    surusAltSistemi.encoderlariSifirla();
+    // Gyro ve odometri kaldırıldı — sıfırlanacak sensör yok
   }
 
   public Command otonomKomutAl() {
-    return otonomSecici.getSelected();
+    return null; // otonomSecici.getSelected();
   }
 
   public GorusAltSistemi gorusAltSistemiAl() {
